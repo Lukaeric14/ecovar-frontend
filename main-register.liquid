@@ -17,9 +17,18 @@
     border: 1px solid #ccc !important;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
     border-radius: 8px !important;
-    padding: 60px 80px !important;
-    margin: 60px auto !important;
+    padding: 40px 30px !important;
+    margin: 30px auto !important;
     max-width: 520px !important;
+    width: calc(100% - 40px) !important;
+  }
+  
+  @media screen and (min-width: 750px) {
+    .customer.register {
+      padding: 60px 80px !important;
+      margin: 60px auto !important;
+      width: auto !important;
+    }
   }
 
   .customer.register .field,
@@ -40,6 +49,8 @@
     border-radius: 12px !important;
     border: none !important;
     outline: none !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
 
   .customer.register button,
@@ -100,7 +111,31 @@
   <h1>
     {{ 'customer.register.title' | t }}
   </h1>
-  {%- form 'create_customer', novalidate: 'novalidate' -%}
+  {%- form 'create_customer', novalidate: 'novalidate', id: 'create_customer' -%}
+    {%- comment -%} Hidden fields for first and last name to maintain compatibility {%- endcomment -%}
+    <input type="hidden" name="customer[first_name]" id="first_name" value="">
+    <input type="hidden" name="customer[last_name]" id="last_name" value="">
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('create_customer');
+      const fullNameField = document.getElementById('RegisterForm-FullName');
+      
+      if (form && fullNameField) {
+        form.addEventListener('submit', function() {
+          // Split full name into first and last name for compatibility
+          const fullName = fullNameField.value.trim();
+          const nameParts = fullName.split(' ');
+          const firstName = nameParts[0] || '';
+          const lastName = nameParts.slice(1).join(' ') || '';
+          
+          // Set the hidden fields
+          document.getElementById('first_name').value = firstName;
+          document.getElementById('last_name').value = lastName;
+        });
+      }
+    });
+    </script>
     {%- if form.errors -%}
       <h2 class="form__message" tabindex="-1" autofocus>
         <svg aria-hidden="true" focusable="false">
@@ -126,31 +161,47 @@
     <div class="field">
       <input
         type="text"
-        name="customer[first_name]"
-        id="RegisterForm-FirstName"
-        {% if form.first_name %}
-          value="{{ form.first_name }}"
+        name="customer[name]"
+        id="RegisterForm-FullName"
+        {% if form.name %}
+          value="{{ form.name }}"
         {% endif %}
-        autocomplete="given-name"
-        placeholder="{{ 'customer.register.first_name' | t }}"
+        autocomplete="name"
+        placeholder="{{ 'customer.register.full_name' | default: 'Full Name' | t }}"
+        required
       >
-      <label for="RegisterForm-FirstName">
-        {{ 'customer.register.first_name' | t }}
+      <label for="RegisterForm-FullName">
+        {{ 'customer.register.full_name' | default: 'Full Name' | t }}
       </label>
     </div>
     <div class="field">
       <input
         type="text"
-        name="customer[last_name]"
-        id="RegisterForm-LastName"
-        {% if form.last_name %}
-          value="{{ form.last_name }}"
+        name="customer[company]"
+        id="RegisterForm-Company"
+        {% if form.company %}
+          value="{{ form.company }}"
         {% endif %}
-        autocomplete="family-name"
-        placeholder="{{ 'customer.register.last_name' | t }}"
+        autocomplete="organization"
+        placeholder="{{ 'customer.register.company' | default: 'Company' | t }}"
       >
-      <label for="RegisterForm-LastName">
-        {{ 'customer.register.last_name' | t }}
+      <label for="RegisterForm-Company">
+        {{ 'customer.register.company' | default: 'Company' | t }}
+      </label>
+    </div>
+    <div class="field">
+      <input
+        type="tel"
+        name="customer[phone]"
+        id="RegisterForm-Phone"
+        {% if form.phone %}
+          value="{{ form.phone }}"
+        {% endif %}
+        autocomplete="tel"
+        placeholder="{{ 'customer.register.phone' | default: 'Phone Number' | t }}"
+      >
+      <label for="RegisterForm-Phone">
+        {{ 'customer.register.phone' | default: 'Phone Number' | t }}
       </label>
     </div>
     <div class="field">

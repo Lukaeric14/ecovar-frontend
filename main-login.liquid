@@ -17,9 +17,18 @@
     border: 1px solid #ccc !important;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
     border-radius: 8px !important;
-    padding: 60px 80px !important;
-    margin: 120px auto !important;
+    padding: 40px 30px !important;
+    margin: 30px auto !important;
     max-width: 520px !important;
+    width: calc(100% - 40px) !important;
+  }
+  
+  @media screen and (min-width: 750px) {
+    .customer.login {
+      padding: 60px 80px !important;
+      margin: 60px auto !important;
+      width: auto !important;
+    }
   }
 
   .customer.login .field,
@@ -27,6 +36,7 @@
   .customer.login .field:hover {
     border-radius: 12px !important;
     border: 1px solid #ccc !important;
+    margin-bottom: 1.5rem !important;
   }
 
   .customer.login input,
@@ -39,6 +49,8 @@
     border-radius: 12px !important;
     border: none !important;
     outline: none !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
 
   .customer.login button,
@@ -62,7 +74,8 @@
   }
 
   .create-account-wrapper {
-    margin-top: 16px;
+    margin-top: 24px;
+    text-align: center;
   }
   .create-account-wrapper span {
     font-size: 14px;
