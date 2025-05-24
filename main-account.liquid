@@ -1,0 +1,1172 @@
+<!-- /templates/customers/account.liquid -->
+<div class="customer-account-page container">
+  <div class="row">
+    <!-- Desktop Sidebar Navigation -->
+    <div class="col-md-3 account-sidebar">
+      <h4>Your Account</h4>
+      <ul class="list-unstyled account-links">
+        <li><a href="#" class="account-tab active" data-tab="profile">
+          <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          <span>Profile</span>
+        </a></li>
+        <li><a href="#" class="account-tab" data-tab="orders">
+          <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <path d="M16 10a4 4 0 0 1-8 0"></path>
+          </svg>
+          <span>Orders</span>
+        </a></li>
+        <li><a href="#" class="account-tab" data-tab="loyalty">
+          <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+          <span>Loyalty</span>
+        </a></li>
+        <li><a href="#" class="account-tab" data-tab="recommendations">
+          <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2z"></path>
+          </svg>
+          <span>For You</span>
+        </a></li>
+        <li class="d-none d-md-block"><a href="{{ routes.account_logout_url }}" class="account-logout">
+          <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          <span>Log Out</span>
+        </a></li>
+      </ul>
+    </div>
+    
+    <!-- Mobile Bottom Navigation -->
+    <div class="mobile-bottom-nav d-md-none">
+      <a href="#" class="mobile-nav-item active" data-tab="profile">
+        <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+        <span>Profile</span>
+      </a>
+      <a href="#" class="mobile-nav-item" data-tab="orders">
+        <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <path d="M16 10a4 4 0 0 1-8 0"></path>
+        </svg>
+        <span>Orders</span>
+      </a>
+      <a href="#" class="mobile-nav-item" data-tab="loyalty">
+        <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+        <span>Loyalty</span>
+      </a>
+      <a href="#" class="mobile-nav-item" data-tab="recommendations">
+        <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2z"></path>
+        </svg>
+        <span>For You</span>
+      </a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="col-md-9 account-content">
+      <!-- Profile Tab Content -->
+      <div id="profile" class="tab-content active">
+        <h2 class="section-title">Profile Information</h2>
+        <form method="post" action="/account" accept-charset="UTF-8" class="customer-form">
+          <input type="hidden" name="_method" value="put">
+          <input type="hidden" name="form_type" value="customer">
+          <input type="hidden" name="utf8" value="✓">
+
+          <div class="form-group">
+            <label for="CompanyName">Company Name</label>
+            <input type="text" class="form-control" name="customer[note]" value="{{ customer.note }}" placeholder="Company Name">
+          </div>
+
+          <div class="form-group">
+            <label for="Phone">Phone Number</label>
+            <input type="text" class="form-control" name="customer[phone]" value="{{ customer.phone }}" placeholder="Phone Number">
+          </div>
+
+          <div class="form-group">
+            <label for="Email">Email Address</label>
+            <input type="email" class="form-control" name="customer[email]" value="{{ customer.email }}" placeholder="Email Address">
+          </div>
+
+          <button type="submit" class="custom-button btn btn-primary">Update Information</button>
+        </form>
+      </div>
+
+      <!-- Orders Tab Content -->
+      <div id="orders" class="tab-content">
+        <h2 class="section-title">Order History</h2>
+        
+        {% if customer.orders.size > 0 %}
+          <!-- Order History Container -->
+          <div class="order-history-container">
+            <!-- Desktop Table -->
+            <div class="order-table-wrapper">
+              <table class="order-table">
+                <thead>
+                  <tr>
+                    <th>Order</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Total</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for order in customer.orders %}
+                    <tr>
+                      <td>
+                        <a href="{{ order.customer_url }}" class="order-number">{{ order.name }}</a>
+                      </td>
+                      <td>{{ order.created_at | date: "%b %d, %Y" }}</td>
+                      <td>
+                        <span class="order-status">{{ order.fulfillment_status_label | default: 'Processing' }}</span>
+                      </td>
+                      <td>{{ order.total_price | money }}</td>
+                      <td class="text-right">
+                        <a href="{{ order.customer_url }}" class="btn btn-sm btn-outline">View</a>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Mobile List -->
+            <div class="order-list">
+              {% for order in customer.orders %}
+                <div class="order-item">
+                  <div class="order-header">
+                    <span class="order-number">{{ order.name }}</span>
+                    <span class="order-date">{{ order.created_at | date: "%b %d, %Y" }}</span>
+                  </div>
+                  <div class="order-details">
+                    <span class="order-status">{{ order.fulfillment_status_label | default: 'Processing' }}</span>
+                    <span class="order-total">{{ order.total_price | money }}</span>
+                  </div>
+                  <a href="{{ order.customer_url }}" class="order-link">View Order</a>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+          
+          <style>
+            /* Hide mobile list by default */
+            .order-list { display: none; }
+            
+            /* Show table by default */
+            .order-table-wrapper { display: block; }
+            
+            /* Mobile styles */
+            @media (max-width: 767.98px) {
+              .order-table-wrapper { display: none; }
+              .order-list { display: block; }
+            }
+            
+            /* Desktop styles */
+            @media (min-width: 768px) {
+              .order-table-wrapper { display: block; }
+              .order-list { display: none; }
+            }
+          </style>
+          
+          {% if paginate.pages > 1 %}
+            <div class="pagination">
+              {{ paginate | default_pagination }}
+            </div>
+          {% endif %}
+          
+        {% else %}
+          <div class="empty-state">
+            <div class="empty-state-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#b0b88f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <path d="M16 10a4 4 0 0 1-8 0"></path>
+              </svg>
+            </div>
+            <h3>No Orders Yet</h3>
+            <p>You haven't placed any orders yet.</p>
+            <a href="/collections/all" class="btn btn-primary">Start Shopping</a>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Loyalty Tab Content -->
+      <div id="loyalty" class="tab-content">
+        <div class="loyalty-program">
+          <h2 class="section-title">Loyalty Program</h2>
+          
+          <!-- Points Summary -->
+          <div class="points-summary">
+            <div class="points-card">
+              <div class="points-card-header">
+                <h3>Available Points</h3>
+                <span class="points-amount">1,000</span>
+              </div>
+              <div class="points-card-body">
+                <div class="points-detail">
+                  <span>Pending Points</span>
+                  <span>500</span>
+                </div>
+                <div class="points-detail">
+                  <span>Lifetime Points</span>
+                  <span>5,250</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Tier Status -->
+          <div class="tier-status">
+            <h3>Your Tier Status</h3>
+            <div class="tier-progress">
+              <div class="tier-label">
+                <span>Silver</span>
+                <span>Gold</span>
+              </div>
+              <div class="progress">
+                <div class="progress-bar" style="width: 30%;"></div>
+              </div>
+              <div class="tier-requirements">
+                <span>0 pts</span>
+                <span>5,000 pts</span>
+                <span>10,000 pts</span>
+              </div>
+            </div>
+            <p class="tier-note">You're 4,000 points away from Gold status</p>
+          </div>
+          
+          <!-- Points History -->
+          <div class="points-history">
+            <div class="section-header">
+              <h3>Points History</h3>
+              <div class="view-options">
+                <button class="active">All</button>
+                <button>Earned</button>
+                <button>Spent</button>
+              </div>
+            </div>
+            
+            <div class="points-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th>Points</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>May 24, 2025</td>
+                    <td>Purchase #1001</td>
+                    <td class="points-earned">+250</td>
+                    <td><span class="status-badge">Completed</span></td>
+                  </tr>
+                  <tr>
+                    <td>May 20, 2025</td>
+                    <td>Birthday Bonus</td>
+                    <td class="points-earned">+500</td>
+                    <td><span class="status-badge">Completed</span></td>
+                  </tr>
+                  <tr>
+                    <td>May 15, 2025</td>
+                    <td>Purchase #987</td>
+                    <td class="points-pending">+250</td>
+                    <td><span class="status-badge pending">Pending</span></td>
+                  </tr>
+                  <tr>
+                    <td>May 10, 2025</td>
+                    <td>Product Review</td>
+                    <td class="points-earned">+50</td>
+                    <td><span class="status-badge">Completed</span></td>
+                  </tr>
+                  <tr>
+                    <td>May 5, 2025</td>
+                    <td>Purchase #965</td>
+                    <td class="points-earned">+250</td>
+                    <td><span class="status-badge">Completed</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            
+            <div class="pagination">
+              <button class="active">1</button>
+              <button>2</button>
+              <button>3</button>
+              <span>...</span>
+              <button>Next</button>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+
+      <!-- Recommendations Tab Content -->
+      <div id="recommendations" class="tab-content">
+        <h2 class="section-title">{{ 'customer.account.recommendations' | t | default: 'Recommended For You' }}</h2>
+        <div class="recommendations-content">
+          <p>{{ 'customer.account.recommendations_description' | t | default: 'Personalized recommendations based on your preferences.' }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Tab switching functionality
+  const tabs = document.querySelectorAll('.account-tab[data-tab]');
+  
+  tabs.forEach(tab => {
+    tab.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      // Remove active class from all tabs and content
+      document.querySelectorAll('.account-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      
+      // Add active class to clicked tab
+      this.classList.add('active');
+      
+      // Show corresponding content
+      const tabId = this.getAttribute('data-tab');
+      const content = document.getElementById(`${tabId}-tab`);
+      if (content) {
+        content.classList.add('active');
+      }
+    });
+  });
+
+  // Handle initial tab from URL hash
+  const hash = window.location.hash.substring(1);
+  if (hash) {
+    const tab = document.querySelector(`.account-tab[data-tab="${hash}"]`);
+    if (tab) tab.click();
+  }
+});
+</script>
+
+<!-- JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Tab switching functionality
+  const tabs = document.querySelectorAll('.account-tab');
+  
+  tabs.forEach(tab => {
+    tab.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      // Remove active class from all tabs and content
+      document.querySelectorAll('.account-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      
+      // Add active class to clicked tab
+      this.classList.add('active');
+      
+      // Show corresponding content
+      const tabId = this.getAttribute('data-tab');
+      const content = document.getElementById(tabId);
+      if (content) {
+        content.classList.add('active');
+      }
+    });
+  });
+
+  // Activate first tab by default if none is active
+  if (!document.querySelector('.account-tab.active') && tabs.length > 0) {
+    tabs[0].click();
+  }
+  
+  // Mobile navigation click handler
+  const mobileNavItems = document.querySelectorAll('.mobile-nav-item');
+  mobileNavItems.forEach(item => {
+    item.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      // Remove active class from all mobile items
+      document.querySelectorAll('.mobile-nav-item').forEach(i => i.classList.remove('active'));
+      
+      // Add active class to clicked item
+      this.classList.add('active');
+      
+      // Get the tab ID and trigger click on corresponding desktop tab
+      const tabId = this.getAttribute('data-tab');
+      const desktopTab = document.querySelector(`.account-tab[data-tab="${tabId}"]`);
+      if (desktopTab) {
+        desktopTab.click();
+      }
+    });
+  });
+  
+  // Sync active state between mobile and desktop navs
+  tabs.forEach(tab => {
+    tab.addEventListener('click', function() {
+      const tabId = this.getAttribute('data-tab');
+      const mobileItem = document.querySelector(`.mobile-nav-item[data-tab="${tabId}"]`);
+      if (mobileItem) {
+        document.querySelectorAll('.mobile-nav-item').forEach(i => i.classList.remove('active'));
+        mobileItem.classList.add('active');
+      }
+    });
+  });
+});
+</script>
+
+<!-- Styles -->
+<style>
+/* Mobile Bottom Navigation */
+.mobile-bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+  z-index: 1000;
+  padding: 8px 0;
+  justify-content: space-around;
+  align-items: center;
+  height: 60px;
+}
+
+.mobile-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  text-decoration: none;
+  font-size: 10px;
+  flex: 1;
+  transition: all 0.2s ease;
+  padding: 4px 0;
+}
+
+.mobile-nav-item.active {
+  color: #b0b88f;
+}
+
+.mobile-nav-item .nav-icon {
+  width: 20px;
+  height: 20px;
+  margin-bottom: 4px;
+  stroke-width: 2;
+}
+
+.mobile-nav-item.active .nav-icon {
+  stroke: #b0b88f;
+}
+
+/* Desktop Navigation Icons */
+.nav-icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  vertical-align: middle;
+  stroke-width: 1.5;
+  display: inline-block;
+}
+
+/* Adjust content padding for mobile */
+.account-content {
+  padding-bottom: 70px; /* Space for mobile nav */
+}
+
+.order-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  margin-bottom: 2rem;
+}
+
+.order-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.order-table th,
+.order-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.order-table th {
+  font-weight: 500;
+  color: #666;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.order-number {
+  font-weight: 500;
+  color: #333;
+  text-decoration: none;
+}
+
+.order-number:hover {
+  color: #b0b88f;
+  text-decoration: underline;
+}
+
+.order-status {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  background: #f5f5f5;
+  color: #666;
+}
+
+/* Mobile Order List */
+.order-list {
+  margin: 0 -1rem;
+}
+
+.order-item {
+  padding: 1rem;
+  border-bottom: 1px solid #f0f0f0;
+  position: relative;
+  background: #fff;
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.order-number {
+  font-weight: 500;
+  color: #333;
+}
+
+.order-date {
+  color: #999;
+  font-size: 0.9rem;
+}
+
+.order-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0.5rem 0;
+}
+
+.order-total {
+  font-weight: 600;
+  color: #333;
+}
+
+.order-link {
+  display: block;
+  text-align: center;
+  padding: 0.5rem;
+  margin-top: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  color: #333;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.order-link:hover {
+  background: #f9f9f9;
+  border-color: #ccc;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  background: #fafafa;
+  border-radius: 8px;
+  margin: 2rem 0;
+}
+
+.empty-state-icon {
+  margin-bottom: 1rem;
+}
+
+.empty-state h3 {
+  margin: 0.5rem 0;
+  color: #333;
+}
+
+.empty-state p {
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+/* Pagination */
+.pagination {
+  margin: 2rem 0;
+  text-align: center;
+}
+
+.pagination a,
+.pagination .current {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  margin: 0 0.25rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  text-decoration: none;
+  color: #333;
+  transition: all 0.2s ease;
+}
+
+.pagination a:hover {
+  background: #f5f5f5;
+  border-color: #ccc;
+}
+
+.pagination .current {
+  background: #b0b88f;
+  color: #fff;
+  border-color: #b0b88f;
+}
+
+.customer-account-page {
+  padding: 40px 0;
+  font-family: 'Jost', sans-serif;
+  min-height: 60vh;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px 24px;
+  box-sizing: border-box;
+}
+
+/* Main layout */
+.customer-account-page .row {
+  display: flex;
+  flex-wrap: nowrap;
+  margin: 0 -15px;
+}
+
+/* Sidebar styles */
+.account-sidebar {
+  flex: 0 0 25%;
+  max-width: 25%;
+  padding: 0 15px;
+  border-right: 1px solid #ddd;
+  position: relative;
+  height: 100%;
+}
+
+/* Main content area */
+.account-content {
+  flex: 0 0 75%;
+  max-width: 75%;
+  padding: 0 15px 0 30px;
+}
+
+/* Sidebar content */
+.account-sidebar h4 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.account-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.account-links li {
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+.account-links a {
+  color: #333;
+  text-decoration: none;
+  display: block;
+  padding: 10px 15px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.account-links a:hover {
+  background-color: #f5f5f5;
+}
+
+.account-links a.active {
+  font-weight: 600;
+  color: #b0b88f;
+  background-color: #f9f9f9;
+  border-left: 3px solid #b0b88f;
+  padding-left: 12px;
+}
+
+.account-links .account-logout {
+  color: #dc3545;
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.account-links .account-logout:hover {
+  background-color: #f8d7da;
+}
+
+/* Content area */
+.section-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.tab-content {
+  display: none;
+  animation: fadeIn 0.3s ease;
+  min-height: 400px;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* Table styles */
+.orders-table th, 
+.orders-table td {
+  text-align: left;
+  padding: 12px;
+  vertical-align: middle;
+  border-bottom: 1px solid #eee;
+}
+
+.orders-table th {
+  background-color: #f9f9f9;
+  font-weight: 500;
+  text-transform: uppercase;
+  font-size: 0.85em;
+  letter-spacing: 0.5px;
+}
+
+/* Button styles */
+.btn-outline-primary {
+  border-color: #b0b88f;
+  color: #b0b88f;
+  background: transparent;
+  transition: all 0.2s ease;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.btn-outline-primary:hover {
+  background: #b0b88f;
+  color: white;
+  border-color: #b0b88f;
+}
+
+/* Loyalty Program Styles */
+.loyalty-program {
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+/* Points Summary */
+.points-summary {
+  margin-bottom: 30px;
+}
+
+.points-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  overflow: hidden;
+  border: 1px solid #e9ecef;
+}
+
+.points-card-header {
+  padding: 20px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.points-card-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.points-amount {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #b0b88f;
+}
+
+.points-card-body {
+  padding: 20px;
+}
+
+.points-detail {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+}
+
+.points-detail:last-child {
+  margin-bottom: 0;
+  padding-top: 10px;
+  border-top: 1px solid #eee;
+  margin-top: 10px;
+}
+
+/* Tier Status */
+.tier-status {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  border: 1px solid #e9ecef;
+}
+
+.tier-status h3 {
+  margin: 0 0 20px 0;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.tier-progress {
+  margin-bottom: 15px;
+}
+
+.tier-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.progress {
+  height: 8px;
+  background: #e9ecef;
+  border-radius: 4px;
+  margin-bottom: 5px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background: #b0b88f;
+  border-radius: 4px;
+  transition: width 0.6s ease;
+}
+
+.tier-requirements {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: #999;
+}
+
+.tier-note {
+  margin: 15px 0 0;
+  font-size: 0.9rem;
+  color: #666;
+  text-align: center;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+
+/* Points History */
+.points-history {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  border: 1px solid #e9ecef;
+}
+
+.section-header {
+  padding: 20px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.section-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.view-options {
+  display: flex;
+  gap: 10px;
+  background: #f8f9fa;
+  padding: 4px;
+  border-radius: 6px;
+}
+
+.view-options button {
+  padding: 6px 12px;
+  border: none;
+  background: none;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  color: #666;
+}
+
+.view-options button.active {
+  background: white;
+  color: #b0b88f;
+  font-weight: 500;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.points-table {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.points-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.points-table th,
+.points-table td {
+  padding: 15px 20px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+  font-size: 0.9rem;
+}
+
+.points-table th {
+  font-weight: 500;
+  color: #666;
+  background: #f8f9fa;
+}
+
+.points-earned {
+  color: #28a745;
+  font-weight: 500;
+}
+
+.points-pending {
+  color: #ffc107;
+  font-weight: 500;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-badge.pending {
+  background: #fff8e1;
+  color: #ff8f00;
+}
+
+/* Pagination */
+.pagination {
+  padding: 15px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  border-top: 1px solid #eee;
+}
+
+.pagination button {
+  min-width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+.pagination button.active {
+  background: #b0b88f;
+  border-color: #b0b88f;
+  color: white;
+}
+
+.pagination span {
+  padding: 0 10px;
+  color: #666;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .view-options {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .points-table th,
+  .points-table td {
+    padding: 12px 15px;
+  }
+  
+  .points-table th:nth-child(3),
+  .points-table td:nth-child(3) {
+    white-space: nowrap;
+  }
+}
+
+/* Form styles */
+.form-group {
+  margin-bottom: 20px;
+  max-width: 500px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  transition: border-color 0.2s ease;
+}
+
+.form-control:focus {
+  border-color: #b0b88f;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(176, 184, 143, 0.2);
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #333;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 991px) {
+  .account-sidebar {
+    display: none;
+  }
+  
+  .mobile-bottom-nav {
+    display: flex;
+  }
+  
+  .account-content {
+    padding-bottom: 70px;
+  }
+  .customer-account-page .row {
+    flex-direction: column;
+  }
+  
+  .account-sidebar,
+  .account-content {
+    flex: 0 0 100%;
+    max-width: 100%;
+    padding: 0;
+  }
+  
+  .account-sidebar {
+    border-right: none;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+  }
+  
+  .account-content {
+    padding: 0;
+  }
+  
+  .account-links {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .account-links li {
+    margin-bottom: 0;
+    flex: 1;
+    min-width: 120px;
+  }
+  
+  .account-links a {
+    text-align: center;
+    padding: 8px 10px;
+    font-size: 0.9em;
+  }
+  
+  .account-links .account-logout {
+    margin-top: 0;
+    border-top: none;
+    padding-top: 10px;
+  }
+  
+  .account-links li {
+    min-width: calc(50% - 5px);
+  }
+  
+  .account-links a {
+    padding: 8px 5px;
+    font-size: 0.85em;
+  }
+}
+</style>
