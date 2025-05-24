@@ -41,13 +41,20 @@
     outline: none !important;
   }
 
-  .customer.login button {
+  .customer.login button,
+  .customer.login button[type="submit"],
+  .customer.login button[type="button"] {
     background-color: #BBC29A !important;
     border-radius: 6px !important;
     color: white !important;
     padding: 10px 16px !important;
     border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
     cursor: pointer !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
   }
 
   .customer.login button:hover {
