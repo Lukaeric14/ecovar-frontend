@@ -1,0 +1,97 @@
+{% comment %}
+Simple Image Banner section
+- Full-width background
+- Fixed height (60vh desktop, 40vh mobile)
+- Overlay heading (H1) and outline button
+- Ensures heading/button never cross midpoint and ample mobile sizing
+{% endcomment %}
+
+<section id="Banner-{{ section.id }}" class="simple-image-banner"
+         style="background-image: url({{ section.settings.image | img_url: '2048x' }});
+                background-size: cover;
+                background-position: center;
+                height: 40vh; position: relative;">
+  <div class="banner__overlay">
+    {% if section.settings.heading != blank %}
+      <h1 class="banner__heading">{{ section.settings.heading }}</h1>
+    {% endif %}
+    {% if section.settings.button_label != blank %}
+      <a href="{{ section.settings.button_link }}" class="banner__button-outline">{{ section.settings.button_label }}</a>
+    {% endif %}
+  </div>
+</section>
+
+{% style %}
+.simple-image-banner {
+  position: relative;
+  overflow: hidden;
+  text-align: left;
+}
+.simple-image-banner .banner__overlay {
+  position: absolute;
+  top: 50%;
+  left: 10%;
+  transform: translateY(-50%);
+  color: #fff;
+  max-width: 50%;
+  word-wrap: break-word;
+}
+.simple-image-banner .banner__heading {
+  margin: 0 0 1rem;
+  font-size: 4rem;
+  font-weight: 400;
+  line-height: 1.2;
+  color: #fff;
+}
+.simple-image-banner .banner__button-outline {
+  display: inline-block;
+  margin-top: 0.5rem;
+  padding: 1.5rem 3rem;
+  background: transparent;
+  color: #fff;
+  text-decoration: none;
+  font-size: 1.25rem;
+  font-weight: 500;
+  border: 2px solid #fff;
+  border-radius: 6px;
+  white-space: normal;
+}
+.simple-image-banner .banner__button-outline:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+/* Mobile adjustments */
+@media screen and (max-width: 749px) {
+  .simple-image-banner {
+    height: 10vh;
+  }
+  .simple-image-banner .banner__overlay {
+    left: 5%;
+    max-width: 90%;
+  }
+  .simple-image-banner .banner__heading {
+    font-size: 3rem;
+    margin-bottom: 1.25rem;
+  }
+  .simple-image-banner .banner__button-outline {
+    padding: 1.25rem 2rem;
+    font-size: 1.25rem;
+    border-radius: 6px;
+  }
+}
+{% endstyle %}
+
+{% schema %}
+{
+  "name": "Simple Image Banner",
+  "settings": [
+    {"type": "image_picker", "id": "image", "label": "Banner image"},
+    {"type": "text", "id": "heading", "label": "Heading text", "default": "Leading The Future Of Pest Control"},
+    {"type": "text", "id": "button_label", "label": "Button label", "default": "Learn Why We Are Industry Leaders"},
+    {"type": "url", "id": "button_link", "label": "Button link"}
+  ],
+  "presets": [
+    {"name": "Simple Image Banner", "category": "Custom"}
+  ]
+}
+{% endschema %}

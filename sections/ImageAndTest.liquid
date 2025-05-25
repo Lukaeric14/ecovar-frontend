@@ -1,0 +1,128 @@
+{% comment %}
+  File: sections/testimonials-with-image.liquid
+  Displays an image on the left (desktop) or top (mobile) with rotating testimonials,
+  circular logo, author photo, light gray card borders, responsive layout.
+{% endcomment %}
+
+<section id="{{ section.id }}" class="testimonials-with-image">
+  <div class="testimonials-image">
+    {% if section.settings.image %}
+      <img
+        src="{{ section.settings.image | img_url: '720x' }}"
+        alt="{{ section.settings.alt_text }}"
+      >
+    {% endif %}
+  </div>
+
+  <div class="testimonials-slider">
+    {% for block in section.blocks %}
+      <div class="testimonial-item{% if forloop.first %} active{% endif %}">
+        <div class="logo-circle">
+          {% if section.settings.logo %}
+            <img
+              src="{{ section.settings.logo | img_url: '100x' }}"
+              alt="{{ section.settings.logo_alt_text }}"
+            >
+          {% endif %}
+        </div>
+        <p class="quote">“{{ block.settings.quote }}”</p>
+        <p class="author">— {{ block.settings.author }}</p>
+        <div class="photo-circle">
+          {% if block.settings.photo %}
+            <img
+              src="{{ block.settings.photo | img_url: '80x80' }}"
+              alt="{{ block.settings.photo_alt_text }}"
+            >
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+<style>
+  .testimonials-with-image {
+    display: flex;
+    gap: 2rem;
+    align-items: stretch;
+    margin: 2rem;
+  }
+
+  .testimonials-image {
+    flex: 0 0 50%;
+  }
+  .testimonials-image img {
+    width: 100%; height: auto;
+    display: block; border-radius: 4px;
+  }
+
+  .testimonials-slider {
+    flex: 1 1 50%;
+    display: flex; align-items: center; justify-content: center;
+    padding: 1rem;
+    min-height: 350px; /* fallback for small images */
+  }
+
+  .testimonial-item {
+    position: relative;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    padding: 2rem;
+    max-width: 600px; width: 100%;
+    min-height: 200px; /* ensure enough height */
+    height: 60%; /* fill slider height */
+    display: none; opacity: 0;
+    transition: opacity 0.6s ease-in-out;
+  }
+  .testimonial-item.active { display: block; opacity: 1; }
+
+  .logo-circle { text-align: center; margin-bottom: 1rem; }
+  .logo-circle img { width: 50px; height: 50px; border-radius:50%; object-fit:cover; display:inline-block; border:none; }
+
+  .quote { font-size: 1.25rem; line-height:1.6; color:#333; margin-bottom:1rem; }
+  .author { font-weight:600; font-size:1.125rem; color:#111; text-align:right; margin-top:1rem; }
+
+  .photo-circle {
+    position:absolute; bottom:1rem; left:1rem;
+    width:60px; height:60px; border-radius:50%; overflow:hidden;
+    border:1px solid #e0e0e0;
+  }
+  .photo-circle img { width:100%; height:100%; object-fit:cover; }
+
+  @media screen and (max-width:768px) {
+    .testimonials-with-image { flex-direction:column; }
+    .testimonials-image, .testimonials-slider { flex:0 0 100%; width:100%; }
+    .testimonials-slider { margin-top:-8rem; padding-top:3rem; min-height:auto; }
+    .testimonial-item { margin:0 auto; height:60%; min-height:200px; }
+  }
+</style>
+
+<script>
+  (function(){document.addEventListener('DOMContentLoaded',function(){
+    var items=document.querySelectorAll('#{{ section.id }} .testimonial-item');
+    if(items.length<2) return; var idx=0;
+    setInterval(function(){items[idx].classList.remove('active'); idx=(idx+1)%items.length; items[idx].classList.add('active');},5000);
+  });})();
+</script>
+
+{% schema %}
+{
+  "name":"Image + Rotating Test",
+  "settings":[
+    {"type":"image_picker","id":"image","label":"Left/top image"},
+    {"type":"text","id":"alt_text","label":"Image alt text"},
+    {"type":"image_picker","id":"logo","label":"Testimonial logo"},
+    {"type":"text","id":"logo_alt_text","label":"Logo alt text"}
+  ],
+  "blocks":[{"type":"testimonial","name":"Testimonial","settings":[
+    {"type":"textarea","id":"quote","label":"Quote"},
+    {"type":"text","id":"author","label":"Author"},
+    {"type":"image_picker","id":"photo","label":"Author photo"},
+    {"type":"text","id":"photo_alt_text","label":"Photo alt text"}
+  ]}],
+  "max_blocks":5,
+  "presets":[{"name":"Image + Rotating Testimonials"}]
+}
+{% endschema %}

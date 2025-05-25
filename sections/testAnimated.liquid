@@ -1,0 +1,75 @@
+{% comment %}
+Section: Company Logos Marquee
+Smooth continuous scroll of up to 10 logos using CSS animation and duplication for seamless looping.
+{% endcomment %}
+
+<section class="company-logos-marquee">
+  <div class="marquee__wrapper">
+    <div class="marquee__content">
+      {%- for block in section.blocks -%}
+        {% if block.settings.logo_image != blank %}
+          <img src="{{ block.settings.logo_image | img_url: '200x' }}" alt="Logo {{ forloop.index }}" class="marquee__item">
+        {% endif %}
+      {%- endfor -%}
+      {%- for block in section.blocks -%}
+        {% if block.settings.logo_image != blank %}
+          <img src="{{ block.settings.logo_image | img_url: '200x' }}" alt="Logo {{ forloop.index }} duplicate" class="marquee__item">
+        {% endif %}
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+<style>
+.company-logos-marquee {
+  overflow: hidden;
+  width: 100%;
+}
+.company-logos-marquee .marquee__wrapper {
+  overflow: hidden;
+  width: 100%;
+}
+.company-logos-marquee .marquee__content {
+  display: inline-block;
+  white-space: nowrap;
+  animation: marquee-scroll 20s linear infinite;
+}
+.company-logos-marquee .marquee__item {
+  display: inline-block;
+  vertical-align: middle;
+  max-height: 80px;
+  height: auto;
+  margin: 0 2rem;
+}
+@keyframes marquee-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+</style>
+
+{% schema %}
+{
+  "name": "Company Logos Marquee",
+  "settings": [],
+  "blocks": [
+    {
+      "type": "logo",
+      "name": "Logo",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "logo_image",
+          "label": "Logo image"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 10,
+  "presets": [
+    {
+      "name": "Company Logos Marquee",
+      "category": "Custom"
+    }
+  ]
+}
+{% endschema %}
