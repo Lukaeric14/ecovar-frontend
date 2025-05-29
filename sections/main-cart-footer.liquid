@@ -15,6 +15,15 @@
       padding-bottom: {{ section.settings.padding_bottom }}px;
     }
   }
+  
+  /* LPO upload styling */
+  .lpo-upload-section {
+    margin: 30px 0;
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    padding: 20px;
+    background-color: #f9f9f9;
+  }
 {%- endstyle -%}
 
 <div
@@ -57,12 +66,21 @@
                     </ul>
                   {%- endif -%}
                 </div>
+                
+                {% if customer %}
+                <div class="lpo-upload-section">
+                  {% render 'lpo-upload' %}
+                </div>
+                {% endif %}
 
+                {% if customer %}
                 <div class="totals">
                   <h2 class="totals__total">{{ 'sections.cart.estimated_total' | t }}</h2>
                   <p class="totals__total-value">{{ cart.total_price | money_with_currency }}</p>
                 </div>
+                {% endif %}
 
+                {% if customer %}
                 <small class="tax-note caption-large rte">
                   {%- if cart.taxes_included and shop.shipping_policy.body != blank -%}
                     {{ 'sections.cart.taxes_included_and_shipping_policy_html' | t: link: shop.shipping_policy.url }}
@@ -74,9 +92,12 @@
                     {{ 'sections.cart.taxes_and_shipping_at_checkout' | t }}
                   {%- endif -%}
                 </small>
+                {% endif %}
               </div>
             {%- else -%}
               <div class="cart__ctas" {{ block.shopify_attributes }}>
+                {% if customer %}
+                <!-- For logged-in customers: Regular checkout button -->
                 <button
                   type="submit"
                   id="checkout"
@@ -89,6 +110,22 @@
                 >
                   {{ 'sections.cart.checkout' | t }}
                 </button>
+                {% else %}
+                <!-- For non-logged in users: Quote request button -->
+                <a
+                  href="/pages/contact"
+                  id="quote-request"
+                  class="cart__checkout-button button"
+                  style="background-color: #8F9A5B;"
+                  {% if cart == empty %}
+                    disabled
+                    aria-disabled="true"
+                  {% endif %}
+                  onclick="localStorage.setItem('quoteItems', JSON.stringify({{ cart.items | json }}));"
+                >
+                  Request Quote
+                </a>
+                {% endif %}
               </div>
 
               {%- if additional_checkout_buttons -%}
@@ -104,6 +141,10 @@
     </div>
   </div>
 </div>
+
+{% unless customer %}
+  {% render 'quote-form' %}
+{% endunless %}
 
 {% schema %}
 {

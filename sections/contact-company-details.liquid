@@ -1,0 +1,397 @@
+{{ 'section-main-page.css' | asset_url | stylesheet_tag }}
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+  
+  .company-details-section {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  
+  @media screen and (min-width: 990px) {
+    .company-details-section {
+      flex-direction: row;
+      align-items: flex-start;
+    }
+    
+    .company-details {
+      width: 40%;
+      padding-right: 2rem;
+    }
+    
+    .company-map {
+      width: 60%;
+    }
+  }
+  
+  .company-details__title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 2rem;
+  }
+  
+  .company-details__item {
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: flex-start;
+  }
+  
+  .company-details__icon {
+    width: 24px;
+    height: 24px;
+    margin-top: 3px;
+    margin-right: 1rem;
+    color: #333;
+    flex-shrink: 0;
+  }
+  
+  .company-details__icon svg {
+    width: 100%;
+    height: 100%;
+  }
+  
+  .company-details__content {
+    flex: 1;
+  }
+  
+  .company-details__label {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.8rem;
+  }
+  
+  .company-details__text {
+    font-size: 1rem;
+    color: #555;
+    line-height: 1.5;
+    margin: 0;
+  }
+  
+  .company-details__office-warehouse {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.6rem;
+  }
+  
+  .company-details__office,
+  .company-details__warehouse {
+    width: 45%;
+  }
+  
+  .company-details__sublabel {
+    font-weight: 500;
+    margin-bottom: 0.4rem;
+  }
+  
+  .company-details__address {
+    margin-bottom: 0.6rem;
+  }
+  
+  .company-details__hours-line {
+    margin-bottom: 0.3rem;
+  }
+  
+  .company-details__phone {
+    color: #8F9A5B;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  
+  .company-details__email {
+    color: #8F9A5B;
+    text-decoration: none;
+  }
+  
+  .company-details__email:hover,
+  .company-details__phone:hover {
+    text-decoration: underline;
+  }
+  
+  .company-map {
+    height: 400px;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .company-map iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+{%- endstyle -%}
+
+<div class="page-width section-{{ section.id }}-padding">
+  <div class="company-details-section">
+    <div class="company-details">
+      <h2 class="company-details__title">{{ section.settings.title }}</h2>
+      
+      <!-- Address -->
+      <div class="company-details__item">
+        <div class="company-details__icon">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="company-details__content">
+          <h3 class="company-details__label">{{ section.settings.address_label }}</h3>
+          <div class="company-details__office-warehouse">
+            <div class="company-details__office">
+              <p class="company-details__sublabel">{{ section.settings.office_label }}</p>
+              <div class="company-details__address">
+                {{ section.settings.office_address | replace: ',', '<br>' | replace: '|', '<br>' }}
+              </div>
+            </div>
+            <div class="company-details__warehouse">
+              <p class="company-details__sublabel">{{ section.settings.warehouse_label }}</p>
+              <div class="company-details__address">
+                {{ section.settings.warehouse_address | replace: ',', '<br>' | replace: '|', '<br>' }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Phone -->
+      <div class="company-details__item">
+        <div class="company-details__icon">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="company-details__content">
+          <h3 class="company-details__label">{{ section.settings.phone_label }}</h3>
+          <p class="company-details__text">
+            <a href="tel:{{ section.settings.phone_number | replace: ' ', '' }}" class="company-details__phone">{{ section.settings.phone_number }}</a>
+          </p>
+        </div>
+      </div>
+      
+      <!-- Hours -->
+      <div class="company-details__item">
+        <div class="company-details__icon">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z" fill="currentColor"/>
+            <path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="company-details__content">
+          <h3 class="company-details__label">{{ section.settings.hours_label }}</h3>
+          <div class="company-details__office-warehouse">
+            <div class="company-details__office">
+              <p class="company-details__sublabel">{{ section.settings.office_label }}</p>
+              <div class="company-details__hours">
+                {% for line in section.settings.office_hours %}
+                  <p class="company-details__hours-line">{{ line }}</p>
+                {% endfor %}
+              </div>
+            </div>
+            <div class="company-details__warehouse">
+              <p class="company-details__sublabel">{{ section.settings.warehouse_label }}</p>
+              <div class="company-details__hours">
+                {% for line in section.settings.warehouse_hours %}
+                  <p class="company-details__hours-line">{{ line }}</p>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Email -->
+      <div class="company-details__item">
+        <div class="company-details__icon">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="company-details__content">
+          <h3 class="company-details__label">{{ section.settings.email_label }}</h3>
+          <p class="company-details__text">
+            <a href="mailto:{{ section.settings.email_address }}" class="company-details__email">{{ section.settings.email_address }}</a>
+          </p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="company-map">
+      {% if section.settings.map_embed_code != blank %}
+        {{ section.settings.map_embed_code }}
+      {% else %}
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3610.1785753736156!2d55.27472931501901!3d25.197584983895475!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3e5f4336f45e2a05%3A0x3dd3e45393be7750!2sBusiness%20Bay%20-%20Dubai%20-%20United%20Arab%20Emirates!5e0!3m2!1sen!2sus!4v1622214076751!5m2!1sen!2sus" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Company Details",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "default": "Company Details",
+      "label": "Section Title"
+    },
+    {
+      "type": "header",
+      "content": "Address Information"
+    },
+    {
+      "type": "text",
+      "id": "address_label",
+      "default": "Address",
+      "label": "Address Label"
+    },
+    {
+      "type": "text",
+      "id": "office_label",
+      "default": "Office",
+      "label": "Office Label"
+    },
+    {
+      "type": "textarea",
+      "id": "office_address",
+      "default": "Building 1, Office 104|Bay Square, Business Bay|Dubai, United Arab Emirates",
+      "label": "Office Address",
+      "info": "Use | to create line breaks"
+    },
+    {
+      "type": "text",
+      "id": "warehouse_label",
+      "default": "Warehouse",
+      "label": "Warehouse Label"
+    },
+    {
+      "type": "textarea",
+      "id": "warehouse_address",
+      "default": "4th St - Al Khabaisi|Dubai, United Arab Emirates",
+      "label": "Warehouse Address",
+      "info": "Use | to create line breaks"
+    },
+    {
+      "type": "header",
+      "content": "Phone Information"
+    },
+    {
+      "type": "text",
+      "id": "phone_label",
+      "default": "Phone",
+      "label": "Phone Label"
+    },
+    {
+      "type": "text",
+      "id": "phone_number",
+      "default": "+971 4 36633 02",
+      "label": "Phone Number"
+    },
+    {
+      "type": "header",
+      "content": "Hours Information"
+    },
+    {
+      "type": "text",
+      "id": "hours_label",
+      "default": "Open Hours",
+      "label": "Hours Label"
+    },
+    {
+      "type": "text",
+      "id": "office_hours_monday_friday",
+      "default": "Monday to Friday: 8:00 - 17:00",
+      "label": "Office Hours (Monday-Friday)"
+    },
+    {
+      "type": "text",
+      "id": "office_hours_saturday",
+      "default": "Saturday: 8:00 - 12:00",
+      "label": "Office Hours (Saturday)"
+    },
+    {
+      "type": "text",
+      "id": "warehouse_hours_monday_friday",
+      "default": "Monday to Friday: 8:00 - 17:00",
+      "label": "Warehouse Hours (Monday-Friday)"
+    },
+    {
+      "type": "text",
+      "id": "warehouse_hours_saturday",
+      "default": "Saturday: 8:00 - 12:00",
+      "label": "Warehouse Hours (Saturday)"
+    },
+    {
+      "type": "header",
+      "content": "Email Information"
+    },
+    {
+      "type": "text",
+      "id": "email_label",
+      "default": "Email",
+      "label": "Email Label"
+    },
+    {
+      "type": "text",
+      "id": "email_address",
+      "default": "marketing@ecovargroup.com",
+      "label": "Email Address"
+    },
+    {
+      "type": "header",
+      "content": "Map Settings"
+    },
+    {
+      "type": "html",
+      "id": "map_embed_code",
+      "label": "Google Maps Embed Code",
+      "info": "Paste your Google Maps embed code here"
+    },
+    {
+      "type": "header",
+      "content": "Section padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding top",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding bottom",
+      "default": 36
+    }
+  ],
+  "presets": [
+    {
+      "name": "Company Details",
+      "settings": {
+        "title": "Company Details"
+      }
+    }
+  ]
+}
+{% endschema %}

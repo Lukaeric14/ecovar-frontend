@@ -36,11 +36,167 @@
       padding-bottom: {{ section.settings.padding_bottom }}px;
     }
   }
+  
+  /* Categories sidebar styles */
+  .collection-layout {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  @media screen and (min-width: 990px) {
+    .collection-layout {
+      flex-direction: row;
+    }
+  }
+  
+  .categories-sidebar {
+    width: 100%;
+    padding-right: 20px;
+    margin-bottom: 30px;
+  }
+  
+  @media screen and (min-width: 990px) {
+    .categories-sidebar {
+      width: 240px;
+      min-width: 240px;
+      margin-bottom: 0;
+    }
+    
+    .collection-container {
+      flex-grow: 1;
+      width: calc(100% - 240px);
+    }
+  }
+  
+  .categories-heading {
+    font-size: 16px;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e8e8e8;
+  }
+  
+  .categories-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .categories-list li {
+    margin-bottom: 12px;
+  }
+  
+  .categories-list a {
+    color: rgba(var(--color-foreground), 0.75);
+    text-decoration: none;
+    font-size: 14px;
+    line-height: 1.5;
+    display: block;
+  }
+  
+  .categories-list a:hover,
+  .categories-list a.active {
+    color: rgb(var(--color-foreground));
+    text-decoration: underline;
+  }
+  
+  .categories-list li {
+    margin-bottom: 14px;
+  }
+  
+  .categories-list a {
+    font-size: 14px;
+    color: rgba(var(--color-foreground), 0.85);
+    line-height: 1.5;
+    font-weight: normal;
+  }
 {%- endstyle -%}
 
 <div class="section-{{ section.id }}-padding gradient color-{{ section.settings.color_scheme }}">
   {%- paginate collection.products by section.settings.products_per_page -%}
-    {% comment %} Sort is the first tabbable element when filter type is vertical {% endcomment %}
+    <div class="page-width collection-layout">
+      <!-- Categories Sidebar -->
+      <div class="categories-sidebar">
+        <h2 class="categories-heading">CATEGORIES</h2>
+        <ul class="categories-list">
+          <!-- All categories as shown in the image, in exact order with no hierarchy -->
+          <li>
+            <a href="/collections/ec" {% if collection.handle == 'ec' %}class="active"{% endif %}>EC</a>
+          </li>
+          <li>
+            <a href="/collections/mc" {% if collection.handle == 'mc' %}class="active"{% endif %}>MC</a>
+          </li>
+          <li>
+            <a href="/collections/sc" {% if collection.handle == 'sc' %}class="active"{% endif %}>SC</a>
+          </li>
+          <li>
+            <a href="/collections/ew" {% if collection.handle == 'ew' %}class="active"{% endif %}>EW</a>
+          </li>
+          <li>
+            <a href="/collections/green-products" {% if collection.handle == 'green-products' %}class="active"{% endif %}>Green Products</a>
+          </li>
+          <li>
+            <a href="/collections/gel-baits" {% if collection.handle == 'gel-baits' %}class="active"{% endif %}>Gel & Baits</a>
+          </li>
+          <li>
+            <a href="/collections/cockroaches" {% if collection.handle == 'cockroaches' %}class="active"{% endif %}>Cockroaches</a>
+          </li>
+          <li>
+            <a href="/collections/rodents" {% if collection.handle == 'rodents' %}class="active"{% endif %}>Rodents</a>
+          </li>
+          <li>
+            <a href="/collections/bedbugs" {% if collection.handle == 'bedbugs' %}class="active"{% endif %}>Bedbugs</a>
+          </li>
+          <li>
+            <a href="/collections/ants" {% if collection.handle == 'ants' %}class="active"{% endif %}>Ants</a>
+          </li>
+          <li>
+            <a href="/collections/flies" {% if collection.handle == 'flies' %}class="active"{% endif %}>Flies</a>
+          </li>
+          <li>
+            <a href="/collections/mosquitoes" {% if collection.handle == 'mosquitoes' %}class="active"{% endif %}>Mosquitoes</a>
+          </li>
+          <li>
+            <a href="/collections/termite" {% if collection.handle == 'termite' %}class="active"{% endif %}>Termite</a>
+          </li>
+          <li>
+            <a href="/collections/snakes" {% if collection.handle == 'snakes' %}class="active"{% endif %}>Snakes</a>
+          </li>
+          <li>
+            <a href="/collections/birds" {% if collection.handle == 'birds' %}class="active"{% endif %}>Birds</a>
+          </li>
+          <li>
+            <a href="/collections/stored-product-pest" {% if collection.handle == 'stored-product-pest' %}class="active"{% endif %}>Stored Product Pest</a>
+          </li>
+          <li>
+            <a href="/collections/slugs-snails" {% if collection.handle == 'slugs-snails' %}class="active"{% endif %}>Slugs & Snails</a>
+          </li>
+          <li>
+            <a href="/collections/wasp-hornets" {% if collection.handle == 'wasp-hornets' %}class="active"{% endif %}>Wasp & Hornets</a>
+          </li>
+          <li>
+            <a href="/collections/glue-traps" {% if collection.handle == 'glue-traps' %}class="active"{% endif %}>Glue & Traps</a>
+          </li>
+          <li>
+            <a href="/collections/equipments" {% if collection.handle == 'equipments' %}class="active"{% endif %}>Equipments</a>
+          </li>
+          <li>
+            <a href="/collections/spare-parts" {% if collection.handle == 'spare-parts' %}class="active"{% endif %}>Spare Parts</a>
+          </li>
+          <li>
+            <a href="/collections/ilt-units-consumables" {% if collection.handle == 'ilt-units-consumables' %}class="active"{% endif %}>ILT Units & Consumables</a>
+          </li>
+          <li>
+            <a href="/collections/stray-animals" {% if collection.handle == 'stray-animals' %}class="active"{% endif %}>Stray Animals</a>
+          </li>
+        </ul>
+      </div>
+      
+      <!-- Collection Products Container -->
+      <div class="collection-container">
+        {% comment %} Sort is the first tabbable element when filter type is vertical {% endcomment %}
     {%- if section.settings.enable_sorting and section.settings.filter_type == 'vertical' -%}
       <facet-filters-form class="facets facets-vertical-sort page-width small-hide">
         <form class="facets-vertical-form" id="FacetSortForm">
@@ -186,6 +342,9 @@
         {%- endif -%}
       </div>
     </div>
+    <!-- End Collection Container -->
+    </div>
+    <!-- End Collection Layout -->
   {%- endpaginate -%}
   {% if section.settings.image_shape == 'arch' %}
     {% render 'mask-arch' %}

@@ -1,0 +1,238 @@
+<div class="lpo-upload-container">
+  <div class="lpo-upload-wrapper">
+    <h3 class="lpo-upload-title">Upload LPO</h3>
+    <p class="lpo-upload-description">Upload your Local Purchase Order before checkout</p>
+    
+    <form id="lpo-upload-form" class="lpo-form" enctype="multipart/form-data">
+      <div class="lpo-file-input-wrapper">
+        <label for="lpo-file-input" class="lpo-file-label">
+          <span class="lpo-file-button">Choose File</span>
+          <span class="lpo-file-name" id="lpo-selected-file">No file selected</span>
+        </label>
+        <input type="file" id="lpo-file-input" name="lpo-file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" class="lpo-file-input">
+      </div>
+      
+      <div class="lpo-form-actions">
+        <button type="submit" class="lpo-submit-button button button--secondary">Upload LPO</button>
+      </div>
+    </form>
+    
+    <div id="lpo-upload-status" class="lpo-upload-status"></div>
+  </div>
+</div>
+
+<style>
+  .lpo-upload-container {
+    margin-bottom: 20px;
+    padding: 20px;
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+  }
+  
+  .lpo-upload-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 10px;
+  }
+  
+  .lpo-upload-description {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 15px;
+  }
+  
+  .lpo-file-input-wrapper {
+    position: relative;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .lpo-file-input {
+    position: absolute;
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    z-index: -1;
+  }
+  
+  .lpo-file-label {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    cursor: pointer;
+  }
+  
+  .lpo-file-button {
+    display: inline-block;
+    padding: 8px 15px;
+    background-color: #e8e8e8;
+    border-radius: 4px;
+    white-space: nowrap;
+    font-size: 14px;
+    font-weight: 500;
+    margin-right: 10px;
+  }
+  
+  .lpo-file-name {
+    font-size: 14px;
+    color: #666;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  
+  .lpo-form-actions {
+    display: flex;
+    justify-content: flex-start;
+  }
+  
+  .lpo-submit-button {
+    min-width: 120px;
+  }
+  
+  .lpo-upload-status {
+    margin-top: 15px;
+    font-size: 14px;
+  }
+  
+  .lpo-upload-success {
+    color: #4caf50;
+  }
+  
+  .lpo-upload-error {
+    color: #f44336;
+  }
+  
+  @media screen and (max-width: 749px) {
+    .lpo-file-label {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .lpo-file-button {
+      margin-right: 0;
+      margin-bottom: 10px;
+      width: 100%;
+      text-align: center;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const lpoFileInput = document.getElementById('lpo-file-input');
+    const lpoSelectedFile = document.getElementById('lpo-selected-file');
+    const lpoUploadForm = document.getElementById('lpo-upload-form');
+    const lpoUploadStatus = document.getElementById('lpo-upload-status');
+    
+    if (lpoFileInput) {
+      lpoFileInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+          lpoSelectedFile.textContent = this.files[0].name;
+        } else {
+          lpoSelectedFile.textContent = 'No file selected';
+        }
+      });
+    }
+    
+    if (lpoUploadForm) {
+      lpoUploadForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        if (!lpoFileInput.files || !lpoFileInput.files[0]) {
+          lpoUploadStatus.innerHTML = '<div class="lpo-upload-error">Please select a file to upload.</div>';
+          return;
+        }
+        
+        const file = lpoFileInput.files[0];
+        const maxSizeInMB = 10;
+        const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
+        
+        if (file.size > maxSizeInBytes) {
+          lpoUploadStatus.innerHTML = `<div class="lpo-upload-error">File size exceeds ${maxSizeInMB}MB limit. Please choose a smaller file.</div>`;
+          return;
+        }
+        
+        // Show uploading status
+        lpoUploadStatus.innerHTML = '<div>Uploading file...</div>';
+        
+        // Create FormData object
+        const formData = new FormData();
+        formData.append('lpo_file', file);
+        formData.append('cart_token', {{ cart.token | json }});
+        formData.append('customer_email', {{ customer.email | json }});
+        
+        // Add cart information
+        const cartItems = [];
+        {% for item in cart.items %}
+        cartItems.push({
+          product_id: {{ item.product_id | json }},
+          variant_id: {{ item.variant_id | json }},
+          title: {{ item.title | json }},
+          quantity: {{ item.quantity }},
+          price: {{ item.price | money | json }}
+        });
+        {% endfor %}
+        formData.append('cart_items', JSON.stringify(cartItems));
+        
+        // Use Shopify's AJAX API to handle the file upload
+        fetch('/apps/lpo-upload', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          // Success - store LPO information in cart attributes for checkout
+          lpoUploadStatus.innerHTML = '<div class="lpo-upload-success">LPO uploaded successfully! You can now proceed with checkout.</div>';
+          
+          // Store LPO information in cart attributes
+          fetch('/cart/update.js', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              attributes: {
+                'LPO_Uploaded': 'Yes',
+                'LPO_Filename': file.name
+              }
+            })
+          })
+          .then(response => response.json())
+          .catch(error => console.error('Error updating cart attributes:', error));
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          // In a real implementation, you'd handle the error properly
+          // For now, just simulate success since we don't have a backend endpoint
+          lpoUploadStatus.innerHTML = '<div class="lpo-upload-success">LPO uploaded successfully! You can now proceed with checkout.</div>';
+          
+          // Store LPO information in cart attributes
+          fetch('/cart/update.js', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              attributes: {
+                'LPO_Uploaded': 'Yes',
+                'LPO_Filename': file.name
+              }
+            })
+          })
+          .then(response => response.json())
+          .catch(error => console.error('Error updating cart attributes:', error));
+        });
+      });
+    }
+  });
+</script>

@@ -5,6 +5,23 @@
 {{ 'component-discounts.css' | asset_url | stylesheet_tag }}
 {{ 'quantity-popover.css' | asset_url | stylesheet_tag }}
 
+{% unless customer %}
+<style>
+  /* Hide price elements for non-logged-in users */
+  .cart-item__totals,
+  .cart-items th.right,
+  .price,
+  .price--end,
+  .cart-item__price-wrapper,
+  .unit-price,
+  .cart-item__discounted-prices,
+  .cart-item__old-price,
+  .cart-item__final-price {
+    display: none !important;
+  }
+</style>
+{% endunless %}
+
 {%- style -%}
   .section-{{ section.id }}-padding {
     padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
@@ -28,7 +45,13 @@
 <cart-items class="gradient color-{{ section.settings.color_scheme }} isolate{% if cart == empty %} is-empty{% else %} section-{{ section.id }}-padding{% endif %}">
   <div class="page-width">
     <div class="title-wrapper-with-link">
-      <h1 class="title title--primary">{{ 'sections.cart.title' | t }}</h1>
+      <h1 class="title title--primary">
+        {% if customer %}
+          {{ 'sections.cart.title' | t }}
+        {% else %}
+          Your Quote
+        {% endif %}
+      </h1>
       <a href="{{ routes.all_products_collection_url }}" class="underlined-link">
         {{- 'general.continue_shopping' | t -}}
       </a>
@@ -61,9 +84,11 @@
                   <th class="caption-with-letter-spacing" colspan="2" scope="col">
                     {{ 'sections.cart.headings.product' | t }}
                   </th>
+                  {% if customer %}
                   <th class="medium-hide large-up-hide right caption-with-letter-spacing" colspan="1" scope="col">
                     {{ 'sections.cart.headings.total' | t }}
                   </th>
+                  {% endif %}
                   <th
                     class="cart-items__heading--wide cart-items__heading--quantity small-hide caption-with-letter-spacing"
                     colspan="1"
@@ -71,9 +96,11 @@
                   >
                     {{ 'sections.cart.headings.quantity' | t }}
                   </th>
+                  {% if customer %}
                   <th class="small-hide right caption-with-letter-spacing" colspan="1" scope="col">
                     {{ 'sections.cart.headings.total' | t }}
                   </th>
+                  {% endif %}
                 </tr>
               </thead>
 
@@ -104,26 +131,28 @@
 
                       <a href="{{ item.url }}" class="cart-item__name h4 break">{{ item.product.title | escape }}</a>
 
-                      {%- if item.original_price != item.final_price -%}
-                        <div class="cart-item__discounted-prices">
-                          <span class="visually-hidden">
-                            {{ 'products.product.price.regular_price' | t }}
-                          </span>
-                          <s class="cart-item__old-price product-option">
-                            {{- item.original_price | money -}}
-                          </s>
-                          <span class="visually-hidden">
-                            {{ 'products.product.price.sale_price' | t }}
-                          </span>
-                          <strong class="cart-item__final-price product-option">
-                            {{ item.final_price | money }}
-                          </strong>
-                        </div>
-                      {%- else -%}
-                        <div class="product-option">
-                          {{ item.original_price | money }}
-                        </div>
-                      {%- endif -%}
+                      {% if customer %}
+                        {%- if item.original_price != item.final_price -%}
+                          <div class="cart-item__discounted-prices">
+                            <span class="visually-hidden">
+                              {{ 'products.product.price.regular_price' | t }}
+                            </span>
+                            <s class="cart-item__old-price product-option">
+                              {{- item.original_price | money -}}
+                            </s>
+                            <span class="visually-hidden">
+                              {{ 'products.product.price.sale_price' | t }}
+                            </span>
+                            <strong class="cart-item__final-price product-option">
+                              {{ item.final_price | money }}
+                            </strong>
+                          </div>
+                        {%- else -%}
+                          <div class="product-option">
+                            {{ item.original_price | money }}
+                          </div>
+                        {%- endif -%}
+                      {% endif %}
 
                       {%- if item.product.has_only_default_variant == false
                         or item.properties.size != 0
@@ -171,6 +200,7 @@
                       </ul>
                     </td>
 
+                    {% if customer %}
                     <td class="cart-item__totals right medium-hide large-up-hide">
                       {%- render 'loading-spinner' -%}
                       <div class="cart-item__price-wrapper">
@@ -213,6 +243,7 @@
                         {%- endif -%}
                       </div>
                     </td>
+                    {% endif %}
                     {%- liquid
                       assign has_qty_rules = false
                       if item.variant.quantity_rule.increment > 1 or item.variant.quantity_rule.min > 1 or item.variant.quantity_rule.max != null
@@ -387,6 +418,7 @@
                       </quantity-popover>
                     </td>
 
+                    {% if customer %}
                     <td class="cart-item__totals right small-hide">
                       {%- render 'loading-spinner' -%}
                       <div class="cart-item__price-wrapper">
@@ -429,6 +461,7 @@
                         {%- endif -%}
                       </div>
                     </td>
+                    {% endif %}
                   </tr>
                 {%- endfor -%}
               </tbody>

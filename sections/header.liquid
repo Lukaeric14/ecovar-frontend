@@ -76,6 +76,99 @@
       padding-top: 0.5rem;
     }
   }
+  
+  /* Account dropdown styles */
+  .header__account-wrapper {
+    position: relative;
+  }
+  
+  .header__account-details {
+    position: relative;
+  }
+  
+  .header__account-summary {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    list-style: none;
+    padding: 0;
+  }
+  
+  .header__account-summary::-webkit-details-marker {
+    display: none;
+  }
+  
+  .header__account-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .header__account-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(var(--color-foreground), 0.75);
+  }
+  
+  @media screen and (max-width: 989px) {
+    .header__account-name {
+      display: none;
+    }
+  }
+  
+  .header__account-icon {
+    display: flex;
+    align-items: center;
+    transition: transform 0.2s ease;
+  }
+  
+  .header__account-icon .icon {
+    width: 10px;
+    height: 6px;
+  }
+  
+  .header__account-details[open] .header__account-icon {
+    transform: rotate(180deg);
+  }
+  
+  .header__account-dropdown {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    z-index: 100;
+    width: 180px;
+    background: white;
+    border: 1px solid #e1e1e1;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .header__account-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .header__account-menu li {
+    border-bottom: 1px solid #f5f5f5;
+  }
+  
+  .header__account-menu li:last-child {
+    border-bottom: none;
+  }
+  
+  .header__account-link {
+    display: block;
+    padding: 12px 15px;
+    color: #333;
+    text-decoration: none;
+    font-size: 14px;
+    transition: background-color 0.2s ease;
+  }
+  
+  .header__account-link:hover {
+    background-color: #f9f9f9;
+  }
 </style>
 
 {%- style -%}
@@ -255,24 +348,41 @@
       {% render 'header-search', input_id: 'Search-In-Modal' %}
 
       {%- if shop.customer_accounts_enabled -%}
-        <a href="{%- if customer -%}{{ routes.account_url }}{%- else -%}{{ routes.account_login_url }}{%- endif -%}" class="header__icon header__icon--account link focus-inset{% if section.settings.menu != blank %} small-hide{% endif %}">
-          <account-icon>
-            {%- if customer and customer.has_avatar? -%}
-              {{ customer | avatar }}
-            {%- else -%}
+        {%- if customer -%}
+          <div class="header__account-wrapper">
+            <details class="header__account-details">
+              <summary class="header__account-summary">
+                <div class="header__account-info">
+                  <span class="header__account-name">{{ customer.first_name }}</span>
+                  <span class="header__icon header__icon--account link focus-inset{% if section.settings.menu != blank %} small-hide{% endif %}">
+                    <account-icon>
+                      {%- if customer.has_avatar? -%}
+                        {{ customer | avatar }}
+                      {%- else -%}
+                        {% render 'icon-account' %}
+                      {%- endif -%}
+                    </account-icon>
+                  </span>
+                </div>
+              </summary>
+              <div class="header__account-dropdown">
+                <ul class="header__account-menu">
+                  <li><a href="{{ routes.account_url }}" class="header__account-link">My Account</a></li>
+                  <li><a href="{{ routes.account_url }}/orders" class="header__account-link">Order History</a></li>
+                  <li><a href="{{ routes.account_addresses_url }}" class="header__account-link">Addresses</a></li>
+                  <li><a href="{{ routes.account_logout_url }}" class="header__account-link">Log Out</a></li>
+                </ul>
+              </div>
+            </details>
+          </div>
+        {%- else -%}
+          <a href="{{ routes.account_login_url }}" class="header__icon header__icon--account link focus-inset{% if section.settings.menu != blank %} small-hide{% endif %}">
+            <account-icon>
               {% render 'icon-account' %}
-            {%- endif -%}
-          </account-icon>
-          <span class="visually-hidden">
-            {%- liquid
-              if customer
-                echo 'customer.account_fallback' | t
-              else
-                echo 'customer.log_in' | t
-              endif
-            -%}
-          </span>
-        </a>
+            </account-icon>
+            <span class="visually-hidden">{{ 'customer.log_in' | t }}</span>
+          </a>
+        {%- endif -%}
       {%- endif -%}
 
       {%- for block in section.blocks -%}

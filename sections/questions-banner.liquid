@@ -1,0 +1,151 @@
+{{ 'section-main-page.css' | asset_url | stylesheet_tag }}
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+  
+  .questions-banner-wrapper {
+    background-color: #f8f8f8;
+    width: 100%;
+    padding: 2rem 0;
+  }
+  
+  .questions-banner {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    
+    @media screen and (min-width: 750px) {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+  
+  .questions-banner__content {
+    margin-bottom: 1.5rem;
+    
+    @media screen and (min-width: 750px) {
+      margin-bottom: 0;
+    }
+  }
+  
+  .questions-banner__title {
+    font-size: 2.5rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.5rem;
+  }
+  
+  .questions-banner__text {
+    font-size: 1.5rem;
+    color: #555;
+    line-height: 1.5;
+  }
+  
+  .questions-banner__button {
+    display: inline-block;
+    background-color: #b8bb8a;
+    color: #fff;
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+  }
+  
+  .questions-banner__button:hover {
+    background-color: #a8aa7a;
+  }
+{%- endstyle -%}
+
+<div class="questions-banner-wrapper section-{{ section.id }}-padding">
+  <div class="questions-banner page-width">
+    <div class="questions-banner__content">
+      <h2 class="questions-banner__title">{{ section.settings.title }}</h2>
+      <p class="questions-banner__text">{{ section.settings.text }}</p>
+    </div>
+    
+    <a href="{{ section.settings.button_link }}" class="questions-banner__button">
+      {{ section.settings.button_text }}
+    </a>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Questions Banner",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "default": "Questions?",
+      "label": "Title"
+    },
+    {
+      "type": "text",
+      "id": "text",
+      "default": "We're here to help. Contact us for any inquiries.",
+      "label": "Text"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "default": "Contact Us",
+      "label": "Button Text"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button Link"
+    },
+    {
+      "type": "header",
+      "content": "Section padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding top",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding bottom",
+      "default": 36
+    }
+  ],
+  "presets": [
+    {
+      "name": "Questions Banner",
+      "settings": {
+        "title": "Questions?",
+        "text": "We're here to help. Contact us for any inquiries.",
+        "button_text": "Contact Us"
+      }
+    }
+  ]
+}
+{% endschema %}
