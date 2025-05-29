@@ -12,6 +12,81 @@
       padding-bottom: {{ section.settings.padding_bottom }}px;
     }
   }
+  
+  /* Custom Ecovar Form Styling */
+  #ContactForm .field__input,
+  #ContactForm .text-area {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 12px 15px;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #333333;
+    background-color: #ffffff;
+    transition: border-color 0.2s ease;
+    min-height: 44px;
+  }
+  
+  #ContactForm .field__input:focus,
+  #ContactForm .text-area:focus {
+    border-color: #8F9A5B;
+    box-shadow: 0 0 0 1px #8F9A5B;
+    outline: none;
+  }
+  
+  #ContactForm .field__label {
+    top: 12px;
+    left: 15px;
+    font-size: 16px;
+    color: #666666;
+    transition: all 0.2s ease;
+  }
+  
+  #ContactForm .field__input:focus ~ .field__label,
+  #ContactForm .field__input:not(:placeholder-shown) ~ .field__label,
+  #ContactForm .text-area:focus ~ .field__label,
+  #ContactForm .text-area:not(:placeholder-shown) ~ .field__label {
+    top: -8px;
+    left: 12px;
+    font-size: 12px;
+    padding: 0 5px;
+    background-color: white;
+    color: #8F9A5B;
+  }
+  
+  #ContactForm .contact__button .button {
+    background-color: #8F9A5B;
+    border: none;
+    color: white;
+    font-weight: 500;
+    padding: 12px 25px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+  }
+  
+  #ContactForm .contact__button .button:hover {
+    background-color: #7d8850;
+  }
+  
+  #ContactForm .contact__fields {
+    display: grid;
+    gap: 20px;
+  }
+  
+  @media screen and (min-width: 750px) {
+    #ContactForm .contact__fields {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  
+  #ContactForm .field {
+    margin-bottom: 20px;
+  }
+  
+  #ContactForm .text-area {
+    min-height: 120px;
+    resize: vertical;
+  }
 {%- endstyle -%}
 
 <div class="color-{{ section.settings.color_scheme }} gradient">

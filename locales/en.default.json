@@ -264,6 +264,9 @@
       }
     },
     "sections": {
+      "map": {
+        "placeholder": "Map location will appear here"
+      },
       "announcements": {
         "previous_announcement": "Previous announcement",
         "next_announcement": "Next announcement",

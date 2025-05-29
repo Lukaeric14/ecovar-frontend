@@ -1,0 +1,216 @@
+{{ 'section-customer-loyalty.css' | asset_url | stylesheet_tag }}
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+  
+  /* Customer Loyalty Bar Styles */
+  .loyalty-bar {
+    width: 100%;
+    height: 50px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #ffffff;
+    margin-bottom: 20px;
+  }
+  
+  .loyalty-bar--silver {
+    background-color: #C0C0C0;
+    color: #333333;
+  }
+  
+  .loyalty-bar--gold {
+    background-color: #D4AF37;
+    color: #ffffff;
+  }
+  
+  .loyalty-bar--platinum {
+    background-color: #6b6b6b;
+    color: #ffffff;
+  }
+  
+  .loyalty-bar--burgundy {
+    background-color: #800020;
+    color: #ffffff;
+  }
+  
+  .loyalty-bar__left {
+    padding-left: 20px;
+    font-weight: 600;
+    font-size: 16px;
+  }
+  
+  .loyalty-bar__right {
+    padding-right: 20px;
+    text-align: right;
+    font-size: 14px;
+  }
+  
+  .loyalty-bar__right-content {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .loyalty-bar__points {
+    font-weight: 600;
+  }
+  
+  .loyalty-bar__status {
+    font-weight: 500;
+  }
+{%- endstyle -%}
+
+<div class="section-{{ section.id }}-padding">
+  <div class="page-width">
+    {% if customer %}
+      {% assign loyalty_status = customer.metafields.approval.status %}
+      {% assign loyalty_current_tier = customer.metafields.loyalty.current_tier %}
+      {% assign loyalty_next_tier = customer.metafields.loyalty.next_tier %}
+      {% assign loyalty_total_points = customer.metafields.loyalty.total_points | default: 0 %}
+      
+      {% assign tier_class = "" %}
+      {% assign tier_text = "" %}
+      
+      {% if loyalty_current_tier contains "Silver" %}
+        {% assign tier_class = "silver" %}
+        {% assign tier_text = "Silver" %}
+      {% elsif loyalty_current_tier contains "Gold" %}
+        {% assign tier_class = "gold" %}
+        {% assign tier_text = "Gold" %}
+      {% elsif loyalty_current_tier contains "Platinum" %}
+        {% assign tier_class = "platinum" %}
+        {% assign tier_text = "Platinum" %}
+      {% elsif section.settings.use_burgundy_theme %}
+        {% assign tier_class = "burgundy" %}
+        {% assign tier_text = "Silver" %}
+      {% else %}
+        {% assign tier_class = "silver" %}
+        {% assign tier_text = "Silver" %}
+      {% endif %}
+
+      <div class="loyalty-bar loyalty-bar--{{ tier_class }}">
+        <div class="loyalty-bar__left">
+          {{ section.settings.company_name | default: 'Ecovar Group' }}
+        </div>
+        <div class="loyalty-bar__right">
+          <div class="loyalty-bar__right-content">
+            <span class="loyalty-bar__points">Total Points: {{ loyalty_total_points }}</span>
+            <span class="loyalty-bar__status">Status: {{ tier_text }}</span>
+          </div>
+        </div>
+      </div>
+    {% else %}
+      {% if section.settings.show_login_message and section.settings.use_placeholder_for_logged_out %}
+        <div class="loyalty-bar loyalty-bar--{{ section.settings.default_tier | default: 'silver' }}">
+          <div class="loyalty-bar__left">
+            {{ section.settings.company_name | default: 'Ecovar Group' }}
+          </div>
+          <div class="loyalty-bar__right">
+            <span>{{ section.settings.login_message }}</span>
+          </div>
+        </div>
+      {% endif %}
+    {% endif %}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Customer Loyalty Bar",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "company_name",
+      "default": "Ecovar Group",
+      "label": "Company Name"
+    },
+    {
+      "type": "checkbox",
+      "id": "use_burgundy_theme",
+      "default": false,
+      "label": "Use Burgundy Theme",
+      "info": "If checked, will use burgundy color instead of silver for the Silver tier"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_login_message",
+      "default": true,
+      "label": "Show Login Message for Guests"
+    },
+    {
+      "type": "checkbox",
+      "id": "use_placeholder_for_logged_out",
+      "default": true,
+      "label": "Show Placeholder Bar for Logged Out Users"
+    },
+    {
+      "type": "text",
+      "id": "login_message",
+      "default": "Log in to view your loyalty status",
+      "label": "Login Message"
+    },
+    {
+      "type": "select",
+      "id": "default_tier",
+      "options": [
+        {
+          "value": "silver",
+          "label": "Silver"
+        },
+        {
+          "value": "gold",
+          "label": "Gold"
+        },
+        {
+          "value": "burgundy",
+          "label": "Burgundy"
+        }
+      ],
+      "default": "silver",
+      "label": "Default Color for Guests"
+    },
+    {
+      "type": "header",
+      "content": "Section Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Top",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Bottom",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "Customer Loyalty Bar",
+      "category": "Customer"
+    }
+  ]
+}
+{% endschema %}

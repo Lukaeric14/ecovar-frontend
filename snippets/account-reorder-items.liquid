@@ -1,0 +1,132 @@
+<style>
+/* Reorder items styles */
+.reorder-items-container {
+  margin-top: 20px;
+}
+
+.reorder-intro {
+  margin-bottom: 20px;
+  color: #4a5568;
+}
+
+.reorder-item {
+  display: flex;
+  align-items: center;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  background-color: white;
+}
+
+.reorder-item-image {
+  width: 80px;
+  height: 80px;
+  margin-right: 15px;
+}
+
+.reorder-item-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.placeholder-image {
+  width: 100%;
+  height: 100%;
+  background-color: #f7fafc;
+  border-radius: 4px;
+}
+
+.reorder-item-details {
+  flex: 1;
+}
+
+.reorder-item-details h4 {
+  margin: 0 0 5px;
+  font-size: 1rem;
+  color: #2d3748;
+}
+
+.variant-title {
+  color: #718096;
+  font-size: 0.85rem;
+  margin: 0 0 5px;
+}
+
+.price {
+  font-weight: 600;
+  color: #4a5568;
+}
+
+.reorder-item-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-left: 15px;
+}
+
+.view-product {
+  color: #4a5568;
+  text-decoration: none;
+  font-size: 0.85rem;
+}
+
+.view-product:hover {
+  text-decoration: underline;
+}
+</style>
+
+<h2 class="section-title">Reorder Items</h2>
+{% if customer.orders.size > 0 %}
+  <div class="reorder-items-container">
+    <p class="reorder-intro">Quickly reorder your favorite items from previous purchases:</p>
+    {% assign all_items = '' %}
+    {% for order in customer.orders limit: 5 %}
+      {% for line_item in order.line_items %}
+        {% assign item_key = line_item.product_id | append: '-' | append: line_item.variant_id %}
+        {% unless all_items contains item_key %}
+          {% assign all_items = all_items | append: item_key | append: ',' %}
+          <div class="reorder-item">
+            <div class="reorder-item-image">
+              {% if line_item.image %}
+                <img src="{{ line_item.image | img_url: '100x100', crop: 'center' }}" alt="{{ line_item.title }}">
+              {% else %}
+                <div class="placeholder-image"></div>
+              {% endif %}
+            </div>
+            <div class="reorder-item-details">
+              <h4>{{ line_item.title }}</h4>
+              {% if line_item.variant_title %}
+                <p class="variant-title">{{ line_item.variant_title }}</p>
+              {% endif %}
+              <p class="price">{{ line_item.price | money }}</p>
+            </div>
+            <div class="reorder-item-actions">
+              <a href="/products/{{ line_item.handle }}" class="view-product">View Product</a>
+              <form method="post" action="/cart/add">
+                <input type="hidden" name="id" value="{{ line_item.variant_id }}">
+                <input type="hidden" name="quantity" value="1">
+                <button type="submit" class="add-to-cart-btn">Add to Cart</button>
+              </form>
+            </div>
+          </div>
+        {% endunless %}
+      {% endfor %}
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="empty-state">
+    <div class="empty-state-icon">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <path d="M16 10a4 4 0 0 1-8 0"></path>
+      </svg>
+    </div>
+    <h3>No Order History</h3>
+    <p>You need to place an order before you can reorder items.</p>
+    <a href="/collections/all" class="btn btn-primary">Start Shopping</a>
+  </div>
+{% endif %}

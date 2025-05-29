@@ -1,0 +1,2454 @@
+<!-- /templates/customers/account.liquid -->
+<link rel="stylesheet" href="{{ 'base.css' | asset_url }}" />
+<div class="customer-account-page container">
+  <div class="row">
+    <!-- Desktop Sidebar Navigation -->
+    <div class="col-md-3 account-sidebar">
+      <h4>Your Account</h4>
+      <ul class="list-unstyled account-links">
+        <li><a href="#" class="account-tab active" data-tab="profile">
+          <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          <span>Profile</span>
+        </a></li>
+        <li class="has-submenu open">
+          <a href="#" class="account-tab" data-tab="order-history">
+            <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <path d="M16 10a4 4 0 0 1-8 0"></path>
+            </svg>
+            <span>Orders</span>
+            <svg class="submenu-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </a>
+          <ul class="submenu list-unstyled">
+            <li><a href="#" class="account-tab" data-tab="order-history">Order History</a></li>
+            <li><a href="#" class="account-tab" data-tab="quotations">Quotations</a></li>
+            <li><a href="#" class="account-tab" data-tab="reorder">Reorder items</a></li>
+          </ul>
+        </li>
+        <li><a href="#" class="account-tab" data-tab="loyalty">
+          <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+          <span>Loyalty Program</span>
+        </a></li>
+        <li><a href="#" class="account-tab" data-tab="recommendations">
+          <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2z"></path>
+          </svg>
+          <span>Recommended</span>
+        </a></li>
+        <li class="d-none d-md-block"><a href="{{ routes.account_logout_url }}" class="account-logout">
+          <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          <span>Log Out</span>
+        </a></li>
+      </ul>
+    </div>
+    
+    <!-- Mobile Bottom Navigation -->
+    <div class="mobile-bottom-nav d-md-none">
+      <a href="#" class="mobile-nav-item active" data-tab="profile">
+        <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+        <span>Profile</span>
+      </a>
+      <div class="mobile-nav-dropdown open">
+        <a href="#" class="mobile-nav-item" data-tab="order-history">
+          <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <path d="M16 10a4 4 0 0 1-8 0"></path>
+          </svg>
+          <span>Orders</span>
+        </a>
+        <div class="mobile-submenu">
+          <a href="#" class="mobile-nav-subitem" data-tab="order-history">Order History</a>
+          <a href="#" class="mobile-nav-subitem" data-tab="quotations">Quotations</a>
+          <a href="#" class="mobile-nav-subitem" data-tab="reorder">Reorder items</a>
+        </div>
+      </div>
+      <a href="#" class="mobile-nav-item" data-tab="loyalty">
+        <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+        <span>Loyalty</span>
+      </a>
+      <a href="#" class="mobile-nav-item" data-tab="recommendations">
+        <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2z"></path>
+        </svg>
+        <span>Recommended</span>
+      </a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="col-md-9 account-content">
+      <!-- Profile Tab Content -->
+      <div id="profile" class="tab-content active">
+        <h2 class="section-title">Profile Information</h2>
+        <form method="post" action="/account" accept-charset="UTF-8" class="customer-form">
+          <input type="hidden" name="_method" value="put">
+          <input type="hidden" name="form_type" value="customer">
+          <input type="hidden" name="utf8" value="✓">
+
+          <div class="form-group">
+            <label for="CompanyName">Company Name</label>
+            <input type="text" class="form-control" name="customer[note]" value="{{ customer.note }}" placeholder="Company Name">
+          </div>
+
+          <div class="form-group">
+            <label for="Phone">Phone Number</label>
+            <input type="text" class="form-control" name="customer[phone]" value="{{ customer.phone }}" placeholder="Phone Number">
+          </div>
+
+          <div class="form-group">
+            <label for="Email">Email Address</label>
+            <input type="email" class="form-control" name="customer[email]" value="{{ customer.email }}" placeholder="Email Address">
+          </div>
+
+          <button type="submit" class="custom-button btn btn-primary">Update Information</button>
+        </form>
+      </div>
+
+      <!-- Orders Tab Content - Redirects to Order History -->
+      <div id="orders" class="tab-content">
+        <!-- This is a redirect tab, content is in order-history tab -->
+      </div>
+      
+      <style>
+        /* Reset some default styles */
+        * {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+        }
+        
+        /* Submenu styles */
+        .has-submenu {
+          position: relative;
+        }
+        
+        .submenu-arrow {
+          width: 16px;
+          height: 16px;
+          margin-left: auto;
+          transition: transform 0.3s ease;
+        }
+        
+        .has-submenu.open .submenu-arrow {
+          transform: rotate(180deg);
+        }
+        
+        .submenu {
+          display: none;
+          padding-left: 30px;
+          margin-top: 5px;
+        }
+        
+        .has-submenu.open .submenu {
+          display: block;
+        }
+        
+        .submenu li {
+          margin-bottom: 8px;
+        }
+        
+        .submenu a {
+          color: #4a5568;
+          text-decoration: none;
+          font-size: 0.9em;
+          display: block;
+          padding: 5px 0;
+          transition: color 0.3s ease;
+        }
+        
+        .submenu a:hover {
+          color: #38a169;
+        }
+        
+        /* Orders overview styles */
+        .orders-overview {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+          gap: 20px;
+          margin-top: 20px;
+        }
+        
+        .orders-option {
+          background-color: #f8f8f8;
+          border-radius: 8px;
+          padding: 20px;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .orders-option:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .orders-option h3 {
+          margin-top: 0;
+          margin-bottom: 10px;
+          font-size: 1.2rem;
+          color: #2d3748;
+        }
+        
+        .orders-option p {
+          color: #718096;
+          margin-bottom: 15px;
+          font-size: 0.9rem;
+        }
+        
+        .btn-outline-primary {
+          color: #4a5568;
+          background-color: transparent;
+          border: 1px solid #CBD5E0;
+          padding: 8px 16px;
+          font-size: 0.9rem;
+          border-radius: 4px;
+          transition: all 0.2s ease;
+          display: inline-block;
+          text-decoration: none;
+        }
+        
+        .btn-outline-primary:hover {
+          background-color: #EDF2F7;
+          color: #2D3748;
+          text-decoration: none;
+        }
+        
+        /* Reorder items styles */
+        .reorder-items-container {
+          margin-top: 20px;
+        }
+        
+        .reorder-intro {
+          margin-bottom: 20px;
+          color: #4a5568;
+        }
+        
+        .reorder-item {
+          display: flex;
+          align-items: center;
+          border: 1px solid #e2e8f0;
+          border-radius: 8px;
+          padding: 15px;
+          margin-bottom: 15px;
+          background-color: white;
+        }
+        
+        .reorder-item-image {
+          width: 80px;
+          height: 80px;
+          margin-right: 15px;
+        }
+        
+        .reorder-item-image img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+          border-radius: 4px;
+        }
+        
+        .placeholder-image {
+          width: 100%;
+          height: 100%;
+          background-color: #f7fafc;
+          border-radius: 4px;
+        }
+        
+        .reorder-item-details {
+          flex: 1;
+        }
+        
+        .reorder-item-details h4 {
+          margin: 0 0 5px;
+          font-size: 1rem;
+          color: #2d3748;
+        }
+        
+        .variant-title {
+          color: #718096;
+          font-size: 0.85rem;
+          margin: 0 0 5px;
+        }
+        
+        .price {
+          font-weight: 600;
+          color: #4a5568;
+        }
+        
+        .reorder-item-actions {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          margin-left: 15px;
+        }
+        
+        .view-product {
+          color: #4a5568;
+          text-decoration: none;
+          font-size: 0.85rem;
+        }
+        
+        .view-product:hover {
+          text-decoration: underline;
+        }
+        
+        /* Mobile submenu styles */
+        .mobile-nav-dropdown {
+          position: relative;
+        }
+        
+        .mobile-submenu {
+          display: none;
+          position: absolute;
+          bottom: 100%;
+          left: 0;
+          right: 0;
+          background: white;
+          border-top: 1px solid #eee;
+          padding: 8px 0;
+          box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.05);
+          z-index: 10;
+        }
+        
+        .mobile-nav-dropdown.open .mobile-submenu {
+          display: block;
+        }
+        
+        .mobile-nav-subitem {
+          display: block;
+          padding: 10px 15px;
+          color: #4a5568;
+        }
+      </style>
+    </div>
+  </div>
+</div>
+                padding-left: 30px;
+                margin-top: 5px;
+              }
+              
+              .has-submenu.open .submenu {
+                display: block;
+              }
+              
+              .submenu li {
+                margin-bottom: 8px;
+              }
+              
+              .submenu a {
+                color: #4a5568;
+                text-decoration: none;
+                font-size: 0.9em;
+                display: block;
+                padding: 5px 0;
+                transition: color 0.3s ease;
+              }
+              
+              .submenu a:hover {
+                color: #38a169;
+              }
+              
+              /* Orders overview styles */
+              .orders-overview {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                gap: 20px;
+                margin-top: 20px;
+              }
+              
+              .orders-option {
+                background-color: #f8f8f8;
+                border-radius: 8px;
+                padding: 20px;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+              }
+              
+              .orders-option:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+              }
+              
+              .orders-option h3 {
+                margin-top: 0;
+                margin-bottom: 10px;
+                font-size: 1.2rem;
+                color: #2d3748;
+              }
+              
+              .orders-option p {
+                color: #718096;
+                margin-bottom: 15px;
+                font-size: 0.9rem;
+              }
+              
+              .btn-outline-primary {
+                color: #4a5568;
+                background-color: transparent;
+                border: 1px solid #CBD5E0;
+                padding: 8px 16px;
+                font-size: 0.9rem;
+                border-radius: 4px;
+                transition: all 0.2s ease;
+                display: inline-block;
+                text-decoration: none;
+              }
+              
+              .btn-outline-primary:hover {
+                background-color: #EDF2F7;
+                color: #2D3748;
+                text-decoration: none;
+              }
+              
+              /* Reorder items styles */
+              .reorder-items-container {
+                margin-top: 20px;
+              }
+              
+              .reorder-intro {
+                margin-bottom: 20px;
+                color: #4a5568;
+              }
+              
+              .reorder-item {
+                display: flex;
+                align-items: center;
+                border: 1px solid #e2e8f0;
+                border-radius: 8px;
+                padding: 15px;
+                margin-bottom: 15px;
+                background-color: white;
+              }
+              
+              .reorder-item-image {
+                width: 80px;
+                height: 80px;
+                margin-right: 15px;
+              }
+              
+              .reorder-item-image img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+                border-radius: 4px;
+              }
+              
+              .placeholder-image {
+                width: 100%;
+                height: 100%;
+                background-color: #f7fafc;
+                border-radius: 4px;
+              }
+              
+              .reorder-item-details {
+                flex: 1;
+              }
+              
+              .reorder-item-details h4 {
+                margin: 0 0 5px;
+                font-size: 1rem;
+                color: #2d3748;
+              }
+              
+              .variant-title {
+                color: #718096;
+                font-size: 0.85rem;
+                margin: 0 0 5px;
+              }
+              
+              .price {
+                font-weight: 600;
+                color: #4a5568;
+              }
+              
+              .reorder-item-actions {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                margin-left: 15px;
+              }
+              
+              .view-product {
+                color: #4a5568;
+                text-decoration: none;
+                font-size: 0.85rem;
+              }
+              
+              .view-product:hover {
+                text-decoration: underline;
+              }
+              
+              /* Mobile submenu styles */
+              .mobile-nav-dropdown {
+                position: relative;
+              }
+              
+              .mobile-submenu {
+                display: none;
+                position: absolute;
+                bottom: 100%;
+                left: 0;
+                right: 0;
+                background: white;
+                border-top: 1px solid #eee;
+                padding: 8px 0;
+                box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.05);
+                z-index: 10;
+              }
+              
+              .mobile-nav-dropdown.open .mobile-submenu {
+                display: block;
+              }
+              
+              .mobile-nav-subitem {
+                display: block;
+                padding: 10px 15px;
+                color: #4a5568;
+            
+            .submenu-arrow {
+              width: 16px;
+              height: 16px;
+              margin-left: auto;
+              transition: transform 0.3s ease;
+            }
+            
+            .has-submenu.open .submenu-arrow {
+              transform: rotate(180deg);
+            }
+            
+            .submenu {
+              display: none;
+              padding-left: 30px;
+              margin-top: 5px;
+            }
+            
+            .has-submenu.open .submenu {
+              display: block;
+            }
+            
+            .submenu li {
+              margin-bottom: 8px;
+            }
+            
+            .submenu a {
+              color: #4a5568;
+              text-decoration: none;
+              font-size: 0.9em;
+              display: block;
+              padding: 5px 0;
+              transition: color 0.3s ease;
+            }
+            
+            .submenu a:hover {
+              color: #38a169;
+            }
+            
+            /* Orders overview styles */
+            .orders-overview {
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+              gap: 20px;
+              margin-top: 20px;
+            }
+            
+            .orders-option {
+              background-color: #f8f8f8;
+              border-radius: 8px;
+              padding: 20px;
+              box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+              transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
+            
+            .orders-option:hover {
+              transform: translateY(-5px);
+              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }
+            
+            .orders-option h3 {
+              margin-top: 0;
+              margin-bottom: 10px;
+              font-size: 1.2rem;
+              color: #2d3748;
+            }
+            
+            .orders-option p {
+              color: #718096;
+              margin-bottom: 15px;
+              font-size: 0.9rem;
+            }
+            
+            .btn-outline-primary {
+              color: #4a5568;
+              background-color: transparent;
+              border: 1px solid #CBD5E0;
+              padding: 8px 16px;
+              font-size: 0.9rem;
+              border-radius: 4px;
+              transition: all 0.2s ease;
+              display: inline-block;
+              text-decoration: none;
+            }
+            
+            .btn-outline-primary:hover {
+              background-color: #EDF2F7;
+              color: #2D3748;
+              text-decoration: none;
+            }
+            
+            /* Reorder items styles */
+            .reorder-items-container {
+              margin-top: 20px;
+            }
+            
+            .reorder-intro {
+              margin-bottom: 20px;
+              color: #4a5568;
+            }
+            
+            .reorder-item {
+              display: flex;
+              align-items: center;
+              border: 1px solid #e2e8f0;
+              border-radius: 8px;
+              padding: 15px;
+              margin-bottom: 15px;
+              background-color: white;
+            }
+            
+            .reorder-item-image {
+              width: 80px;
+              height: 80px;
+              margin-right: 15px;
+            }
+            
+            .reorder-item-image img {
+              width: 100%;
+              height: 100%;
+              object-fit: contain;
+              border-radius: 4px;
+            }
+            
+            .placeholder-image {
+              width: 100%;
+              height: 100%;
+              background-color: #f7fafc;
+              border-radius: 4px;
+            }
+            
+            .reorder-item-details {
+              flex: 1;
+            }
+            
+            .reorder-item-details h4 {
+              margin: 0 0 5px;
+              font-size: 1rem;
+              color: #2d3748;
+            }
+            
+            .variant-title {
+              color: #718096;
+              font-size: 0.85rem;
+              margin: 0 0 5px;
+            }
+            
+            .price {
+              font-weight: 600;
+              color: #4a5568;
+            }
+            
+            .reorder-item-actions {
+              display: flex;
+              flex-direction: column;
+              gap: 10px;
+              margin-left: 15px;
+            }
+            
+            .view-product {
+              color: #4a5568;
+              text-decoration: none;
+              font-size: 0.85rem;
+            }
+            
+            .view-product:hover {
+              text-decoration: underline;
+            }
+            
+            /* Mobile submenu styles */
+            .mobile-nav-dropdown {
+              position: relative;
+            }
+            
+            .mobile-submenu {
+              display: none;
+              position: absolute;
+              bottom: 100%;
+              left: 0;
+              right: 0;
+              background: white;
+              border-top: 1px solid #eee;
+              padding: 8px 0;
+              box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.05);
+              z-index: 10;
+            }
+            
+            .mobile-nav-dropdown.open .mobile-submenu {
+              display: block;
+            }
+            
+            .mobile-nav-subitem {
+              display: block;
+              padding: 10px 15px;
+              color: #4a5568;
+              text-decoration: none;
+              font-size: 0.9em;
+              transition: background-color 0.3s ease;
+            }
+            
+            .mobile-nav-subitem:hover {
+              background-color: #f8f9fa;
+            }
+            
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+              line-height: 1.5;
+              color: #4a5568;
+            }
+            
+            /* Add any additional styles for the account page here */
+            .order-list { display: none; }
+            
+            /* Show table by default */
+            .order-table-wrapper { display: block; }
+            
+            /* Mobile styles */
+            @media (max-width: 767.98px) {
+              .order-table-wrapper { display: none; }
+              .order-list { display: block; }
+            }
+            
+            /* Desktop styles */
+            @media (min-width: 768px) {
+              .order-table-wrapper { display: block; }
+              .order-list { display: none; }
+            }
+          </style>
+      
+      <!-- Order History Tab Content -->
+      <div id="order-history" class="tab-content">
+        <h2 class="section-title">Order History</h2>
+        {% if customer.orders.size > 0 %}
+          <div class="order-history-container">
+            <!-- Desktop Table -->
+            <div class="order-table-wrapper">
+              <table class="order-table">
+                <thead>
+                  <tr>
+                    <th>Order</th>
+                    <th>Date</th>
+                    <th>Payment Status</th>
+                    <th>Fulfillment Status</th>
+                    <th>Total</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for order in customer.orders %}
+                    <tr>
+                      <td><span class="order-number">{{ order.name }}</span></td>
+                      <td><span class="order-date">{{ order.created_at | date: "%b %d, %Y" }}</span></td>
+                      <td>
+                        <span class="payment-status {% if order.financial_status == 'paid' %}status-paid{% endif %}">{{ order.financial_status | capitalize }}</span>
+                      </td>
+                      <td>
+                        <span class="fulfillment-status {% if order.fulfillment_status == 'fulfilled' %}status-fulfilled{% endif %}">{{ order.fulfillment_status | default: 'Unfulfilled' | capitalize }}</span>
+                      </td>
+                      <td><span class="order-total">{{ order.total_price | money }}</span></td>
+                      <td><a href="{{ order.customer_url }}" class="view-link">View Order</a></td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            <!-- Mobile List -->
+            <div class="order-list">
+              {% for order in customer.orders %}
+                <div class="order-item">
+                  <div class="order-header">
+                    <span class="order-number">{{ order.name }}</span>
+                    <span class="order-date">{{ order.created_at | date: "%b %d, %Y" }}</span>
+                  </div>
+                  <div class="order-details">
+                    <div class="order-status">
+                      <span class="status-label">Payment:</span>
+                      <span class="payment-status {% if order.financial_status == 'paid' %}status-paid{% endif %}">{{ order.financial_status | capitalize }}</span>
+                    </div>
+                    <div class="order-status">
+                      <span class="status-label">Fulfillment:</span>
+                      <span class="fulfillment-status {% if order.fulfillment_status == 'fulfilled' %}status-fulfilled{% endif %}">{{ order.fulfillment_status | default: 'Unfulfilled' | capitalize }}</span>
+                    </div>
+                    <div class="order-total">
+                      <span class="status-label">Total:</span>
+                      <span>{{ order.total_price | money }}</span>
+                    </div>
+                  </div>
+                  <a href="{{ order.customer_url }}" class="order-link">View Order</a>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+          
+          {% if paginate.pages > 1 %}
+            <div class="pagination">
+              {{ paginate | default_pagination }}
+            </div>
+          {% endif %}
+        {% else %}
+          <div class="empty-state">
+            <div class="empty-state-icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <path d="M16 10a4 4 0 0 1-8 0"></path>
+              </svg>
+            </div>
+            <h3>No Orders Yet</h3>
+            <p>You haven't placed any orders yet.</p>
+            <a href="/collections/all" class="btn btn-primary">Start Shopping</a>
+          </div>
+        {% endif %}
+      </div>
+      
+      <!-- Quotations Tab Content -->
+      <div id="quotations" class="tab-content">
+        <h2 class="section-title">Quotations</h2>
+        <div class="empty-state">
+          <div class="empty-state-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+          </div>
+          <h3>No Quotations</h3>
+          <p>You don't have any quotations at this time.</p>
+          <a href="/pages/contact" class="btn btn-primary">Request a Quote</a>
+        </div>
+      </div>
+      
+      <!-- Reorder Items Tab Content -->
+      <div id="reorder" class="tab-content">
+        <h2 class="section-title">Reorder Items</h2>
+        {% if customer.orders.size > 0 %}
+          <div class="reorder-items-container">
+            <p class="reorder-intro">Quickly reorder your favorite items from previous purchases:</p>
+            {% assign all_items = '' %}
+            {% for order in customer.orders limit: 5 %}
+              {% for line_item in order.line_items %}
+                {% assign item_key = line_item.product_id | append: '-' | append: line_item.variant_id %}
+                {% unless all_items contains item_key %}
+                  {% assign all_items = all_items | append: item_key | append: ',' %}
+                  <div class="reorder-item">
+                    <div class="reorder-item-image">
+                      {% if line_item.image %}
+                        <img src="{{ line_item.image | img_url: '100x100', crop: 'center' }}" alt="{{ line_item.title }}">
+                      {% else %}
+                        <div class="placeholder-image"></div>
+                      {% endif %}
+                    </div>
+                    <div class="reorder-item-details">
+                      <h4>{{ line_item.title }}</h4>
+                      {% if line_item.variant_title %}
+                        <p class="variant-title">{{ line_item.variant_title }}</p>
+                      {% endif %}
+                      <p class="price">{{ line_item.price | money }}</p>
+                    </div>
+                    <div class="reorder-item-actions">
+                      <a href="/products/{{ line_item.handle }}" class="view-product">View Product</a>
+                      <form method="post" action="/cart/add">
+                        <input type="hidden" name="id" value="{{ line_item.variant_id }}">
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="add-to-cart-btn">Add to Cart</button>
+                      </form>
+                    </div>
+                  </div>
+                {% endunless %}
+              {% endfor %}
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="empty-state">
+            <div class="empty-state-icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <path d="M16 10a4 4 0 0 1-8 0"></path>
+              </svg>
+            </div>
+            <h3>No Order History</h3>
+            <p>You need to place an order before you can reorder items.</p>
+            <a href="/collections/all" class="btn btn-primary">Start Shopping</a>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Loyalty Tab Content -->
+      <div id="loyalty" class="tab-content">
+        <style>
+          /* Direct inline styles for loyalty section */
+          #loyalty .loyalty-program {
+            padding-top: 0 !important;
+            margin-top: 0 !important;
+          }
+          #loyalty h2.section-title {
+            font-size: 1.75rem !important;
+            font-weight: 600 !important;
+            margin-bottom: 1.5rem !important;
+          }
+          #loyalty h3 {
+            font-size: 1.5rem !important;
+            font-weight: 600 !important;
+            margin-bottom: 1.25rem !important;
+          }
+          #loyalty span {
+            font-size: 1.125rem !important;
+            font-weight: 500 !important;
+          }
+          #loyalty .points-amount {
+            font-size: 2.25rem !important;
+            font-weight: 700 !important;
+          }
+          #loyalty .points-detail {
+            font-size: 1.125rem !important;
+            margin-bottom: 0.75rem !important;
+          }
+          #loyalty .tier-label span {
+            font-size: 1.125rem !important;
+            font-weight: 500 !important;
+          }
+          #loyalty .tier-requirements span {
+            font-size: 1.125rem !important;
+            font-weight: 500 !important;
+          }
+          #loyalty .tier-note {
+            font-size: 1.125rem !important;
+            font-weight: 500 !important;
+          }
+          #loyalty .points-table th {
+            font-size: 1rem !important;
+            font-weight: 600 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.05em !important;
+            white-space: nowrap !important;
+          }
+          #loyalty .points-table td {
+            font-size: 1.125rem !important;
+            font-weight: 500 !important;
+            padding: 1.125rem 1.25rem !important;
+          }
+          #loyalty .status-badge {
+            font-size: 1rem !important;
+            font-weight: 600 !important;
+            padding: 0.375rem 0.875rem !important;
+          }
+        </style>
+        <div class="loyalty-program">
+          <h2 class="section-title">Loyalty Program</h2>
+          
+          <!-- Points Summary -->
+          <div class="points-summary">
+            <div class="points-card">
+              <div class="points-card-header">
+                <h3>Available Points</h3>
+                <span class="points-amount">1,000</span>
+              </div>
+              <div class="points-card-body">
+                <div class="points-detail">
+                  <span>Pending Points</span>
+                  <span>500</span>
+                </div>
+                <div class="points-detail">
+                  <span>Lifetime Points</span>
+                  <span>5,250</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Tier Status -->
+          <div class="tier-status">
+            <h3>Your Tier Status</h3>
+            <div class="tier-progress">
+              <div class="tier-label">
+                <span>Silver</span>
+                <span>Gold</span>
+              </div>
+              <div class="progress">
+                <div class="progress-bar" style="width: 30%;"></div>
+              </div>
+              <div class="tier-requirements">
+                <span>0 pts</span>
+                <span>5,000 pts</span>
+                <span>10,000 pts</span>
+              </div>
+            </div>
+            <p class="tier-note">You're 4,000 points away from Gold status</p>
+          </div>
+          
+          <!-- Points History -->
+          <div class="points-history">
+            <div class="section-header">
+              <h3>Points History</h3>
+              <div class="view-options">
+                <button class="active">All</button>
+                <button>Earned</button>
+                <button>Spent</button>
+              </div>
+            </div>
+            
+            <div class="points-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th>Points</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>May 24, 2025</td>
+                    <td>Purchase #1001</td>
+                    <td class="points-earned">+250</td>
+                    <td><span class="status-badge">Completed</span></td>
+                  </tr>
+                  <tr>
+                    <td>May 20, 2025</td>
+                    <td>Birthday Bonus</td>
+                    <td class="points-earned">+500</td>
+                    <td><span class="status-badge">Completed</span></td>
+                  </tr>
+                  <tr>
+                    <td>May 15, 2025</td>
+                    <td>Purchase #987</td>
+                    <td class="points-pending">+250</td>
+                    <td><span class="status-badge pending">Pending</span></td>
+                  </tr>
+                  <tr>
+                    <td>May 10, 2025</td>
+                    <td>Product Review</td>
+                    <td class="points-earned">+50</td>
+                    <td><span class="status-badge">Completed</span></td>
+                  </tr>
+                  <tr>
+                    <td>May 5, 2025</td>
+                    <td>Purchase #965</td>
+                    <td class="points-earned">+250</td>
+                    <td><span class="status-badge">Completed</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            
+            <div class="pagination">
+              <button class="active">1</button>
+              <button>2</button>
+              <button>3</button>
+              <span>...</span>
+              <button>Next</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recommendations Tab Content -->
+      <div id="recommendations" class="tab-content">
+        <h2 class="section-title">Recommended For You</h2>
+        <p class="section-subtitle text-center mb-4">Personalized picks based on your preferences</p>
+        <div class="recommendations-section">
+          {% assign recommendations = collections['recommended'] | default: collections['all'] %}
+          
+          <div class="recommendations-carousel">
+            {% if recommendations.products.size > 0 %}
+              {% for product in recommendations.products limit: 8 %}
+                <div class="product-card">
+                  <div class="product-image">
+                    <a href="{{ product.url }}">
+                      <img 
+                        src="{{ product.featured_image | img_url: '400x' }}" 
+                        alt="{{ product.featured_image.alt | escape }}"
+                        loading="lazy"
+                        width="400"
+                        height="{{ 400 | divided_by: product.featured_image.aspect_ratio | ceil }}"
+                      >
+                    </a>
+                    
+                    {% if product.tags contains 'bestseller' %}
+                      <div class="product-badge">Bestseller</div>
+                    {% elsif product.tags contains 'new' %}
+                      <div class="product-badge new">New</div>
+                    {% elsif product.compare_at_price > product.price %}
+                      <div class="product-badge">Sale</div>
+                    {% endif %}
+                    
+                    <button class="quick-view-btn" 
+                            data-product-handle="{{ product.handle }}" 
+                            aria-label="Quick view {{ product.title | escape }}">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                    </button>
+                  </div>
+                  <div class="product-details">
+                    <h2 class="product-title">
+                      <a href="{{ product.url }}">{{ product.title }}</a>
+                    </h2>
+                    <div class="product-price">
+                      <span class="current-price">{{ product.price | money }}</span>
+                      {% if product.compare_at_price > product.price %}
+                        <span class="original-price">{{ product.compare_at_price | money }}</span>
+                      {% endif %}
+                    </div>
+                    <form method="post" action="/cart/add" class="add-to-cart-form">
+                      <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+                      <button type="submit" name="add" class="add-to-cart-btn">
+                        {{ 'products.product.add_to_cart' | t }}
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              {% endfor %}
+            {% else %}
+              {% comment %} Fallback if no recommended products are found {% endcomment %}
+              {% for i in (1..4) %}
+                <div class="product-card">
+                  <div class="product-image">
+                    {{ 'product-' | append: i | placeholder_svg_tag: 'placeholder-svg' }}
+                  </div>
+                  <div class="product-details">
+                    <h3 class="product-title">Product {{ i }}</h3>
+                    <div class="product-price">
+                      <span class="current-price">${{ i }}9.99</span>
+                    </div>
+                    <button class="add-to-cart-btn">Add to Cart</button>
+                  </div>
+                </div>
+              {% endfor %}
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const tabs = document.querySelectorAll('.account-tab');
+  const mobileNavItems = document.querySelectorAll('.mobile-nav-item');
+  const mobileSubItems = document.querySelectorAll('.mobile-nav-subitem');
+  const tabContents = document.querySelectorAll('.tab-content');
+  const hasSubmenuItems = document.querySelectorAll('.has-submenu > a');
+  const mobileNavDropdown = document.querySelector('.mobile-nav-dropdown');
+  
+  // Initialize the page with Order History tab active unless another tab is specified
+  const activeTabOnLoad = window.location.hash ? window.location.hash.substring(1) : 'order-history';
+  
+  // Set the default active tab after a short delay to ensure DOM is fully loaded
+  setTimeout(function() {
+    if (activeTabOnLoad === 'order-history') {
+      // Make sure Order History tab is active by default
+      const orderHistoryTab = document.querySelector('[data-tab="order-history"]');
+      if (orderHistoryTab) {
+        activateTab('order-history');
+      }
+    }
+  }, 100);
+  
+  // Function to activate a tab
+  function activateTab(tabId) {
+    // Hide all tab contents
+    tabContents.forEach(content => {
+      content.classList.remove('active');
+    });
+    
+    // Remove active class from all tabs
+    tabs.forEach(tab => {
+      tab.classList.remove('active');
+    });
+    
+    // Remove active class from all mobile nav items
+    mobileNavItems.forEach(item => {
+      item.classList.remove('active');
+    });
+    
+    // Remove active class from all mobile subitems
+    mobileSubItems.forEach(item => {
+      item.classList.remove('active');
+    });
+    
+    // Add active class to selected tab
+    document.querySelectorAll(`[data-tab="${tabId}"]`).forEach(tab => {
+      tab.classList.add('active');
+      
+      // If it's a submenu item, also activate parent
+      const parentLi = tab.closest('.has-submenu');
+      if (parentLi) {
+        parentLi.classList.add('open');
+        const parentTab = parentLi.querySelector('.account-tab');
+        if (parentTab) {
+          parentTab.classList.add('active');
+        }
+      }
+      
+      // If it's a mobile submenu item, also activate parent
+      const mobileParent = tab.closest('.mobile-nav-dropdown');
+      if (mobileParent) {
+        mobileParent.classList.add('open');
+        const parentTab = mobileParent.querySelector('.mobile-nav-item');
+        if (parentTab) {
+          parentTab.classList.add('active');
+        }
+      }
+    });
+    
+    // Show selected tab content
+    const selectedContent = document.getElementById(tabId);
+    if (selectedContent) {
+      selectedContent.classList.add('active');
+    }
+  }
+  
+  // Toggle submenu (but keep it open by default)
+  hasSubmenuItems.forEach(item => {
+    item.addEventListener('click', function(e) {
+      // Get the data-tab attribute - if it's not one of the submenus, toggle the open state
+      const tabId = this.getAttribute('data-tab');
+      if (tabId === 'order-history' || tabId === 'quotations' || tabId === 'reorder') {
+        // If it's a submenu item, just activate the tab without toggling the menu
+        e.preventDefault();
+        activateTab(tabId);
+      } else {
+        // If it's the parent menu item, just toggle the open state
+        e.preventDefault();
+        const parent = this.parentNode;
+        parent.classList.toggle('open');
+      }
+    });
+  });
+  
+  // Handle mobile submenu (keep it open by default)
+  if (mobileNavDropdown) {
+    const mobileNavItem = mobileNavDropdown.querySelector('.mobile-nav-item');
+    if (mobileNavItem) {
+      mobileNavItem.addEventListener('click', function(e) {
+        e.preventDefault();
+        // Get the data-tab attribute and activate it directly
+        const tabId = this.getAttribute('data-tab');
+        activateTab(tabId);
+      });
+    }
+  }
+  
+  // Add click event listeners to tabs
+  tabs.forEach(tab => {
+    if (!tab.closest('.has-submenu')) {
+      tab.addEventListener('click', function(e) {
+        e.preventDefault();
+        const tabId = this.getAttribute('data-tab');
+        activateTab(tabId);
+      });
+    }
+  });
+  
+  // Add click event listeners to submenu tabs
+  document.querySelectorAll('.submenu a').forEach(item => {
+    item.addEventListener('click', function(e) {
+      e.preventDefault();
+      const tabId = this.getAttribute('data-tab');
+      activateTab(tabId);
+    });
+  });
+  
+  // Add click event listeners to mobile nav items
+  mobileNavItems.forEach(item => {
+    if (!item.closest('.mobile-nav-dropdown')) {
+      item.addEventListener('click', function(e) {
+        e.preventDefault();
+        const tabId = this.getAttribute('data-tab');
+        activateTab(tabId);
+      });
+    }
+  });
+  
+  // Add click event listeners to mobile submenu items
+  mobileSubItems.forEach(item => {
+    item.addEventListener('click', function(e) {
+      e.preventDefault();
+      const tabId = this.getAttribute('data-tab');
+      activateTab(tabId);
+      if (mobileNavDropdown) {
+        mobileNavDropdown.classList.remove('open');
+      }
+    });
+  });
+});
+</script>
+
+<!-- JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Tab switching functionality
+  const tabs = document.querySelectorAll('.account-tab');
+  
+  tabs.forEach(tab => {
+    tab.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      // Remove active class from all tabs and content
+      document.querySelectorAll('.account-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      
+      // Add active class to clicked tab
+      this.classList.add('active');
+      
+      // Show corresponding content
+      const tabId = this.getAttribute('data-tab');
+      const content = document.getElementById(tabId);
+      if (content) {
+        content.classList.add('active');
+      }
+    });
+  });
+
+  // Activate first tab by default if none is active
+  if (!document.querySelector('.account-tab.active') && tabs.length > 0) {
+    tabs[0].click();
+  }
+  
+  // Mobile navigation click handler
+  const mobileNavItems = document.querySelectorAll('.mobile-nav-item');
+  mobileNavItems.forEach(item => {
+    item.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      // Remove active class from all mobile items
+      document.querySelectorAll('.mobile-nav-item').forEach(i => i.classList.remove('active'));
+      
+      // Add active class to clicked item
+      this.classList.add('active');
+      
+      // Get the tab ID and trigger click on corresponding desktop tab
+      const tabId = this.getAttribute('data-tab');
+      const desktopTab = document.querySelector(`.account-tab[data-tab="${tabId}"]`);
+      if (desktopTab) {
+        desktopTab.click();
+      }
+    });
+  });
+  
+  // Sync active state between mobile and desktop navs
+  tabs.forEach(tab => {
+    tab.addEventListener('click', function() {
+      const tabId = this.getAttribute('data-tab');
+      const mobileItem = document.querySelector(`.mobile-nav-item[data-tab="${tabId}"]`);
+      if (mobileItem) {
+        document.querySelectorAll('.mobile-nav-item').forEach(i => i.classList.remove('active'));
+        mobileItem.classList.add('active');
+      }
+    });
+  });
+});
+</script>
+
+<!-- Styles -->
+<style>
+/* Mobile Bottom Navigation */
+.mobile-bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+  z-index: 1000;
+  padding: 8px 0;
+  justify-content: space-around;
+  align-items: center;
+  height: 60px;
+}
+
+.mobile-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  text-decoration: none;
+  font-size: 10px;
+  flex: 1;
+  transition: all 0.2s ease;
+  padding: 4px 0;
+}
+
+.mobile-nav-item.active {
+  color: #b0b88f;
+}
+
+.mobile-nav-item .nav-icon {
+  width: 20px;
+  height: 20px;
+  margin-bottom: 4px;
+  stroke-width: 2;
+}
+
+.mobile-nav-item.active .nav-icon {
+  stroke: #b0b88f;
+}
+
+/* Desktop Navigation Icons */
+.nav-icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  vertical-align: middle;
+  stroke-width: 1.5;
+  display: inline-block;
+}
+
+/* Adjust content padding for mobile */
+.account-content {
+  padding-bottom: 70px; /* Space for mobile nav */
+}
+
+.order-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  margin-bottom: 2rem;
+}
+
+.order-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.order-table th,
+.order-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.order-table th {
+  font-weight: 500;
+  color: #666;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.order-number {
+  font-weight: 500;
+  color: #333;
+  text-decoration: none;
+}
+
+.order-number:hover {
+  color: #b0b88f;
+  text-decoration: underline;
+}
+
+.order-status {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  background: #f5f5f5;
+  color: #666;
+}
+
+/* Mobile Order List */
+.order-list {
+  margin: 0 -1rem;
+}
+
+.order-item {
+  padding: 1rem;
+  border-bottom: 1px solid #f0f0f0;
+  position: relative;
+  background: #fff;
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.order-number {
+  font-weight: 500;
+  color: #333;
+}
+
+.order-date {
+  color: #999;
+  font-size: 0.9rem;
+}
+
+.order-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0.5rem 0;
+}
+
+.order-total {
+  font-weight: 600;
+  color: #333;
+}
+
+.order-link {
+  display: block;
+  text-align: center;
+  padding: 0.5rem;
+  margin-top: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  color: #333;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.order-link:hover {
+  background: #f9f9f9;
+  border-color: #ccc;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  background: #fafafa;
+  border-radius: 8px;
+  margin: 2rem 0;
+}
+
+.empty-state-icon {
+  margin-bottom: 1rem;
+}
+
+.empty-state h3 {
+  margin: 0.5rem 0;
+  color: #333;
+}
+
+.empty-state p {
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+/* Pagination */
+.pagination {
+  margin: 2rem 0;
+  text-align: center;
+}
+
+.pagination a,
+.pagination .current {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  margin: 0 0.25rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  text-decoration: none;
+  color: #333;
+  transition: all 0.2s ease;
+}
+
+.pagination a:hover {
+  background: #f5f5f5;
+  border-color: #ccc;
+}
+
+.pagination .current {
+  background: #b0b88f;
+  color: #fff;
+  border-color: #b0b88f;
+}
+
+.customer-account-page {
+  padding: 40px 0;
+  font-family: 'Jost', sans-serif;
+  min-height: 60vh;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px 24px;
+  box-sizing: border-box;
+}
+
+/* Main layout */
+.customer-account-page .row {
+  display: flex;
+  flex-wrap: nowrap;
+  margin: 0 -15px;
+}
+
+/* Sidebar styles */
+.account-sidebar {
+  flex: 0 0 25%;
+  max-width: 25%;
+  padding: 0 15px;
+  border-right: 1px solid #ddd;
+  position: relative;
+  height: 100%;
+}
+
+/* Main content area */
+.account-content {
+  flex: 0 0 75%;
+  max-width: 75%;
+  padding: 0 15px 0 30px;
+}
+
+/* Sidebar content */
+.account-sidebar h4 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.account-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.account-links li {
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+.account-links a {
+  color: #333;
+  text-decoration: none;
+  display: block;
+  padding: 10px 15px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.account-links a:hover {
+  background-color: #f5f5f5;
+}
+
+.account-links a.active {
+  font-weight: 600;
+  color: #b0b88f;
+  background-color: #f9f9f9;
+  border-left: 3px solid #b0b88f;
+  padding-left: 12px;
+}
+
+.account-links .account-logout {
+  color: #dc3545;
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.account-links .account-logout:hover {
+  background-color: #f8d7da;
+}
+
+/* Content area */
+.section-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.tab-content {
+  display: none;
+  animation: fadeIn 0.3s ease;
+  min-height: 400px;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* Table styles */
+.orders-table th, 
+.orders-table td {
+  text-align: left;
+  padding: 12px;
+  vertical-align: middle;
+  border-bottom: 1px solid #eee;
+}
+
+.orders-table th {
+  background-color: #f9f9f9;
+  font-weight: 500;
+  text-transform: uppercase;
+  font-size: 0.85em;
+  letter-spacing: 0.5px;
+}
+
+/* Button styles */
+.btn-outline-primary {
+  border-color: #b0b88f;
+  color: #b0b88f;
+  background: transparent;
+  transition: all 0.2s ease;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.btn-outline-primary:hover {
+  background: #b0b88f;
+  color: white;
+  border-color: #b0b88f;
+}
+
+/* Loyalty Program Styles */
+.loyalty-program {
+  max-width: 100% !important;
+  margin: 0 auto !important;
+  padding: 2rem 1rem !important;
+}
+
+.points-summary {
+  display: flex !important;
+  gap: 1.5rem !important;
+  margin-bottom: 2.5rem !important;
+}
+
+.points-card {
+  background: white !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+  overflow: hidden !important;
+  flex: 1 !important;
+}
+
+.points-card-header {
+  background: var(--primary-color) !important;
+  color: white !important;
+  padding: 1.25rem !important;
+  text-align: center !important;
+}
+
+.points-card-header h3 {
+  margin: 0 0 0.5rem !important;
+  font-size: 1.25rem !important;
+  font-weight: 600 !important;
+}
+
+.points-amount {
+  font-size: 2rem !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+}
+
+.points-card-body {
+  padding: 1.25rem !important;
+}
+
+.points-detail {
+  display: flex !important;
+  justify-content: space-between !important;
+  margin-bottom: 0.75rem !important;
+  font-size: 1rem !important;
+  color: var(--text-muted) !important;
+}
+
+.points-detail:last-child {
+  margin-bottom: 0 !important;
+}
+
+.tier-status {
+  background: white !important;
+  border-radius: 12px !important;
+  padding: 1.75rem !important;
+  margin-bottom: 2rem !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+}
+
+.tier-status h3 {
+  margin-top: 0 !important;
+  margin-bottom: 1.5rem !important;
+  font-size: 1.5rem !important;
+  font-weight: 600 !important;
+  color: var(--text-dark) !important;
+}
+
+.tier-progress {
+  margin-bottom: 1.25rem !important;
+}
+
+.tier-label {
+  display: flex !important;
+  justify-content: space-between !important;
+  margin-bottom: 0.75rem !important;
+  font-size: 1rem !important;
+  font-weight: 500 !important;
+  color: var(--text-muted) !important;
+}
+
+.progress {
+  height: 10px !important;
+  background: #e2e8f0 !important;
+  border-radius: 5px !important;
+  margin-bottom: 0.75rem !important;
+  overflow: hidden !important;
+}
+
+.progress-bar {
+  height: 100% !important;
+  background: var(--primary-color) !important;
+  border-radius: 5px !important;
+  transition: width 0.6s ease !important;
+}
+
+.tier-requirements {
+  display: flex !important;
+  justify-content: space-between !important;
+  font-size: 0.9375rem !important;
+  color: var(--text-light) !important;
+  font-weight: 500 !important;
+}
+
+.tier-note {
+  font-size: 1rem !important;
+  color: var(--text-muted) !important;
+  text-align: center !important;
+  margin: 1.5rem 0 0 !important;
+  padding-top: 1.25rem !important;
+  border-top: 1px solid #e2e8f0 !important;
+  font-weight: 500 !important;
+}
+
+.points-history {
+  background: white !important;
+  border-radius: 12px !important;
+  padding: 2rem !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+}
+
+.points-history .section-header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-bottom: 1.5rem !important;
+  text-align: left !important;
+}
+
+.points-history h3 {
+  margin: 0 !important;
+  font-size: 1.5rem !important;
+  font-weight: 600 !important;
+  color: var(--text-dark) !important;
+}
+
+.view-options {
+  display: flex !important;
+  gap: 0.75rem !important;
+}
+
+.view-options button {
+  padding: 0.5rem 1rem !important;
+  background: #f8f9fa !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 6px !important;
+  font-size: 0.9375rem !important;
+  font-weight: 500 !important;
+  color: var(--text-muted) !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.view-options button:hover {
+  background: #f1f5f9 !important;
+  border-color: #cbd5e0 !important;
+}
+
+.view-options button.active {
+  background: var(--primary-color) !important;
+  border-color: var(--primary-dark) !important;
+  color: white !important;
+  font-weight: 600 !important;
+}
+
+.points-table {
+  width: 100% !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+.points-table table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+}
+
+.points-table th,
+.points-table td {
+  padding: 1rem 1.25rem !important;
+  text-align: left !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  vertical-align: middle !important;
+}
+
+.points-table th {
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  color: var(--text-light) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  background: #f8f9fa !important;
+  white-space: nowrap !important;
+}
+
+.points-table td {
+  font-size: 1rem !important;
+  color: var(--text-muted) !important;
+  font-weight: 500 !important;
+  padding: 1.125rem 1.25rem !important;
+}
+
+.points-earned {
+  color: var(--primary-dark) !important;
+  font-weight: 600 !important;
+}
+
+.points-pending {
+  color: #d69e2e !important;
+  font-weight: 600 !important;
+}
+
+.status-badge {
+  display: inline-block !important;
+  padding: 0.375rem 0.875rem !important;
+  background: rgba(187, 194, 154, 0.15) !important;
+  color: var(--primary-dark) !important;
+  border-radius: 9999px !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  white-space: nowrap !important;
+}
+
+.status-badge.pending {
+  background: #fffaf0 !important;
+  color: #d69e2e !important;
+}
+
+.status-badge.pending {
+  background: #fff8e1;
+  color: #ff8f00;
+}
+
+/* Pagination */
+.pagination {
+  padding: 15px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  border-top: 1px solid #eee;
+}
+
+.pagination button {
+  min-width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+.pagination button.active {
+  background: #b0b88f;
+  border-color: #b0b88f;
+  color: white;
+}
+
+.pagination span {
+  padding: 0 10px;
+  color: #666;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .view-options {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .points-table th,
+  .points-table td {
+    padding: 12px 15px;
+  }
+  
+  .points-table th:nth-child(3),
+  .points-table td:nth-child(3) {
+    white-space: nowrap;
+  }
+}
+
+/* Form styles */
+.form-group {
+  margin-bottom: 20px;
+  max-width: 500px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  transition: border-color 0.2s ease;
+}
+
+.form-control:focus {
+  border-color: #b0b88f;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(176, 184, 143, 0.2);
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #333;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Recommendations Section */
+.recommendations-section {
+  padding: 2rem 1rem;
+  max-width: 100%;
+  margin: 0;
+  width: 100%;
+}
+
+:root {
+  --primary-color: #BBC29A;
+  --primary-dark: #9AA87D;
+  --text-dark: #2d3748;
+  --text-muted: #4a5568;
+  --text-light: #718096;
+  --border-color: #e2e8f0;
+  --background-light: #f8f9fa;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-dark);
+  font-weight: 600;
+  margin-top: 0;
+  line-height: 1.3;
+}
+
+h1 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+}
+
+h2 {
+  font-size: 1.75rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1.25rem;
+  font-weight: 600;
+}
+
+h4 {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+p {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+  font-size: 1rem;
+}
+
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+a:hover {
+  color: var(--primary-dark);
+  text-decoration: underline;
+  opacity: 0.9;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.section-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 0.75rem;
+}
+
+.section-subtitle {
+  color: var(--text-light);
+  font-size: 1.1rem;
+  max-width: 600px;
+  margin: 0 auto 1.5rem;
+  line-height: 1.6;
+}
+
+.recommendations-carousel {
+  display: flex;
+  gap: 1.5rem;
+  overflow-x: auto;
+  padding: 1rem 0 2rem;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e0 #f7fafc;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+  max-width: 100%;
+}
+
+.recommendations-carousel::-webkit-scrollbar {
+  height: 8px;
+}
+
+.recommendations-carousel::-webkit-scrollbar-track {
+  background: #f7fafc;
+  border-radius: 10px;
+}
+
+.recommendations-carousel::-webkit-scrollbar-thumb {
+  background-color: #cbd5e0;
+  border-radius: 10px;
+}
+
+.product-card {
+  flex: 0 0 auto;
+  width: 260px;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.product-image {
+  position: relative;
+  padding-top: 100%;
+  background: #f8fafc;
+  overflow: hidden;
+}
+
+.product-image img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.product-card:hover .product-image img {
+  transform: scale(1.05);
+}
+
+.product-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: #38a169;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  z-index: 1;
+}
+
+.product-badge.new {
+  background: #3182ce;
+}
+
+.quick-view-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+  z-index: 1;
+}
+
+.product-card:hover .quick-view-btn {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.quick-view-btn:hover {
+  background: #f7fafc;
+}
+
+.quick-view-btn svg {
+  width: 16px;
+  height: 16px;
+  color: #4a5568;
+}
+
+.product-details {
+  padding: 1.25rem;
+}
+
+.product-title {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--text-dark);
+  margin: 0 0 0.75rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.4;
+}
+
+.product-price {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.current-price {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--primary-dark);
+}
+
+.original-price {
+  font-size: 0.875rem;
+  color: #a0aec0;
+  text-decoration: line-through;
+}
+
+.product-rating {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.stars {
+  color: #f6ad55;
+  font-size: 0.875rem;
+  letter-spacing: 0.1em;
+}
+
+.review-count {
+  font-size: 0.75rem;
+  color: #a0aec0;
+}
+
+.add-to-cart-btn {
+  display: block;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.add-to-cart-btn:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.view-all-container {
+  text-align: center;
+  margin-top: 1.5rem;
+}
+
+.view-all-btn {
+  display: inline-block;
+  padding: 0.75rem 2rem;
+  background: var(--primary-color);
+  color: white;
+  border: 1px solid var(--primary-dark);
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  text-align: center;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.view-all-btn:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  text-decoration: none;
+  color: white;
+}
+
+/* Responsive adjustments */
+@media (max-width: 991px) {
+  .account-sidebar {
+    display: none;
+  }
+  
+  .mobile-bottom-nav {
+    display: flex;
+  }
+  
+  .account-content {
+    padding-bottom: 70px;
+  }
+  .customer-account-page .row {
+    flex-direction: column;
+  }
+  
+  .account-sidebar,
+  .account-content {
+    flex: 0 0 100%;
+    max-width: 100%;
+    padding: 0;
+  }
+  
+  .account-sidebar {
+    border-right: none;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+  }
+  
+  .account-content {
+    padding: 0;
+  }
+  
+  .account-links {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .account-links li {
+    margin-bottom: 0;
+    flex: 1;
+    min-width: 120px;
+  }
+  
+  .account-links a {
+    display: flex;
+    align-items: center;
+    padding: 8px 10px;
+    font-size: 0.9em;
+  }
+  
+  .account-links .account-logout {
+    margin-top: 0;
+    border-top: none;
+    padding-top: 10px;
+  }
+  
+  .account-links li {
+    min-width: calc(50% - 5px);
+    position: relative;
+  }
+  
+  .account-links .has-submenu {
+    width: 100%;
+  }
+  
+  .account-links a {
+    padding: 8px 5px;
+    font-size: 0.85em;
+  }
+}
+</style>

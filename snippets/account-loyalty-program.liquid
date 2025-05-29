@@ -1,0 +1,167 @@
+<style>
+/* Direct inline styles for loyalty section */
+#loyalty .loyalty-program {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+#loyalty h2.section-title {
+  font-size: 1.75rem !important;
+  font-weight: 600 !important;
+  margin-bottom: 1.5rem !important;
+}
+#loyalty h3 {
+  font-size: 1.5rem !important;
+  font-weight: 600 !important;
+  margin-bottom: 1.25rem !important;
+}
+#loyalty span {
+  font-size: 1.125rem !important;
+  font-weight: 500 !important;
+}
+#loyalty .points-amount {
+  font-size: 2.25rem !important;
+  font-weight: 700 !important;
+}
+#loyalty .points-detail {
+  font-size: 1.125rem !important;
+  margin-bottom: 0.75rem !important;
+}
+#loyalty .tier-label span {
+  font-size: 1.125rem !important;
+  font-weight: 500 !important;
+}
+#loyalty .tier-requirements span {
+  font-size: 1.125rem !important;
+  font-weight: 500 !important;
+}
+#loyalty .tier-note {
+  font-size: 1.125rem !important;
+  font-weight: 500 !important;
+}
+#loyalty .points-table th {
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  white-space: nowrap !important;
+}
+#loyalty .points-table td {
+  font-size: 1.125rem !important;
+  font-weight: 500 !important;
+  padding: 1.125rem 1.25rem !important;
+}
+#loyalty .status-badge {
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  padding: 0.375rem 0.875rem !important;
+}
+</style>
+
+<div class="loyalty-program">
+  <h2 class="section-title">Loyalty Program</h2>
+  
+  <!-- Points Summary -->
+  <div class="points-summary">
+    <div class="points-card">
+      <div class="points-card-header">
+        <h3>Available Points</h3>
+        <span class="points-amount">1,000</span>
+      </div>
+      <div class="points-card-body">
+        <div class="points-detail">
+          <span>Pending Points</span>
+          <span>500</span>
+        </div>
+        <div class="points-detail">
+          <span>Lifetime Points</span>
+          <span>5,250</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Tier Status -->
+  <div class="tier-status">
+    <h3>Your Tier Status</h3>
+    <div class="tier-progress">
+      <div class="tier-label">
+        <span>Silver</span>
+        <span>Gold</span>
+      </div>
+      <div class="progress">
+        <div class="progress-bar" style="width: 30%;"></div>
+      </div>
+      <div class="tier-requirements">
+        <span>0 pts</span>
+        <span>5,000 pts</span>
+        <span>10,000 pts</span>
+      </div>
+    </div>
+    <p class="tier-note">You're 4,000 points away from Gold status</p>
+  </div>
+  
+  <!-- Points History -->
+  <div class="points-history">
+    <div class="section-header">
+      <h3>Points History</h3>
+      <div class="view-options">
+        <button class="active">All</button>
+        <button>Earned</button>
+        <button>Spent</button>
+      </div>
+    </div>
+    
+    <div class="points-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Description</th>
+            <th>Points</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>May 24, 2025</td>
+            <td>Purchase #1001</td>
+            <td class="points-earned">+250</td>
+            <td><span class="status-badge">Completed</span></td>
+          </tr>
+          <tr>
+            <td>May 20, 2025</td>
+            <td>Birthday Bonus</td>
+            <td class="points-earned">+500</td>
+            <td><span class="status-badge">Completed</span></td>
+          </tr>
+          <tr>
+            <td>May 15, 2025</td>
+            <td>Purchase #987</td>
+            <td class="points-pending">+250</td>
+            <td><span class="status-badge pending">Pending</span></td>
+          </tr>
+          <tr>
+            <td>May 10, 2025</td>
+            <td>Product Review</td>
+            <td class="points-earned">+50</td>
+            <td><span class="status-badge">Completed</span></td>
+          </tr>
+          <tr>
+            <td>May 5, 2025</td>
+            <td>Purchase #965</td>
+            <td class="points-earned">+250</td>
+            <td><span class="status-badge">Completed</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="pagination">
+      <button class="active">1</button>
+      <button>2</button>
+      <button>3</button>
+      <span>...</span>
+      <button>Next</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,252 @@
+<style>
+.order-list { display: none; }
+
+/* Show table by default */
+.order-table-wrapper { display: block; }
+
+/* Mobile styles */
+@media (max-width: 767.98px) {
+  .order-table-wrapper { display: none; }
+  .order-list { display: block; }
+}
+
+/* Desktop styles */
+@media (min-width: 768px) {
+  .order-table-wrapper { display: block; }
+  .order-list { display: none; }
+}
+
+.order-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  margin-bottom: 2rem;
+}
+
+.order-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.order-table th,
+.order-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.order-table th {
+  font-weight: 500;
+  color: #666;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.order-number {
+  font-weight: 500;
+  color: #333;
+  text-decoration: none;
+}
+
+.order-number:hover {
+  color: #b0b88f;
+  text-decoration: underline;
+}
+
+.order-status {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  background: #f5f5f5;
+  color: #666;
+}
+
+/* Mobile Order List */
+.order-list {
+  margin: 0 -1rem;
+}
+
+.order-item {
+  padding: 1rem;
+  border-bottom: 1px solid #f0f0f0;
+  position: relative;
+  background: #fff;
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.order-date {
+  color: #999;
+  font-size: 0.9rem;
+}
+
+.order-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0.5rem 0;
+}
+
+.order-total {
+  font-weight: 600;
+  color: #333;
+}
+
+.order-link {
+  display: block;
+  text-align: center;
+  padding: 0.5rem;
+  margin-top: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  color: #333;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.order-link:hover {
+  background: #f9f9f9;
+  border-color: #ccc;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  background: #fafafa;
+  border-radius: 8px;
+  margin: 2rem 0;
+}
+
+.empty-state-icon {
+  margin-bottom: 1rem;
+}
+
+.empty-state h3 {
+  margin: 0.5rem 0;
+  color: #333;
+}
+
+.empty-state p {
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+/* Pagination */
+.pagination {
+  margin: 2rem 0;
+  text-align: center;
+}
+
+.pagination a,
+.pagination .current {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  margin: 0 0.25rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  text-decoration: none;
+  color: #333;
+  transition: all 0.2s ease;
+}
+
+.pagination a:hover {
+  background: #f5f5f5;
+  border-color: #ccc;
+}
+
+.pagination .current {
+  background: #b0b88f;
+  color: #fff;
+  border-color: #b0b88f;
+}
+</style>
+
+<h2 class="section-title">Order History</h2>
+{% if customer.orders.size > 0 %}
+  <div class="order-history-container">
+    <!-- Desktop Table -->
+    <div class="order-table-wrapper">
+      <table class="order-table">
+        <thead>
+          <tr>
+            <th>Order</th>
+            <th>Date</th>
+            <th>Payment Status</th>
+            <th>Fulfillment Status</th>
+            <th>Total</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for order in customer.orders %}
+            <tr>
+              <td><span class="order-number">{{ order.name }}</span></td>
+              <td><span class="order-date">{{ order.created_at | date: "%b %d, %Y" }}</span></td>
+              <td>
+                <span class="payment-status {% if order.financial_status == 'paid' %}status-paid{% endif %}">{{ order.financial_status | capitalize }}</span>
+              </td>
+              <td>
+                <span class="fulfillment-status {% if order.fulfillment_status == 'fulfilled' %}status-fulfilled{% endif %}">{{ order.fulfillment_status | default: 'Unfulfilled' | capitalize }}</span>
+              </td>
+              <td><span class="order-total">{{ order.total_price | money }}</span></td>
+              <td><a href="{{ order.customer_url }}" class="view-link">View Order</a></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <!-- Mobile List -->
+    <div class="order-list">
+      {% for order in customer.orders %}
+        <div class="order-item">
+          <div class="order-header">
+            <span class="order-number">{{ order.name }}</span>
+            <span class="order-date">{{ order.created_at | date: "%b %d, %Y" }}</span>
+          </div>
+          <div class="order-details">
+            <div class="order-status">
+              <span class="status-label">Payment:</span>
+              <span class="payment-status {% if order.financial_status == 'paid' %}status-paid{% endif %}">{{ order.financial_status | capitalize }}</span>
+            </div>
+            <div class="order-status">
+              <span class="status-label">Fulfillment:</span>
+              <span class="fulfillment-status {% if order.fulfillment_status == 'fulfilled' %}status-fulfilled{% endif %}">{{ order.fulfillment_status | default: 'Unfulfilled' | capitalize }}</span>
+            </div>
+            <div class="order-total">
+              <span class="status-label">Total:</span>
+              <span>{{ order.total_price | money }}</span>
+            </div>
+          </div>
+          <a href="{{ order.customer_url }}" class="order-link">View Order</a>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  
+  {% if paginate.pages > 1 %}
+    <div class="pagination">
+      {{ paginate | default_pagination }}
+    </div>
+  {% endif %}
+{% else %}
+  <div class="empty-state">
+    <div class="empty-state-icon">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <path d="M16 10a4 4 0 0 1-8 0"></path>
+      </svg>
+    </div>
+    <h3>No Orders Yet</h3>
+    <p>You haven't placed any orders yet.</p>
+    <a href="/collections/all" class="btn btn-primary">Start Shopping</a>
+  </div>
+{% endif %}

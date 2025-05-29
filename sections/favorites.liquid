@@ -1,0 +1,508 @@
+{{ 'component-card.css' | asset_url | stylesheet_tag }}
+{{ 'component-price.css' | asset_url | stylesheet_tag }}
+
+<script>
+  // Favorites functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    initializeFavorites();
+  });
+
+  function initializeFavorites() {
+    // Set up favorite toggle buttons on product cards
+    document.querySelectorAll('.product-card__favorite').forEach(button => {
+      button.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const productId = this.dataset.productId;
+        const isFavorite = this.classList.contains('is-favorite');
+        
+        if (isFavorite) {
+          removeFromFavorites(productId, this);
+        } else {
+          addToFavorites(productId, this);
+        }
+      });
+    });
+    
+    // Handle remove buttons on favorites page
+    document.querySelectorAll('.favorites-item__remove').forEach(button => {
+      button.addEventListener('click', function() {
+        const productId = this.dataset.productId;
+        const listItem = this.closest('.favorites-item');
+        
+        removeFromFavorites(productId, null, () => {
+          // Animate removal
+          listItem.style.opacity = '0';
+          setTimeout(() => {
+            listItem.style.height = '0';
+            listItem.style.margin = '0';
+            listItem.style.padding = '0';
+            
+            setTimeout(() => {
+              listItem.remove();
+              
+              // Check if there are no more items
+              const remainingItems = document.querySelectorAll('.favorites-item');
+              if (remainingItems.length === 0) {
+                const emptyMessage = document.querySelector('.favorites-empty');
+                if (emptyMessage) {
+                  emptyMessage.style.display = 'block';
+                }
+              }
+            }, 300);
+          }, 300);
+        });
+      });
+    });
+    
+    // Add to cart functionality from favorites page
+    document.querySelectorAll('.favorites-item__add-to-cart').forEach(button => {
+      button.addEventListener('click', function() {
+        const variantId = this.dataset.productId;
+        addToCart(variantId, 1);
+      });
+    });
+  }
+
+  function addToFavorites(productId, buttonElement, callback) {
+    if (!productId) return;
+    
+    let favoriteProducts = getFavoritesFromLocalStorage();
+    if (!favoriteProducts.includes(productId)) {
+      favoriteProducts.push(productId);
+      updateFavoritesMetafield(favoriteProducts);
+      
+      // Update button state
+      if (buttonElement) {
+        buttonElement.classList.add('is-favorite');
+      }
+      
+      showToast('Added to favorites!');
+    }
+    
+    if (callback && typeof callback === 'function') {
+      callback();
+    }
+  }
+
+  function removeFromFavorites(productId, buttonElement, callback) {
+    if (!productId) return;
+    
+    let favoriteProducts = getFavoritesFromLocalStorage();
+    const index = favoriteProducts.indexOf(productId);
+    
+    if (index > -1) {
+      favoriteProducts.splice(index, 1);
+      updateFavoritesMetafield(favoriteProducts);
+      
+      // Update button state
+      if (buttonElement) {
+        buttonElement.classList.remove('is-favorite');
+      }
+      
+      showToast('Removed from favorites');
+    }
+    
+    if (callback && typeof callback === 'function') {
+      callback();
+    }
+  }
+  
+  function getFavoritesFromLocalStorage() {
+    const favorites = localStorage.getItem('ecovar_favorites');
+    return favorites ? JSON.parse(favorites) : [];
+  }
+  
+  function updateFavoritesMetafield(favoriteProducts) {
+    // Save to localStorage for immediate UI updates
+    localStorage.setItem('ecovar_favorites', JSON.stringify(favoriteProducts));
+    
+    // Update Shopify metafield via AJAX
+    fetch('/cart/update.js', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        attributes: {
+          '_favorites': favoriteProducts.join(',')
+        }
+      })
+    })
+    .catch(error => console.error('Error updating favorites:', error));
+  }
+  
+  function addToCart(variantId, quantity) {
+    fetch('/cart/add.js', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        items: [{
+          id: variantId,
+          quantity: quantity
+        }]
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.items) {
+        showToast('Added to cart!');
+        
+        // Update cart count
+        const cartCount = document.querySelector('.cart-count-bubble');
+        if (cartCount) {
+          // Refresh the page to update cart count
+          fetch('/cart.js')
+            .then(response => response.json())
+            .then(cart => {
+              const count = cart.item_count;
+              if (count > 0) {
+                cartCount.textContent = count;
+                cartCount.classList.remove('hidden');
+              }
+            });
+        }
+      } else {
+        throw new Error(data.description || 'Error adding to cart');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      showToast(error.message || 'Error adding to cart', 'error');
+    });
+  }
+
+  function showToast(message, type = 'success') {
+    // Check if a toast container already exists
+    let toastContainer = document.querySelector('.toast-container');
+    
+    // If not, create one
+    if (!toastContainer) {
+      toastContainer = document.createElement('div');
+      toastContainer.className = 'toast-container';
+      document.body.appendChild(toastContainer);
+      
+      // Style for the toast container
+      toastContainer.style.position = 'fixed';
+      toastContainer.style.bottom = '20px';
+      toastContainer.style.right = '20px';
+      toastContainer.style.zIndex = '9999';
+    }
+    
+    // Create the toast element
+    const toast = document.createElement('div');
+    toast.className = `toast toast--${type}`;
+    toast.textContent = message;
+    
+    // Style the toast
+    toast.style.backgroundColor = type === 'success' ? '#4CAF50' : '#e22120';
+    toast.style.color = 'white';
+    toast.style.padding = '12px 20px';
+    toast.style.borderRadius = '4px';
+    toast.style.marginTop = '10px';
+    toast.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
+    toast.style.opacity = '0';
+    toast.style.transition = 'opacity 0.3s ease';
+    
+    // Add the toast to the container
+    toastContainer.appendChild(toast);
+    
+    // Trigger a reflow before starting the transition
+    void toast.offsetWidth;
+    
+    // Show the toast
+    toast.style.opacity = '1';
+    
+    // Hide the toast after 3 seconds
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      setTimeout(() => {
+        toast.remove();
+        
+        // Remove the container if there are no more toasts
+        if (toastContainer.children.length === 0) {
+          toastContainer.remove();
+        }
+      }, 300);
+    }, 3000);
+  }
+</script>
+
+<div class="page-width">
+  <h1 class="favorites-title">{{ section.settings.title | default: 'My Favorites' }}</h1>
+  
+  {% if customer %}
+    {% assign favorites = customer.metafields.custom.favorites | default: blank %}
+    
+    {% if favorites != blank %}
+      <div class="favorites-grid">
+        {% assign favorite_array = favorites | split: ',' %}
+        {% for product_id in favorite_array %}
+          {% assign product = all_products[product_id] %}
+          {% if product.id != blank %}
+            <div class="favorites-item">
+              <div class="favorites-item__image">
+                <a href="{{ product.url }}">
+                  {% if product.featured_image != blank %}
+                    <img 
+                      src="{{ product.featured_image | image_url: width: 200 }}" 
+                      alt="{{ product.featured_image.alt | escape }}"
+                      loading="lazy"
+                      width="{{ product.featured_image.width }}"
+                      height="{{ product.featured_image.height }}"
+                    >
+                  {% else %}
+                    {{ 'product-apparel-2' | placeholder_svg_tag: 'placeholder-svg' }}
+                  {% endif %}
+                </a>
+              </div>
+              <div class="favorites-item__content">
+                <h2 class="favorites-item__title">
+                  <a href="{{ product.url }}">{{ product.title }}</a>
+                </h2>
+                <div class="favorites-item__price">
+                  {% render 'price', product: product %}
+                </div>
+                <div class="favorites-item__actions">
+                  {% if product.available %}
+                    <a href="{{ product.url }}" class="favorites-item__view">View Product</a>
+                    {% if customer %}
+                      <button type="button" class="favorites-item__add-to-cart" 
+                              data-product-id="{{ product.variants.first.id }}">
+                        Add to Cart
+                      </button>
+                    {% endif %}
+                  {% else %}
+                    <span class="favorites-item__sold-out">Sold Out</span>
+                  {% endif %}
+                  <button type="button" class="favorites-item__remove" data-product-id="{{ product.id }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="3 6 5 6 21 6"></polyline>
+                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                    Remove
+                  </button>
+                </div>
+              </div>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="favorites-empty">
+        <p>You haven't added any products to your favorites yet.</p>
+        <a href="/collections/all" class="button">Browse Products</a>
+      </div>
+    {% endif %}
+  {% else %}
+    <div class="favorites-login">
+      <p>Please sign in to view your favorites.</p>
+      <a href="{{ routes.account_login_url }}" class="button">Sign In</a>
+    </div>
+  {% endif %}
+</div>
+
+<style>
+  .favorites-title {
+    margin-bottom: 30px;
+    font-size: 28px;
+    font-weight: 600;
+  }
+  
+  .favorites-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    margin-bottom: 40px;
+  }
+  
+  @media screen and (min-width: 750px) {
+    .favorites-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media screen and (min-width: 990px) {
+    .favorites-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  
+  .favorites-item {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    background: white;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+  
+  .favorites-item:hover {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+  }
+  
+  .favorites-item__image {
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    background: #f9f9f9;
+  }
+  
+  .favorites-item__image img {
+    max-height: 180px;
+    max-width: 85%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+  }
+  
+  .favorites-item__content {
+    padding: 15px;
+  }
+  
+  .favorites-item__title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  
+  .favorites-item__title a {
+    color: inherit;
+    text-decoration: none;
+  }
+  
+  .favorites-item__price {
+    margin-bottom: 15px;
+  }
+  
+  .favorites-item__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 15px;
+  }
+  
+  .favorites-item__view,
+  .favorites-item__add-to-cart,
+  .favorites-item__remove {
+    padding: 8px 15px;
+    border-radius: 4px;
+    font-size: 14px;
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .favorites-item__view {
+    background-color: #f5f5f5;
+    color: #333;
+    border: 1px solid #e0e0e0;
+  }
+  
+  .favorites-item__view:hover {
+    background-color: #ebebeb;
+  }
+  
+  .favorites-item__add-to-cart {
+    background-color: #8F9A5B;
+    color: white;
+    border: none;
+    flex-grow: 1;
+  }
+  
+  .favorites-item__add-to-cart:hover {
+    background-color: #7d8850;
+  }
+  
+  .favorites-item__remove {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    background-color: transparent;
+    color: #e22120;
+    border: 1px solid #e22120;
+  }
+  
+  .favorites-item__remove:hover {
+    background-color: #ffeeee;
+  }
+  
+  .favorites-item__remove svg {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .favorites-item__sold-out {
+    display: inline-block;
+    padding: 8px 15px;
+    background-color: #f5f5f5;
+    color: #999;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  
+  .favorites-empty,
+  .favorites-login {
+    text-align: center;
+    padding: 50px 0;
+  }
+  
+  .favorites-empty p,
+  .favorites-login p {
+    margin-bottom: 20px;
+    font-size: 16px;
+    color: #666;
+  }
+  
+  .button {
+    display: inline-block;
+    background-color: #8F9A5B;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+  }
+  
+  .button:hover {
+    background-color: #7d8850;
+  }
+  
+  /* Toast notification styles */
+  .toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Favorites",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "My Favorites"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Favorites",
+      "category": "Custom Content"
+    }
+  ]
+}
+{% endschema %}
