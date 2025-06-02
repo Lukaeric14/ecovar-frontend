@@ -70,6 +70,7 @@
       "unit_price_separator": "per",
       "vendor": "Vendor:",
       "error": "Error",
+      "error_updating_favorites": "Error updating favorites. Please try again.",
       "refresh_page": "Choosing a selection results in a full page refresh.",
       "link_messages": {
         "new_window": "Opens in a new window.",
@@ -108,6 +109,9 @@
     "products": {
       "product": {
         "add_to_cart": "Add to cart",
+        "view_options": "View options",
+        "added_to_favorites_toast": "Added to favorites!",
+        "removed_from_favorites_toast": "Removed from favorites.",
         "choose_options": "Choose options",
         "choose_product_options": "Choose options for {{ product_name }}",
         "description": "Description",

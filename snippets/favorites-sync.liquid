@@ -1,0 +1,52 @@
+{% comment %}
+  Favorites Sync
+  This snippet handles synchronization between cart attributes and customer metafields for favorites.
+  It should be included in key templates like product, collection, and favorites pages.
+{% endcomment %}
+
+<script>
+  // Syncs favorites between cart attributes and customer metafields
+  document.addEventListener('DOMContentLoaded', function() {
+    // Only run for logged in customers
+    {% if customer %}
+    (function syncFavorites() {
+      // Get admin-set metafield (list of product objects)
+      const metafieldProductList = {{ customer.metafields.custom.favorites.value | default: customer.metafields.custom.favorites | json }};
+      let metafieldFavoritesString = '';
+
+      if (Array.isArray(metafieldProductList) && metafieldProductList.length > 0) {
+        metafieldFavoritesString = metafieldProductList.map(product => product.id).join(',');
+      }
+      
+      // Get cart attribute favorites
+      fetch('/cart.js')
+        .then(response => response.json())
+        .then(cart => {
+          const cartFavorites = cart.attributes._favorites || '';
+          
+          // If metafields (processed into string) have data and cart doesn't, update cart from metafields
+          if (metafieldFavoritesString && (!cartFavorites || cartFavorites === '')) {
+            console.log('Syncing favorites from metafields to cart:', metafieldFavoritesString);
+            
+            // Update cart attributes with metafield data (as string of IDs)
+            fetch('/cart/update.js', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                attributes: {
+                  '_favorites': metafieldFavoritesString
+                }
+              })
+            })
+            .then(() => {
+              // Refresh the page to show updated favorites
+              if (window.location.pathname.includes('/favorites')) {
+                window.location.reload();
+              }
+            });
+          }
+        });
+    })();
+    {% endif %}
+  });
+</script>

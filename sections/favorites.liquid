@@ -1,506 +1,687 @@
+{% comment %} sections/favorites.liquid - LocalStorage based {% endcomment %}
 {{ 'component-card.css' | asset_url | stylesheet_tag }}
 {{ 'component-price.css' | asset_url | stylesheet_tag }}
+{{ 'component-rte.css' | asset_url | stylesheet_tag }}
+{{ 'component-button.css' | asset_url | stylesheet_tag }}
+{{ 'component-product-card.css' | asset_url | stylesheet_tag }}
+
+
+<div class="page-width favorites-section" data-section-id="{{ section.id }}" data-columns-desktop="{{ section.settings.columns_desktop }}" data-columns-mobile="{{ section.settings.columns_mobile }}">
+  <h1 class="favorites-title main-page-title page-title h0 scroll-trigger animate--fade-in">
+    {{ section.settings.title | default: 'My Favorites' }}
+  </h1>
+
+  {%- if customer -%}
+    <div id="favorites-translations-{{ section.id }}" style="display:none;"
+       data-remove-item-label="{{ 'general.accessibility.remove_item' | t: item: '__PRODUCT_TITLE__' }}" 
+       data-product-title-default="{{ 'products.product.title_default' | t }}"
+       data-product-image-alt-template="{{ 'sections.favorites.product_image_alt_template' | t }}" 
+       data-product-image-alt-default="{{ 'sections.favorites.product_image_alt_default' | t }}" 
+       data-remove-from-favorites-label="{{ 'sections.favorites.remove_button' | t }}" 
+       data-add-to-cart-label="{{ 'products.product.add_to_cart' | t }}"
+       data-view-options-label="{{ 'products.product.view_options' | t }}"
+       data-sold-out-label="{{ 'products.product.sold_out' | t }}"
+       data-go-to-shop-text="{{ 'sections.favorites.go_to_shop' | t }}"
+       data-add-to-favorites-icon-label="{{ 'products.product.add_to_favorites' | t }}" 
+       data-remove-from-favorites-icon-label="{{ 'products.product.remove_from_favorites' | t }}" 
+       data-fallback-image-url="{{ 'product-1.jpg' | asset_img_url: '300x300' }}">
+  ></div>
+
+  <div class="favorites-grid-container">
+      {% comment %} Product cards will be rendered here by JavaScript {% endcomment %}
+    </div>
+    <div class="favorites-empty rte" style="display: none;">
+      <p>{{ section.settings.empty_text | default: "You haven't added any products to your favorites yet." }}</p>
+      <a href="{{ section.settings.empty_button_link | default: routes.all_products_collection_url }}" class="button button--primary">
+        {{ section.settings.empty_button_text | default: 'Browse Products' }}
+      </a>
+    </div>
+  {%- else -%}
+    <div class="favorites-login rte">
+      <p>{{ section.settings.login_prompt_text | default: 'Please sign in to view your favorites.' }}</p>
+      <a href="{{ routes.account_login_url }}" class="button button--primary">
+        {{ section.settings.login_button_text | default: 'Sign In' }}
+      </a>
+    </div>
+  {%- endif -%}
+</div>
 
 <script>
-  // Favorites functionality
-  document.addEventListener('DOMContentLoaded', function() {
-    initializeFavorites();
-  });
+  window.EcovarTheme = window.EcovarTheme || {};
+  EcovarTheme.FavoritesPage = (function() {
+    const sectionId = '{{ section.id }}';
+      const translationsElement = document.getElementById(`favorites-translations-${sectionId}`);
+      const translations = translationsElement ? translationsElement.dataset : {};
 
-  function initializeFavorites() {
-    // Set up favorite toggle buttons on product cards
-    document.querySelectorAll('.product-card__favorite').forEach(button => {
-      button.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
+      const t = {
+        // Labels for the heart icon's aria-label are dynamically set in the loop using `favoriteButtonLabel`
+        // which uses translations.addToFavoritesIconLabel and translations.removeFromFavoritesIconLabel
+        addToFavoritesIconLabel: translations.addToFavoritesIconLabel || 'Add to favorites',
+        removeFromFavoritesIconLabel: translations.removeFromFavoritesIconLabel || 'Remove from favorites',
+
+        // Labels for text buttons and other text on the card
+        removeFromFavoritesLabel: translations.removeFromFavoritesLabel || 'Remove from Favorites', // For the text button
+        addToCartLabel: translations.addToCartLabel || 'Add to cart',
+        viewOptionsLabel: translations.viewOptionsLabel || 'View options',
+        soldOutLabel: translations.soldOutLabel || 'Sold out',
         
-        const productId = this.dataset.productId;
-        const isFavorite = this.classList.contains('is-favorite');
-        
-        if (isFavorite) {
-          removeFromFavorites(productId, this);
+        // General text and fallbacks
+        productTitleDefault: translations.productTitleDefault || 'Product Title',
+        productImageAltTemplate: translations.productImageAltTemplate || 'Image of %%PRODUCT_TITLE%%',
+        productImageAltDefault: translations.productImageAltDefault || 'Product image',
+        fallbackImageUrl: translations.fallbackImageUrl || '',
+        goToShopText: translations.goToShopText || 'Go to shop' 
+        // Note: emptyFavorites is defined separately above 't'
+      };
+
+      const iconRemoveSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true" focusable="false" class="icon icon-remove"><path d="M14 3h-3.53a3.07 3.07 0 00-.6-1.65C9.44.82 8.8.5 8 .5s-1.44.32-1.87.85A3.06 3.06 0 005.53 3H2a.5.5 0 000 1h1.25v10c0 .28.22.5.5.5h8.5a.5.5 0 00.5-.5V4H14a.5.5 0 000-1zM6.91 1.98c.23-.29.58-.48 1.09-.48s.85.19 1.09.48c.2.24.3.6.36 1.02h-2.9c.05-.42.17-.78.36-1.02zm4.84 11.52h-7.5V4h7.5v9.5z" fill="currentColor"/><path d="M6.55 5.25a.5.5 0 00-.5.5v6a.5.5 0 001 0v-6a.5.5 0 00-.5-.5zM9.45 5.25a.5.5 0 00-.5.5v6a.5.5 0 001 0v-6a.5.5 0 00-.5-.5z" fill="currentColor"/></svg>`;
+      const iconFavoriteSVGPath = `M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z`;
+
+      function getFavorites() {
+        return JSON.parse(localStorage.getItem('ecovar_favorites_data') || '[]');
+      }
+
+      function saveFavorites(favoritesArray) {
+        localStorage.setItem('ecovar_favorites_data', JSON.stringify(favoritesArray));
+        const favoriteProductIds = favoritesArray.map(fav => fav.id).join(',');
+        const currentAttributes = EcovarTheme.cart ? EcovarTheme.cart.attributes : {};
+        const newAttributes = { ...currentAttributes, '_favorites': favoriteProductIds };
+
+        fetch('/cart/update.js', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ attributes: newAttributes })
+        })
+        .then(response => response.json())
+        .then(cart => { EcovarTheme.cart = cart; })
+        .catch(error => console.error('Error syncing favorites to cart attributes:', error));
+
+        document.dispatchEvent(new CustomEvent('ecovar_favorites_updated', { detail: { favorites: favoritesArray } }));
+      }
+
+      function renderFavorites() {
+        console.log('[FavoritesPage] renderFavorites called. sectionId:', sectionId);
+        const favorites = getFavorites();
+        console.log('[FavoritesPage] Favorites from localStorage:', favorites);
+        const container = document.querySelector(`.favorites-section[data-section-id="${sectionId}"] .favorites-grid-container`);
+        const emptyState = document.querySelector(`.favorites-section[data-section-id="${sectionId}"] .favorites-empty`);
+        console.log('[FavoritesPage] Container:', container, 'EmptyState:', emptyState);
+
+        if (!container || !emptyState) return;
+        container.innerHTML = '';
+
+        if (favorites.length === 0) {
+          emptyState.style.display = 'block';
+          container.style.display = 'none';
         } else {
-          addToFavorites(productId, this);
+          emptyState.style.display = 'none';
+          container.style.display = 'block';
+
+          const grid = document.createElement('div');
+          const sectionElement = document.querySelector(`.favorites-section[data-section-id="${sectionId}"]`);
+          const columnsDesktop = sectionElement ? sectionElement.dataset.columnsDesktop || '3' : '3';
+          const columnsMobile = sectionElement ? sectionElement.dataset.columnsMobile || '1' : '1';
+          grid.className = `favorites-grid product-grid grid grid--${columnsDesktop}-col-desktop grid--${columnsMobile}-col-mobile`;
+          console.log('[FavoritesPage] Rendering favorites grid. Count:', favorites.length);
+
+          favorites.forEach(product => {
+            console.log('[FavoritesPage] Rendering product:', product);
+            const isCurrentlyFavorite = getFavorites().some(fav => fav.id === product.id);
+            const favoriteButtonLabel = isCurrentlyFavorite ? t.removeFromFavoritesIconLabel : t.addToFavoritesIconLabel;
+            const productTitleEscaped = product.title ? product.title.replace(/"/g, '&quot;') : '';
+            const productImageAlt = product.title ? t.productImageAltTemplate.replace(/%%PRODUCT_TITLE%%/g, productTitleEscaped) : t.productImageAltDefault;
+
+            const productCardHTML = `
+              <div class="grid__item product-card-wrapper" data-product-id="${product.id}">
+                <div class="product-card">
+                  <a href="${product.url || '#'}" class="product-card__media-link" aria-label="View product ${productTitleEscaped || t.productTitleDefault}">
+                    <div class="product-card__media">
+                      <img src="${product.featured_image || t.fallbackImageUrl || ''}"
+                           alt="${productImageAlt}"
+                           class="product-card__image"
+                           loading="lazy"
+                           width="300" height="300">
+                    </div>
+                  </a>
+                  <div class="product-card__favorite-wrapper">
+                    <button type="button"
+                            class="product-favorite product-card__favorite ${isCurrentlyFavorite ? 'is-favorite' : ''}"
+                            data-product-id="${product.id}"
+                            data-product-handle="${product.handle || ''}"
+                            data-product-title="${productTitleEscaped}"
+                            data-product-url="${product.url || '#'}"
+                            data-product-image="${product.featured_image || ''}"
+                            data-product-price="${product.price || ''}"
+                            data-first-variant-id="${product.first_variant_id || ''}"
+                            data-product-vendor="${product.vendor || ''}"
+                            data-product-compare-at-price="${product.compare_at_price || ''}"
+                            data-product-available="${product.available}"
+                            aria-label="${favoriteButtonLabel}"
+                            onclick="event.preventDefault(); event.stopPropagation(); if(typeof toggleFavorite === 'function') { toggleFavorite(this); } else { console.error('toggleFavorite function not found on card'); }">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="${iconFavoriteSVGPath}"/></svg>
+                    </button>
+                  </div>
+                  <div class="product-card__content">
+                    ${product.vendor ? `<div class="product-card__vendor caption-with-letter-spacing">${product.vendor}</div>` : ''}
+                    <h3 class="product-card__title">
+                      <a href="${product.url || '#'}" class="full-unstyled-link">${product.title || t.productTitleDefault}</a>
+                    </h3>
+                    <div class="product-card__price">
+                      ${product.price ? (
+                        product.compare_at_price && product.compare_at_price !== product.price && parseFloat(String(product.compare_at_price).replace(/[^\d.-]/g, '')) > parseFloat(String(product.price).replace(/[^\d.-]/g, ''))
+                        ? `<span class="price-item price-item--sale">${product.price}</span> <s class="price-item price-item--regular">${product.compare_at_price}</s>`
+                        : `<span class="price-item">${product.price}</span>`
+                      ) : ''}
+                    </div>
+                    <div class="product-card__actions">
+                      ${product.available && product.first_variant_id ? `
+                        <form method="post" action="/cart/add" accept-charset="UTF-8" class="product-card__add-to-cart-form" enctype="multipart/form-data" novalidate="novalidate">
+                          <input type="hidden" name="form_type" value="product">
+                          <input type="hidden" name="utf8" value="✓">
+                          <input type="hidden" name="id" value="${product.first_variant_id}">
+                          <input type="hidden" name="quantity" value="1">
+                          <button type="submit" name="add" class="button button--primary button--small product-card__button">
+                            ${t.addToCartLabel}
+                          </button>
+                        </form>
+                      ` : (product.available === false ? `<button type="button" class="button button--primary button--small product-card__button" disabled>${t.soldOutLabel}</button>` : (product.url ? `<a href="${product.url}" class="button button--primary button--small product-card__button">${t.viewOptionsLabel}</a>` : ''))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `;
+            grid.insertAdjacentHTML('beforeend', productCardHTML);
+          });
+          container.appendChild(grid);
+            console.log('[FavoritesPage] Finished appending grid to container.');
+          attachEventListeners();
         }
-      });
-    });
-    
-    // Handle remove buttons on favorites page
-    document.querySelectorAll('.favorites-item__remove').forEach(button => {
-      button.addEventListener('click', function() {
-        const productId = this.dataset.productId;
-        const listItem = this.closest('.favorites-item');
-        
-        removeFromFavorites(productId, null, () => {
-          // Animate removal
-          listItem.style.opacity = '0';
+      }
+
+      function removeFromFavoritesHandler(event) {
+        const button = event.currentTarget;
+        const productId = button.dataset.productId;
+        if (!productId) return;
+
+        let favorites = getFavorites();
+        favorites = favorites.filter(fav => fav.id !== productId);
+        saveFavorites(favorites);
+
+        const productCard = button.closest('.product-card-wrapper');
+        if (productCard) {
+          productCard.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+          productCard.style.opacity = '0';
+          productCard.style.transform = 'scale(0.9)';
           setTimeout(() => {
-            listItem.style.height = '0';
-            listItem.style.margin = '0';
-            listItem.style.padding = '0';
-            
-            setTimeout(() => {
-              listItem.remove();
-              
-              // Check if there are no more items
-              const remainingItems = document.querySelectorAll('.favorites-item');
-              if (remainingItems.length === 0) {
-                const emptyMessage = document.querySelector('.favorites-empty');
-                if (emptyMessage) {
-                  emptyMessage.style.display = 'block';
-                }
-              }
-            }, 300);
+            productCard.remove();
+            if (getFavorites().length === 0) renderFavorites(); // Re-render to show empty state if needed
           }, 300);
+        } else {
+           renderFavorites(); // Fallback if card not found, re-render all
+        }
+        EcovarTheme.showToast('{{ 'sections.favorites.removed_toast' | t }}');
+      }
+
+      function attachEventListeners() {
+        document.querySelectorAll(`.favorites-section[data-section-id="${sectionId}"] .favorites-item__remove-btn`).forEach(button => {
+          button.removeEventListener('click', removeFromFavoritesHandler);
+          button.addEventListener('click', removeFromFavoritesHandler);
         });
-      });
-    });
-    
-    // Add to cart functionality from favorites page
-    document.querySelectorAll('.favorites-item__add-to-cart').forEach(button => {
-      button.addEventListener('click', function() {
-        const variantId = this.dataset.productId;
-        addToCart(variantId, 1);
-      });
-    });
-  }
-
-  function addToFavorites(productId, buttonElement, callback) {
-    if (!productId) return;
-    
-    let favoriteProducts = getFavoritesFromLocalStorage();
-    if (!favoriteProducts.includes(productId)) {
-      favoriteProducts.push(productId);
-      updateFavoritesMetafield(favoriteProducts);
-      
-      // Update button state
-      if (buttonElement) {
-        buttonElement.classList.add('is-favorite');
+        // Add to cart forms will submit normally. If AJAX is needed, it can be added here.
       }
-      
-      showToast('Added to favorites!');
-    }
-    
-    if (callback && typeof callback === 'function') {
-      callback();
-    }
-  }
 
-  function removeFromFavorites(productId, buttonElement, callback) {
-    if (!productId) return;
-    
-    let favoriteProducts = getFavoritesFromLocalStorage();
-    const index = favoriteProducts.indexOf(productId);
-    
-    if (index > -1) {
-      favoriteProducts.splice(index, 1);
-      updateFavoritesMetafield(favoriteProducts);
-      
-      // Update button state
-      if (buttonElement) {
-        buttonElement.classList.remove('is-favorite');
-      }
-      
-      showToast('Removed from favorites');
-    }
-    
-    if (callback && typeof callback === 'function') {
-      callback();
-    }
-  }
-  
-  function getFavoritesFromLocalStorage() {
-    const favorites = localStorage.getItem('ecovar_favorites');
-    return favorites ? JSON.parse(favorites) : [];
-  }
-  
-  function updateFavoritesMetafield(favoriteProducts) {
-    // Save to localStorage for immediate UI updates
-    localStorage.setItem('ecovar_favorites', JSON.stringify(favoriteProducts));
-    
-    // Update Shopify metafield via AJAX
-    fetch('/cart/update.js', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        attributes: {
-          '_favorites': favoriteProducts.join(',')
+      function init() {
+        console.log('[FavoritesPage] init called. sectionId:', sectionId);
+        if (!document.querySelector(`.favorites-section[data-section-id="${sectionId}"]`)) return;
+        if (!translationsElement) {
+          console.error('Favorites translations element not found. Favorites page might not work correctly.');
+          return;
         }
-      })
-    })
-    .catch(error => console.error('Error updating favorites:', error));
-  }
-  
-  function addToCart(variantId, quantity) {
-    fetch('/cart/add.js', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        items: [{
-          id: variantId,
-          quantity: quantity
-        }]
-      })
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.items) {
-        showToast('Added to cart!');
-        
-        // Update cart count
-        const cartCount = document.querySelector('.cart-count-bubble');
-        if (cartCount) {
-          // Refresh the page to update cart count
-          fetch('/cart.js')
-            .then(response => response.json())
-            .then(cart => {
-              const count = cart.item_count;
-              if (count > 0) {
-                cartCount.textContent = count;
-                cartCount.classList.remove('hidden');
-              }
-            });
+        const favGridContainer = document.querySelector(`.favorites-section[data-section-id="${sectionId}"] .favorites-grid-container`);
+        console.log('[FavoritesPage] Favorites grid container in init:', favGridContainer);
+        if (favGridContainer) {
+           renderFavorites();
+           document.addEventListener('ecovar_favorites_updated', renderFavorites);
         }
-      } else {
-        throw new Error(data.description || 'Error adding to cart');
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      showToast(error.message || 'Error adding to cart', 'error');
-    });
-  }
 
-  function showToast(message, type = 'success') {
-    // Check if a toast container already exists
+        document.addEventListener('shopify:section:load', function(event) {
+          if (event.detail.sectionId === sectionId && document.querySelector(`.favorites-section[data-section-id="${sectionId}"] .favorites-grid-container`)) {
+            init();
+          }
+        });
+        document.addEventListener('shopify:section:unload', function(event) {
+          if (event.detail.sectionId === sectionId) {
+            document.removeEventListener('ecovar_favorites_updated', renderFavorites);
+          }
+        });
+      }
+
+    return { init };
+  })(); // End of EcovarTheme.FavoritesPage IIFE
+
+  window.EcovarTheme.showToast = window.EcovarTheme.showToast || function(message, type = 'success') {
     let toastContainer = document.querySelector('.toast-container');
-    
-    // If not, create one
     if (!toastContainer) {
       toastContainer = document.createElement('div');
       toastContainer.className = 'toast-container';
       document.body.appendChild(toastContainer);
-      
-      // Style for the toast container
-      toastContainer.style.position = 'fixed';
-      toastContainer.style.bottom = '20px';
-      toastContainer.style.right = '20px';
-      toastContainer.style.zIndex = '9999';
     }
-    
-    // Create the toast element
     const toast = document.createElement('div');
-    toast.className = `toast toast--${type}`;
+    toast.className = `toast toast--${type} toast--visible`;
     toast.textContent = message;
-    
-    // Style the toast
-    toast.style.backgroundColor = type === 'success' ? '#4CAF50' : '#e22120';
-    toast.style.color = 'white';
-    toast.style.padding = '12px 20px';
-    toast.style.borderRadius = '4px';
-    toast.style.marginTop = '10px';
-    toast.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
-    toast.style.opacity = '0';
-    toast.style.transition = 'opacity 0.3s ease';
-    
-    // Add the toast to the container
     toastContainer.appendChild(toast);
-    
-    // Trigger a reflow before starting the transition
-    void toast.offsetWidth;
-    
-    // Show the toast
-    toast.style.opacity = '1';
-    
-    // Hide the toast after 3 seconds
     setTimeout(() => {
-      toast.style.opacity = '0';
-      setTimeout(() => {
+      toast.classList.remove('toast--visible');
+      toast.addEventListener('transitionend', () => {
         toast.remove();
-        
-        // Remove the container if there are no more toasts
         if (toastContainer.children.length === 0) {
           toastContainer.remove();
         }
-      }, 300);
+      });
     }, 3000);
-  }
+  };
+
+  document.addEventListener('DOMContentLoaded', function() {
+    if (window.EcovarTheme.FavoritesPage && typeof window.EcovarTheme.FavoritesPage.init === 'function') {
+      window.EcovarTheme.FavoritesPage.init();
+    }
+  });
 </script>
 
-<div class="page-width">
-  <h1 class="favorites-title">{{ section.settings.title | default: 'My Favorites' }}</h1>
-  
-  {% if customer %}
-    {% assign favorites = customer.metafields.custom.favorites | default: blank %}
-    
-    {% if favorites != blank %}
-      <div class="favorites-grid">
-        {% assign favorite_array = favorites | split: ',' %}
-        {% for product_id in favorite_array %}
-          {% assign product = all_products[product_id] %}
-          {% if product.id != blank %}
-            <div class="favorites-item">
-              <div class="favorites-item__image">
-                <a href="{{ product.url }}">
-                  {% if product.featured_image != blank %}
-                    <img 
-                      src="{{ product.featured_image | image_url: width: 200 }}" 
-                      alt="{{ product.featured_image.alt | escape }}"
-                      loading="lazy"
-                      width="{{ product.featured_image.width }}"
-                      height="{{ product.featured_image.height }}"
-                    >
-                  {% else %}
-                    {{ 'product-apparel-2' | placeholder_svg_tag: 'placeholder-svg' }}
-                  {% endif %}
-                </a>
-              </div>
-              <div class="favorites-item__content">
-                <h2 class="favorites-item__title">
-                  <a href="{{ product.url }}">{{ product.title }}</a>
-                </h2>
-                <div class="favorites-item__price">
-                  {% render 'price', product: product %}
-                </div>
-                <div class="favorites-item__actions">
-                  {% if product.available %}
-                    <a href="{{ product.url }}" class="favorites-item__view">View Product</a>
-                    {% if customer %}
-                      <button type="button" class="favorites-item__add-to-cart" 
-                              data-product-id="{{ product.variants.first.id }}">
-                        Add to Cart
-                      </button>
-                    {% endif %}
-                  {% else %}
-                    <span class="favorites-item__sold-out">Sold Out</span>
-                  {% endif %}
-                  <button type="button" class="favorites-item__remove" data-product-id="{{ product.id }}">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <polyline points="3 6 5 6 21 6"></polyline>
-                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                    </svg>
-                    Remove
-                  </button>
-                </div>
-              </div>
-            </div>
-          {% endif %}
-        {% endfor %}
-      </div>
-    {% else %}
-      <div class="favorites-empty">
-        <p>You haven't added any products to your favorites yet.</p>
-        <a href="/collections/all" class="button">Browse Products</a>
-      </div>
-    {% endif %}
-  {% else %}
-    <div class="favorites-login">
-      <p>Please sign in to view your favorites.</p>
-      <a href="{{ routes.account_login_url }}" class="button">Sign In</a>
-    </div>
-  {% endif %}
-</div>
-
 <style>
+  .favorites-section {
+    padding-top: var(--section-padding-top, 36px);
+    padding-bottom: var(--section-padding-bottom, 36px);
+  }
   .favorites-title {
     margin-bottom: 30px;
-    font-size: 28px;
-    font-weight: 600;
   }
-  
   .favorites-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 20px;
     margin-bottom: 40px;
+    row-gap: var(--grid-desktop-vertical-spacing, 20px);
+    column-gap: var(--grid-desktop-horizontal-spacing, 20px);
   }
-  
-  @media screen and (min-width: 750px) {
+  @media screen and (max-width: 989px) {
     .favorites-grid {
-      grid-template-columns: repeat(2, 1fr);
+        row-gap: var(--grid-mobile-vertical-spacing, 15px);
+        column-gap: var(--grid-mobile-horizontal-spacing, 15px);
     }
   }
-  
-  @media screen and (min-width: 990px) {
-    .favorites-grid {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
-  
   .favorites-item {
-    border: 1px solid #e0e0e0;
-    border-radius: 4px;
-    background: white;
-    overflow: hidden;
-    transition: all 0.3s ease;
-  }
-  
-  .favorites-item:hover {
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-    transform: translateY(-2px);
-  }
-  
-  .favorites-item__image {
-    height: 200px;
+    position: relative;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px;
-    background: #f9f9f9;
+    flex-direction: column;
+    height: 100%;
   }
-  
-  .favorites-item__image img {
-    max-height: 180px;
-    max-width: 85%;
-    width: auto;
-    height: auto;
-    object-fit: contain;
+  .favorites-item .card-wrapper { 
+    width: 100%;
+    display: flex; 
+    flex-direction: column;
+    height: 100%;
+    background-color: var(--color-background-2);
+    border: 1px solid var(--color-border, #e0e0e0); 
+    border-radius: var(--card-corner-radius, 4px);
   }
-  
-  .favorites-item__content {
+  .favorites-item .card__inner {
+    padding: 0; 
+  }
+  .favorites-item .card__media {
+    border-bottom: 1px solid var(--color-border, #e0e0e0);
+  }
+  .favorites-item .card__media img {
+    object-fit: contain; 
+    aspect-ratio: 1; 
+  }
+  .favorites-item .card-information {
     padding: 15px;
+    text-align: center;
+    flex-grow: 1; 
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
   }
-  
-  .favorites-item__title {
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 10px;
+  .favorites-item .card-information__text {
+    margin: 0 0 10px 0;
+    font-size: var(--font-heading-scale);
+    min-height: 3em; 
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
-  
-  .favorites-item__title a {
-    color: inherit;
-    text-decoration: none;
-  }
-  
-  .favorites-item__price {
+   .favorites-item .price {
     margin-bottom: 15px;
   }
-  
   .favorites-item__actions {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
-    margin-top: 15px;
+    margin-top: auto; 
+    padding: 0 15px 15px; 
   }
-  
-  .favorites-item__view,
-  .favorites-item__add-to-cart,
-  .favorites-item__remove {
-    padding: 8px 15px;
-    border-radius: 4px;
-    font-size: 14px;
-    text-decoration: none;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-  
-  .favorites-item__view {
-    background-color: #f5f5f5;
-    color: #333;
-    border: 1px solid #e0e0e0;
-  }
-  
-  .favorites-item__view:hover {
-    background-color: #ebebeb;
-  }
-  
-  .favorites-item__add-to-cart {
-    background-color: #8F9A5B;
-    color: white;
-    border: none;
+  .favorites-item__actions .button,
+  .favorites-item__actions form {
     flex-grow: 1;
+    min-width: calc(50% - 5px);
+    margin: 0;
   }
-  
-  .favorites-item__add-to-cart:hover {
-    background-color: #7d8850;
+  .favorites-item__actions form .button {
+    width: 100%; 
   }
-  
   .favorites-item__remove {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 5px;
-    background-color: transparent;
-    color: #e22120;
-    border: 1px solid #e22120;
   }
-  
-  .favorites-item__remove:hover {
-    background-color: #ffeeee;
+  .favorites-item__remove .icon-remove {
+    width: 1.2rem;
+    height: 1.2rem;
   }
-  
-  .favorites-item__remove svg {
-    width: 16px;
-    height: 16px;
-  }
-  
-  .favorites-item__sold-out {
-    display: inline-block;
-    padding: 8px 15px;
-    background-color: #f5f5f5;
-    color: #999;
-    border-radius: 4px;
-    font-size: 14px;
-  }
-  
   .favorites-empty,
   .favorites-login {
     text-align: center;
     padding: 50px 0;
   }
-  
   .favorites-empty p,
   .favorites-login p {
     margin-bottom: 20px;
-    font-size: 16px;
-    color: #666;
   }
-  
-  .button {
-    display: inline-block;
-    background-color: #8F9A5B;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 4px;
-    text-decoration: none;
-    font-weight: 500;
-    transition: background-color 0.2s ease;
-  }
-  
-  .button:hover {
-    background-color: #7d8850;
-  }
-  
-  /* Toast notification styles */
+
   .toast-container {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    z-index: 9999;
+    z-index: 1050;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 10px;
   }
+  .toast {
+    padding: 12px 20px;
+    border-radius: 4px;
+    color: white;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  .toast--visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .toast--success {
+    background-color: var(--color-button, #8F9A5B);
+  }
+  .toast--error {
+    background-color: var(--color-error, #e22120);
+  }
+
+  .product-card-wrapper {
+    height: 100%;
+    display: flex;
+  }
+
+  .product-card {
+    width: 100%; /* Ensure card fills its grid item width */
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    background: white;
+    overflow: hidden;
+    text-decoration: none;
+    position: relative; /* For favorite icon positioning */
+  }
+
+  .product-card__media-link {
+    display: block;
+    text-decoration: none;
+  }
+
+  .product-card__media {
+    height: 220px; /* Adjust as needed or make aspect ratio based */
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    position: relative; /* For favorite icon positioning */
+  }
+
+  .product-card__image {
+    max-height: 100%; /* Fill height of media box */
+    max-width: 100%; /* Fill width of media box */
+    width: auto;
+    height: auto;
+    object-fit: contain;
+  }
+
+  .product-card__favorite-wrapper {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 3;
+  }
+
+  .product-card__favorite {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 1px solid #e0e0e0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .product-card__favorite svg {
+    width: 18px;
+    height: 18px;
+    fill: #707070;
+    stroke: #707070;
+    stroke-width: 1.5;
+  }
+  .product-card__favorite.is-favorite svg {
+    fill: var(--color-accent, #8F9A5B); /* Use theme accent or fallback */
+    stroke: var(--color-accent, #8F9A5B);
+  }
+  .product-card__favorite:hover svg {
+    fill: var(--color-accent-darker, #79804E); /* Darker accent on hover */
+    stroke: var(--color-accent-darker, #79804E);
+  }
+
+  .product-card__content {
+    padding: 15px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    text-align: center;
+  }
+
+  .product-card__vendor {
+    font-size: 0.85em;
+    color: #666;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .product-card__title {
+    font-size: 1em; 
+    font-weight: 600; 
+    line-height: 1.5; /* 1.5 * 1em = 1.5em per line */
+    height: 3em; /* 2 lines * 1.5em = 3em */
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    margin-top: 0;
+    margin-bottom: 8px; 
+    width: 100%;
+    text-align: center;
+  }
+  .product-card__title a {
+    text-decoration: none;
+    color: inherit;
+  }
+  .product-card__title a:hover {
+    text-decoration: underline;
+  }
+
+  .product-card__price {
+    margin-top: auto; /* Pushes price and buttons to bottom if content above is short */
+    margin-bottom: 12px;
+    width: 100%;
+    text-align: center;
+    font-size: 1em;
+    font-weight: 500;
+  }
+  .price-item--sale {
+    color: var(--color-sale-price, #e22120);
+  }
+  .price-item--regular {
+    text-decoration: line-through;
+    color: #777;
+    font-size: 0.9em;
+    margin-left: 5px;
+  }
+
+  .product-card__actions {
+    display: flex;
+    flex-direction: column; /* Stack buttons vertically */
+    gap: 8px; /* Space between buttons */
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .product-card__actions .button,
+  .product-card__actions .product-card__button {
+    width: 100%;
+    margin: 0; /* Remove default button margins if any */
+  }
+
+  .product-card__add-to-cart-form {
+    width: 100%;
+  }
+
+  /* Ensure button styles from theme apply or define basic ones */
+  .button {
+    /* Basic button styling - theme should override */
+    padding: 10px 15px;
+    font-size: 0.9em;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+  }
+  .button--primary {
+    background-color: var(--color-button-primary-bg, #333);
+    color: var(--color-button-primary-text, #fff);
+    border: 1px solid var(--color-button-primary-border, #333);
+  }
+  .button--primary:hover {
+    background-color: var(--color-button-primary-bg-hover, #555);
+    border-color: var(--color-button-primary-border-hover, #555);
+  }
+  .button--secondary {
+    background-color: var(--color-button-secondary-bg, #f0f0f0);
+    color: var(--color-button-secondary-text, #333);
+    border: 1px solid var(--color-button-secondary-border, #ccc);
+  }
+  .button--secondary:hover {
+    background-color: var(--color-button-secondary-bg-hover, #e0e0e0);
+    border-color: var(--color-button-secondary-border-hover, #bbb);
+  }
+  .button[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
 </style>
+
+{% render 'product-favorite' %}
 
 {% schema %}
 {
-  "name": "Favorites",
+  "name": "Favorites Page",
   "tag": "section",
-  "class": "section",
+  "class": "favorites-section-wrapper",
   "settings": [
     {
       "type": "text",
       "id": "title",
       "label": "Title",
       "default": "My Favorites"
+    },
+    {
+      "type": "text",
+      "id": "empty_text",
+      "label": "Empty State Text",
+      "default": "You haven't added any products to your favorites yet."
+    },
+    {
+      "type": "text",
+      "id": "empty_button_text",
+      "label": "Empty State Button Text",
+      "default": "Browse Products"
+    },
+    {
+      "type": "url",
+      "id": "empty_button_link",
+      "label": "Empty State Button Link"
+    },
+    {
+      "type": "text",
+      "id": "login_prompt_text",
+      "label": "Login Prompt Text",
+      "default": "Please sign in to view your favorites."
+    },
+    {
+      "type": "text",
+      "id": "login_button_text",
+      "label": "Login Button Text",
+      "default": "Sign In"
+    },
+    {
+      "type": "header",
+      "content": "Grid Layout"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 3,
+      "label": "Number of columns on desktop"
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "options": [
+        {
+          "value": "1",
+          "label": "1 column"
+        },
+        {
+          "value": "2",
+          "label": "2 columns"
+        }
+      ],
+      "default": "2",
+      "label": "Number of columns on mobile"
     }
   ],
   "presets": [
     {
-      "name": "Favorites",
+      "name": "Favorites Page (LocalStorage)",
       "category": "Custom Content"
     }
   ]

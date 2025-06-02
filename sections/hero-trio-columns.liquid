@@ -1,0 +1,187 @@
+{% comment %}
+  Section: Hero Trio Columns
+  Component with three columns meant to overlap a preceding hero image.
+{% endcomment %}
+
+<style>
+  .hero-trio-columns {
+    background-color: {{ section.settings.background_color }};
+    margin-top: {{ section.settings.negative_margin_top }}px;
+    position: relative; /* Needed for z-index if overlapping complex hero elements */
+    z-index: 2; /* Ensure it sits on top of the hero image */
+    padding: 40px 0; /* Default vertical padding */
+  }
+
+  .hero-trio-columns__container {
+    display: flex;
+    justify-content: space-between;
+    gap: 30px; /* Space between columns */
+    max-width: var(--page-width, 1200px); /* Use theme's page width or a default */
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1.5rem; /* Consistent with .page-width */
+    padding-right: 1.5rem; /* Consistent with .page-width */
+  }
+
+  .hero-trio-columns__column {
+    flex: 1 1 0px; /* Distribute space equally */
+    min-width: 0; /* Allow flex items to shrink below their content size */
+    display: flex;
+    flex-direction: column; /* Align items vertically within the column */
+    align-items: flex-start; /* Align text to the start */
+    text-align: left;
+    position: relative; /* For the vertical line */
+    padding-left: 20px; /* Space for the vertical line */
+  }
+
+  .hero-trio-columns__column::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 5px; /* Adjust as needed */
+    bottom: 5px; /* Adjust as needed */
+    width: 1px;
+    background-color: rgba(255, 255, 255, 0.5); /* Line color */
+  }
+  
+  .hero-trio-columns__column:first-child::before {
+    display: none; /* No line for the first column */
+  }
+
+  .hero-trio-columns__description {
+    font-size: 1.0rem;
+    line-height: 1.6;
+    color: #FFFFFF;
+    margin-bottom: 15px;
+  }
+
+  .hero-trio-columns__keyword {
+    font-size: 2.8rem;
+    font-weight: bold;
+    color: #FFFFFF;
+    margin-top: auto; /* Pushes keyword to the bottom if descriptions vary in height */
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 991px) { /* Tablet breakpoint */
+    .hero-trio-columns__container {
+      gap: 20px;
+    }
+    .hero-trio-columns__keyword {
+      font-size: 2.2rem; /* Larger for tablet */
+    }
+  }
+
+  @media (max-width: 767px) { /* Mobile breakpoint */
+    .hero-trio-columns__container {
+      flex-direction: row; /* Stack horizontally */
+      gap: 10px; /* Further reduced gap for horizontal layout */
+    }
+    .hero-trio-columns__description {
+      display: none; /* Hide description on mobile */
+    }
+    .hero-trio-columns__column {
+      align-items: center; /* Center keyword on mobile */
+      text-align: center;
+      padding-left: 0; /* No padding needed if line is hidden or centered */
+    }
+    .hero-trio-columns__column::before {
+      display: block; /* Show vertical line on mobile */
+      width: 2px; /* Make line thicker on mobile */
+    }
+    .hero-trio-columns__keyword {
+      margin-top: 0;
+      font-size: 1.6rem; /* Increased for mobile */
+    }
+  }
+</style>
+
+<div class="hero-trio-columns">
+  <div class="hero-trio-columns__container">
+    {% for block in section.blocks %}
+      <div class="hero-trio-columns__column" {{ block.shopify_attributes }}>
+        {% if block.settings.description != blank %}
+          <p class="hero-trio-columns__description">{{ block.settings.description }}</p>
+        {% endif %}
+        {% if block.settings.keyword != blank %}
+          <h3 class="hero-trio-columns__keyword">{{ block.settings.keyword }}</h3>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Hero Trio Columns",
+  "tag": "section",
+  "class": "hero-trio-columns-section",
+  "settings": [
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "range",
+      "id": "negative_margin_top",
+      "min": -200,
+      "max": 0,
+      "step": 5,
+      "unit": "px",
+      "label": "Negative Top Margin (for overlap)",
+      "default": -50
+    }
+  ],
+  "blocks": [
+    {
+      "type": "column",
+      "name": "Column",
+      "limit": 3,
+      "settings": [
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Description",
+          "default": "Our team of experts comprehends your business challenges and is committed to offering customized solutions at each stage of your journey."
+        },
+        {
+          "type": "text",
+          "id": "keyword",
+          "label": "Keyword",
+          "default": "Trust."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Hero Trio Columns",
+      "blocks": [
+        {
+          "type": "column",
+          "settings": {
+            "description": "We provide the most comprehensive and superior quality pest control solutions, ensuring your utmost reliability.",
+            "keyword": "Quality."
+          }
+        },
+        {
+          "type": "column",
+          "settings": {
+            "description": "Our team of experts comprehends your business challenges and is committed to offering customized solutions at each stage of your journey.",
+            "keyword": "Trust."
+          }
+        },
+        {
+          "type": "column",
+          "settings": {
+            "description": "Our unwavering dedication to revolutionizing pest management through cutting-edge innovations guarantees you access to the most effective tools available.",
+            "keyword": "Innovation."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

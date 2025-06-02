@@ -65,16 +65,16 @@
     <div class="points-card">
       <div class="points-card-header">
         <h3>Available Points</h3>
-        <span class="points-amount">1,000</span>
+        <span class="points-amount">{{ customer.metafields.loyalty.available_points | default: 0 }}</span>
       </div>
       <div class="points-card-body">
         <div class="points-detail">
           <span>Pending Points</span>
-          <span>500</span>
+          <span>{{ customer.metafields.loyalty.pending_points | default: 0 }}</span>
         </div>
         <div class="points-detail">
           <span>Lifetime Points</span>
-          <span>5,250</span>
+          <span>{{ customer.metafields.loyalty.total_points | default: 0 }}</span>
         </div>
       </div>
     </div>
@@ -85,22 +85,124 @@
     <h3>Your Tier Status</h3>
     <div class="tier-progress">
       <div class="tier-label">
-        <span>Silver</span>
-        <span>Gold</span>
+        <span>{{ customer.metafields.loyalty.current_tier | split: '-' | last | default: 'N/A' }}</span>
+        {% if customer.metafields.loyalty.next_tier %}
+          <span>{{ customer.metafields.loyalty.next_tier | split: '-' | last }}</span>
+        {% else %}
+          <span></span> {# Or a placeholder if no next tier #}
+        {% endif %}
       </div>
+      {%- comment %}
+        New Tier Progression Logic based on Customer Group and Cumulative AED Spend
+        Assumes customer.metafields.loyalty.cumulative_spend_aed stores the relevant spend.
+      {% endcomment -%}
+
+      {%- assign customer_group_and_tier_meta = customer.metafields.loyalty.current_tier | default: 'GroupA-Silver' -%}
+      {%- assign customer_group_letter = customer_group_and_tier_meta | split: '-' | first | remove: 'Group' | default: 'A' -%}
+      {%- assign current_tier_name_from_meta = customer_group_and_tier_meta | split: '-' | last | default: 'Silver' -%}
+      {%- assign next_tier_name_from_meta = customer.metafields.loyalty.next_tier | split: '-' | last -%}
+
+      {%- comment %} IMPORTANT: This logic assumes cumulative spend for tiering is stored in 'customer.metafields.loyalty.cumulative_spend_aed'. {% endcomment -%}
+      {%- assign cumulative_spend_for_tiering = customer.metafields.custom.cumulative_spend_aed | default: 0 | times: 1 -%}
+
+      {%- assign group_silver_aed = 0 -%}
+      {%- assign group_gold_aed = 0 -%}
+      {%- assign group_platinum_aed = 0 -%}
+
+      {%- case customer_group_letter -%}
+        {%- when 'A' -%}
+          {%- assign group_silver_aed = 20000 -%}
+          {%- assign group_gold_aed = 30000 -%}
+          {%- assign group_platinum_aed = 40000 -%}
+        {%- when 'B' -%}
+          {%- assign group_silver_aed = 35000 -%}
+          {%- assign group_gold_aed = 50000 -%}
+          {%- assign group_platinum_aed = 70000 -%}
+        {%- when 'C' -%}
+          {%- assign group_silver_aed = 60000 -%}
+          {%- assign group_gold_aed = 75000 -%}
+          {%- assign group_platinum_aed = 90000 -%}
+        {%- when 'D' -%}
+          {%- assign group_silver_aed = 80000 -%}
+          {%- assign group_gold_aed = 100000 -%}
+          {%- assign group_platinum_aed = 125000 -%}
+        {%- when 'E' -%}
+          {%- assign group_silver_aed = 120000 -%}
+          {%- assign group_gold_aed = 150000 -%}
+          {%- assign group_platinum_aed = 180000 -%}
+        {%- when 'F' -%}
+          {%- assign group_silver_aed = 200000 -%}
+          {%- assign group_gold_aed = 250000 -%}
+          {%- assign group_platinum_aed = 300000 -%}
+        {%- else -%} {# Default to Group A if group is unknown for safety #}
+          {%- assign group_silver_aed = 20000 -%}
+          {%- assign group_gold_aed = 30000 -%}
+          {%- assign group_platinum_aed = 40000 -%}
+      {%- endcase -%}
+
+      {%- comment %} Progress bar visualizes spend from 0 up to the Platinum threshold for the customer's group. Labels show the group's Silver, Gold, and Platinum AED thresholds. {%- endcomment %}
+      {%- assign progress_bar_visual_min_aed = 0 -%}
+      {%- assign progress_bar_visual_max_aed = group_platinum_aed -%}
+
+      {%- assign spend_for_bar = cumulative_spend_for_tiering | at_least: progress_bar_visual_min_aed -%}
+      {%- assign progress_percentage = 0 -%}
+      {%- assign range_width_for_bar = progress_bar_visual_max_aed | minus: progress_bar_visual_min_aed -%}
+
+      {% if range_width_for_bar > 0 %}
+        {%- assign spend_in_range = spend_for_bar | minus: progress_bar_visual_min_aed -%}
+        {%- assign progress_percentage = spend_in_range | times: 100.0 | divided_by: range_width_for_bar | round -%}
+      {% elsif spend_for_bar >= progress_bar_visual_max_aed and progress_bar_visual_max_aed > 0 %} {# Handle case where max_aed might be 0 if not set #}
+        {%- assign progress_percentage = 100 -%}
+      {% endif %}
+      {%- assign progress_percentage = progress_percentage | at_most: 100 | at_least: 0 -%}
+
       <div class="progress">
-        <div class="progress-bar" style="width: 30%;"></div>
+        <div class="progress-bar" style="width: {{ progress_percentage }}%;"></div>
       </div>
       <div class="tier-requirements">
-        <span>0 pts</span>
-        <span>5,000 pts</span>
-        <span>10,000 pts</span>
+        <span>{{ group_silver_aed | money_without_trailing_zeros }}</span>
+        <span>{{ group_gold_aed | money_without_trailing_zeros }}</span>
+        <span>{{ group_platinum_aed | money_without_trailing_zeros }}</span>
       </div>
     </div>
-    <p class="tier-note">You're 4,000 points away from Gold status</p>
+
+    {%- assign aed_needed_for_next_tier = 0 -%}
+    {%- assign tier_status_note = "" -%}
+
+    {% if current_tier_name_from_meta == 'Platinum' or next_tier_name_from_meta == blank %}
+      {%- assign tier_status_note = "You've reached the top tier for your group!" -%}
+    {% else %}
+      {%- assign next_tier_target_spend_aed = 0 -%}
+      {% if next_tier_name_from_meta == 'Gold' %}
+        {%- assign next_tier_target_spend_aed = group_gold_aed -%}
+      {% elsif next_tier_name_from_meta == 'Platinum' %}
+        {%- assign next_tier_target_spend_aed = group_platinum_aed -%}
+      {% endif %}
+
+      {% if next_tier_target_spend_aed > 0 %}
+        <!-- Debug: cumulative_spend_for_tiering: {{ cumulative_spend_for_tiering }} | next_tier_target_spend_aed: {{ next_tier_target_spend_aed }} -->
+        {%- assign aed_needed_for_next_tier = next_tier_target_spend_aed | minus: cumulative_spend_for_tiering -%}
+        <!-- Debug: aed_needed_for_next_tier (raw): {{ aed_needed_for_next_tier }} -->
+        {% if aed_needed_for_next_tier > 0 %}
+          {%- assign formatted_aed_needed = aed_needed_for_next_tier | money_without_trailing_zeros -%}
+          {%- assign tier_status_note = "You're " | append: formatted_aed_needed | append: " away from " | append: next_tier_name_from_meta | append: " status." -%}
+        {% else %}
+          {%- assign tier_status_note = "Congratulations! You've qualified for " | append: next_tier_name_from_meta | append: " status!" -%}
+        {% endif %}
+      {% else %}
+        {%- assign tier_status_note = "You are currently in the " | append: current_tier_name_from_meta | append: " tier." -%}
+      {% endif %}
+    {% endif %}
+    <p class="tier-note">{{ tier_status_note }}</p>
   </div>
   
   <!-- Points History -->
+  {%- comment %}
+    The Points History section below is currently static HTML.
+    Making this section dynamic to show actual customer points history
+    typically requires integration with a Shopify App designed for loyalty programs
+    or a more complex setup involving storing and parsing transaction data from metafields.
+  {% endcomment %}
   <div class="points-history">
     <div class="section-header">
       <h3>Points History</h3>

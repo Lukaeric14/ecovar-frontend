@@ -16,6 +16,67 @@
     }
   }
   
+  /* Loyalty Points & Two-Column Layout */
+  .cart-footer__layout-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px; /* Adjust gap as needed */
+  }
+
+  .cart-footer__loyalty-column {
+    flex: 1 1 35%; /* Adjust basis/grow/shrink as needed */
+    min-width: 280px;
+  }
+
+  .cart-footer__main-column {
+    flex: 1 1 60%;
+    min-width: 300px;
+  }
+
+  .loyalty-points-component {
+    border: 1px solid #b8bb8a; /* Muted green border */
+    border-radius: 8px;
+    padding: 20px;
+    background-color: #edf7ed; /* Light green background */
+    margin-bottom: 20px; /* Space if stacking on mobile */
+  }
+
+  .loyalty-points-component h3 {
+    margin-top: 0;
+    font-size: 1.4em;
+    color: #5a705a; /* Darker shade of the muted green for heading */
+  }
+
+  .loyalty-points-component label {
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+
+  .loyalty-points-component select,
+  .loyalty-points-component .button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+  }
+
+  .loyalty-savings-display {
+    margin-top: 15px;
+    font-weight: bold;
+    font-size: 1.1em;
+  }
+
+  @media (max-width: 749px) {
+    .cart-footer__layout-container {
+      flex-direction: column;
+    }
+    .cart-footer__loyalty-column,
+    .cart-footer__main-column {
+      flex-basis: 100%;
+    }
+  }
+
   /* LPO upload styling */
   .lpo-upload-section {
     margin: 30px 0;
@@ -46,7 +107,38 @@
         </cart-note>
       {%- endif -%}
 
-      <div class="cart__blocks">
+      <div class="cart__blocks cart-footer__layout-container">
+        {% if customer and customer.metafields.loyalty.available_points > 0 %}
+        <div class="cart-footer__loyalty-column">
+          <div class="loyalty-points-component">
+            <h3>Redeem Your Loyalty Points</h3>
+            <p>You have <strong id="customer-loyalty-points">{{ customer.metafields.loyalty.available_points | default: 0 }}</strong> points.</p>
+            
+            {%- comment %} --- Loyalty Points Calculation --- {%- endcomment -%}
+            {%- assign loyalty_current_points = customer.metafields.loyalty.available_points | default: 0 | times: 1 -%}
+            {%- assign loyalty_points_modulo_100 = loyalty_current_points | modulo: 100 -%}
+            {%- assign loyalty_max_redeemable = loyalty_current_points | minus: loyalty_points_modulo_100 -%}
+            {%- assign loyalty_num_options = loyalty_max_redeemable | divided_by: 100 | floor -%}
+            {%- comment %} --- End Loyalty Points Calculation --- {%- endcomment -%}
+
+            {% if loyalty_max_redeemable > 0 %}
+              <label for="loyalty-points-to-redeem">Points to redeem:</label>
+              <input type="number" name="loyalty_points_to_redeem" id="loyalty-points-to-redeem" class="field__input" step="100" min="0" data-customer-max-points="{{ loyalty_max_redeemable }}">
+              <small id="loyalty-points-error" style="color: red; display: none;">Invalid points amount.</small>
+
+              <div class="loyalty-savings-display">
+                Potential Savings: <span id="loyalty-potential-savings">0.00</span> AED
+              </div>
+
+              <button type="button" id="apply-loyalty-points" class="button" style="margin-top: 15px;">Apply Points</button>
+            {% else %}
+              <p>You need at least 100 points to redeem.</p>
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
+
+        <div class="cart-footer__main-column">
         {% for block in section.blocks %}
           {%- case block.type -%}
             {%- when '@app' -%}
@@ -67,14 +159,15 @@
                   {%- endif -%}
                 </div>
                 
-                {% if customer %}
+                {%- if customer and section.blocks.size > 0 -%}
                 <div class="lpo-upload-section">
                   {% render 'lpo-upload' %}
                 </div>
                 {% endif %}
 
                 {% if customer %}
-                <div class="totals">
+                <div id="loyalty-checkout-success-message" class="cart-checkout-success-message" style="color: green; text-align: center; margin-bottom: 10px; font-weight: bold; display: none;"></div>
+                  <div class="totals">
                   <h2 class="totals__total">{{ 'sections.cart.estimated_total' | t }}</h2>
                   <p class="totals__total-value">{{ cart.total_price | money_with_currency }}</p>
                 </div>
@@ -138,6 +231,7 @@
 
         <div id="cart-errors"></div>
       </div>
+      </div>
     </div>
   </div>
 </div>
@@ -145,6 +239,174 @@
 {% unless customer %}
   {% render 'quote-form' %}
 {% endunless %}
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const loyaltyComponent = document.querySelector('.loyalty-points-component');
+    if (!loyaltyComponent) return;
+
+    const pointsInput = document.getElementById('loyalty-points-to-redeem');
+    const potentialSavingsEl = document.getElementById('loyalty-potential-savings');
+    const applyButton = document.getElementById('apply-loyalty-points');
+    const pointsErrorEl = document.getElementById('loyalty-points-error');
+    const successMessageEl = document.getElementById('loyalty-checkout-success-message');
+    const cartTotalValueEl = document.querySelector('.totals__total-value');
+
+    let originalCartTotal = 0;
+    let currentAppliedDiscount = 0;
+    let customerMaxPointsBalance = 0; // Max points customer actually has
+    let effectiveMaxRedeemableInputPoints = 0; // Max points for input field (considering cart total)
+
+    function initializeValues() {
+      if (cartTotalValueEl) {
+        const totalText = cartTotalValueEl.textContent.replace(/[^0-9.-]+/g, "");
+        originalCartTotal = parseFloat(totalText) || 0;
+      }
+
+      customerMaxPointsBalance = parseInt(pointsInput.dataset.customerMaxPoints, 10) || 0;
+      
+      // Max points whose value doesn't exceed cart total
+      const maxPointsBasedOnCart = Math.floor(originalCartTotal * 10);
+      // Ensure it's a multiple of 100
+      const maxPointsBasedOnCartRounded = maxPointsBasedOnCart - (maxPointsBasedOnCart % 100);
+
+      effectiveMaxRedeemableInputPoints = Math.min(customerMaxPointsBalance, maxPointsBasedOnCartRounded);
+      
+      pointsInput.max = effectiveMaxRedeemableInputPoints;
+      pointsInput.value = effectiveMaxRedeemableInputPoints; // Pre-fill with the max possible
+    }
+
+    function validateAndDisplaySavings() {
+      let pointsToRedeem = parseInt(pointsInput.value, 10);
+      let errorMessage = '';
+      let isValid = true;
+      const currentInputMax = parseInt(pointsInput.max, 10) || 0; // Use current input.max for validation
+
+      if (isNaN(pointsToRedeem)) {
+        pointsToRedeem = 0;
+        errorMessage = 'Please enter a valid number.';
+        isValid = false;
+      } else if (pointsToRedeem < 0) {
+        errorMessage = 'Points cannot be negative.';
+        isValid = false;
+      } else if (pointsToRedeem > currentInputMax) {
+        errorMessage = `You can redeem a maximum of ${currentInputMax} points for this order.`;
+        isValid = false;
+      } else if (pointsToRedeem % 100 !== 0) {
+        errorMessage = 'Points must be in increments of 100.';
+        isValid = false;
+      }
+
+      if (pointsErrorEl) {
+        pointsErrorEl.textContent = errorMessage;
+        pointsErrorEl.style.display = errorMessage ? 'block' : 'none';
+      }
+      
+      applyButton.disabled = !isValid || pointsToRedeem === 0;
+
+      const discountAmount = isValid && pointsToRedeem > 0 ? pointsToRedeem / 10 : 0;
+      if (potentialSavingsEl) potentialSavingsEl.textContent = discountAmount.toFixed(2);
+
+      // If points are no longer valid or zero, and a discount was previously applied, clear it.
+      if ((!isValid || pointsToRedeem === 0) && currentAppliedDiscount > 0) {
+        if (successMessageEl) successMessageEl.style.display = 'none';
+        if (cartTotalValueEl && originalCartTotal > 0) {
+           cartTotalValueEl.textContent = originalCartTotal.toFixed(2) + ' AED';
+        }
+        sessionStorage.removeItem('appliedLoyaltyPoints');
+        sessionStorage.removeItem('appliedLoyaltyDiscount');
+        currentAppliedDiscount = 0;
+      }
+      return isValid;
+    }
+
+    applyButton.addEventListener('click', function() {
+      if (!validateAndDisplaySavings()) return;
+
+      const pointsToRedeem = parseInt(pointsInput.value, 10);
+      const potentialDiscount = pointsToRedeem / 10;
+      // Ensure discount doesn't exceed original cart total
+      const finalDiscountAmount = Math.min(potentialDiscount, originalCartTotal);
+
+      currentAppliedDiscount = finalDiscountAmount;
+
+      sessionStorage.setItem('appliedLoyaltyPoints', pointsToRedeem.toString()); // Store points attempted
+      sessionStorage.setItem('appliedLoyaltyDiscount', finalDiscountAmount.toString());
+
+      if (successMessageEl) {
+        successMessageEl.textContent = `You are saving ${finalDiscountAmount.toFixed(2)} AED on this order with points!`;
+        successMessageEl.style.display = 'block';
+      }
+      
+      if (cartTotalValueEl) {
+        const newTotal = originalCartTotal - finalDiscountAmount;
+        cartTotalValueEl.textContent = newTotal.toFixed(2) + ' AED';
+      }
+    });
+
+    function reapplyLoyaltyDiscount() {
+      initializeValues(); // Recalculate original total, max points for input, and prefill
+
+      const savedPointsStr = sessionStorage.getItem('appliedLoyaltyPoints');
+      const savedDiscountStr = sessionStorage.getItem('appliedLoyaltyDiscount');
+
+      if (savedPointsStr && savedDiscountStr) { // Path A: Session data exists
+        const savedPointsAttempted = parseInt(savedPointsStr, 10);
+        let actualSavedDiscount = parseFloat(savedDiscountStr);
+        
+        // Re-cap discount against current original cart total
+        actualSavedDiscount = Math.min(actualSavedDiscount, originalCartTotal);
+
+        pointsInput.value = savedPointsAttempted; // Set input to what was last attempted
+        
+        // Validate the saved points against current rules (max could have changed if cart changed)
+        if (validateAndDisplaySavings() && parseInt(pointsInput.value, 10) > 0) { 
+            currentAppliedDiscount = actualSavedDiscount;
+            if (successMessageEl) {
+                successMessageEl.textContent = `You are saving ${actualSavedDiscount.toFixed(2)} AED on this order with points!`;
+                successMessageEl.style.display = 'block';
+            }
+            if (cartTotalValueEl) {
+                const newTotal = originalCartTotal - actualSavedDiscount;
+                cartTotalValueEl.textContent = newTotal.toFixed(2) + ' AED';
+            }
+        } else {
+            // If saved points are no longer valid, clear session and UI for discount
+            sessionStorage.removeItem('appliedLoyaltyPoints');
+            sessionStorage.removeItem('appliedLoyaltyDiscount');
+            if (successMessageEl) successMessageEl.style.display = 'none';
+            if (cartTotalValueEl) cartTotalValueEl.textContent = originalCartTotal.toFixed(2) + ' AED';
+            currentAppliedDiscount = 0;
+            // pointsInput.value might have been reset by validateAndDisplaySavings if invalid
+            // or we might want to reset it to the new effectiveMaxRedeemableInputPoints
+            pointsInput.value = effectiveMaxRedeemableInputPoints; // Reset to current max possible
+            validateAndDisplaySavings(); // Re-validate with new default value
+        }
+      } else { // Path B: No session data (initial load usually)
+         // Values already initialized by initializeValues()
+         validateAndDisplaySavings(); // Updates potential savings, errors, button state based on prefill
+
+         // Explicitly ensure no discount is shown as applied for Path B on initial load
+         if (successMessageEl) {
+            successMessageEl.style.display = 'none';
+         }
+         if (cartTotalValueEl && originalCartTotal > 0) {
+            cartTotalValueEl.textContent = originalCartTotal.toFixed(2) + ' AED';
+         }
+         currentAppliedDiscount = 0;
+      }
+    }
+    
+    if (pointsInput) {
+      pointsInput.addEventListener('input', validateAndDisplaySavings);
+    }
+
+    // Initial setup and on cart updates
+    reapplyLoyaltyDiscount();
+    document.addEventListener('shopify:cart:updated', reapplyLoyaltyDiscount);
+
+  });
+</script>
 
 {% schema %}
 {

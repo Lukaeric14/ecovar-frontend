@@ -42,6 +42,8 @@
 
 <script src="{{ 'quantity-popover.js' | asset_url }}" defer="defer"></script>
 
+
+
 <cart-items class="gradient color-{{ section.settings.color_scheme }} isolate{% if cart == empty %} is-empty{% else %} section-{{ section.id }}-padding{% endif %}">
   <div class="page-width">
     <div class="title-wrapper-with-link">
@@ -125,6 +127,7 @@
                     </td>
 
                     <td class="cart-item__details">
+                  
                       {%- if settings.show_vendor -%}
                         <p class="caption-with-letter-spacing">{{ item.product.vendor }}</p>
                       {%- endif -%}
@@ -462,6 +465,226 @@
                       </div>
                     </td>
                     {% endif %}
+                   {% if customer %}
+  <script>
+    // Create style for price loading state
+    const style = document.createElement('style');
+    style.textContent = `
+      .price-loading {
+        visibility: hidden;
+        position: relative;
+      }
+      .price-loading:after {
+        content: "Loading...";
+        visibility: visible;
+        position: absolute;
+        left: 0;
+        top: 0;
+      }
+    `;
+    document.head.appendChild(style);
+    
+    // Store cart item NS IDs and their custom prices for persistence across cart updates
+    const CART_ITEM_DATA = {
+      {% for item in cart.items %}
+        '{{ item.variant_id }}': {
+          nsId: '{{ item.product.metafields.netsuite.ns_id }}',
+          handle: '{{ item.product.handle }}',
+          title: '{{ item.title | escape }}'
+        },
+      {% endfor %}
+    };
+    
+    // Function to update prices for a specific cart item row
+    function updateCartItemPrices(cartItemRow, nsId, customPrice) {
+      if (!cartItemRow || !nsId || !customPrice) return false;
+      
+      // Find all price elements in this cart item
+      const itemPrices = [];
+      
+      // Cart line price
+      const linePriceEl = cartItemRow.querySelector('.cart-item__price-wrapper .price');
+      if (linePriceEl) itemPrices.push(linePriceEl);
+      
+      // Product option price (in product details)
+      const productOptionEls = cartItemRow.querySelectorAll('.product-option');
+      productOptionEls.forEach(el => {
+        if (el.textContent.trim().includes('AED')) {
+          itemPrices.push(el);
+        }
+      });
+      
+      // Any other price spans
+      const otherPriceEls = cartItemRow.querySelectorAll('.cart-item__price .price');
+      otherPriceEls.forEach(el => itemPrices.push(el));
+      
+      // Get the quantity of this item
+      const quantityInput = cartItemRow.querySelector('input[data-quantity-variant-id]');
+      const quantity = quantityInput ? parseInt(quantityInput.value, 10) : 1;
+      
+      // Calculate unit price and line price
+      const unitPrice = parseFloat(customPrice.price);
+      const linePrice = unitPrice * quantity;
+      
+      // Format prices
+      const formattedUnitPrice = `${unitPrice.toFixed(2)} AED`;
+      const formattedLinePrice = `${linePrice.toFixed(2)} AED`;
+      
+      console.log(`Updating prices - NS ID: ${nsId}, Unit: ${formattedUnitPrice}, Line: ${formattedLinePrice}, Qty: ${quantity}`);
+      
+      // Update all price elements
+      itemPrices.forEach(priceEl => {
+        if (priceEl) {
+          // Check if this is a line price or unit price element
+          const isLinePrice = priceEl.closest('.cart-item__totals') !== null;
+          
+          // Set the appropriate price
+          priceEl.textContent = isLinePrice ? formattedLinePrice : formattedUnitPrice;
+          priceEl.classList.remove('price-loading');
+          
+          // Store the unit price as a data attribute
+          priceEl.setAttribute('data-ns-id', nsId);
+          priceEl.setAttribute('data-unit-price', unitPrice.toString());
+          priceEl.setAttribute('data-custom-price', 'true');
+        }
+      });
+      
+      return true;
+    }
+    
+    // Function to safely apply custom prices and add loading indicators
+    function applyCustomPrices() {
+      console.log('Applying custom prices to cart items');
+      
+      // Find all price elements and hide them while loading
+      const priceElements = document.querySelectorAll(
+        '.cart-item__price-wrapper .price, .cart-item__price .price, .price, .product-option, [data-price]'
+      );
+      
+      priceElements.forEach(el => {
+        if (el.textContent.includes('AED') || /\d+\.\d+/.test(el.textContent)) {
+          el.classList.add('price-loading');
+        }
+      });
+      
+      // Wait for custom prices to be available
+      (function waitForCustomPrices(retries = 200) {
+        if (!window.CUSTOMER_CUSTOM_PRICES || !Array.isArray(window.CUSTOMER_CUSTOM_PRICES)) {
+          if (retries > 0) return setTimeout(() => waitForCustomPrices(retries - 1), 10);
+          // Show original prices if custom prices never load
+          document.querySelectorAll('.price-loading').forEach(el => el.classList.remove('price-loading'));
+          return;
+        }
+        
+        console.log('Custom prices available:', window.CUSTOMER_CUSTOM_PRICES);
+        
+        // Process each cart item
+        const itemRows = document.querySelectorAll('tr.cart-item');
+        let customPricesApplied = false;
+        
+        itemRows.forEach(row => {
+          // Find variant ID for this row
+          const variantInput = row.querySelector('input[data-quantity-variant-id]');
+          if (!variantInput) return;
+          
+          const variantId = variantInput.getAttribute('data-quantity-variant-id');
+          if (!variantId || !CART_ITEM_DATA[variantId]) return;
+          
+          const nsId = CART_ITEM_DATA[variantId].nsId;
+          if (!nsId) return;
+          
+          // Find matching custom price
+          const match = window.CUSTOMER_CUSTOM_PRICES.find(p => p.item === nsId);
+          if (!match) return;
+          
+          // Update prices for this cart item
+          const updated = updateCartItemPrices(row, nsId, match);
+          if (updated) customPricesApplied = true;
+        });
+        
+        // If we applied custom prices, dispatch event to update totals
+        if (customPricesApplied) {
+          document.dispatchEvent(new CustomEvent('custom-prices-applied'));
+        }
+        
+        // Ensure all prices are visible after processing
+        setTimeout(() => {
+          document.querySelectorAll('.price-loading').forEach(el => {
+            el.classList.remove('price-loading');
+          });
+        }, 500);
+      })();
+    }
+    
+    // Setup a MutationObserver to detect cart changes and reapply custom prices
+    function setupMutationObserver() {
+      const cartContainer = document.querySelector('.cart__items');
+      if (!cartContainer) return;
+      
+      const observer = new MutationObserver(function(mutations) {
+        // Check if any mutations affected the cart items
+        const cartUpdated = mutations.some(mutation => {
+          // If nodes were added or removed
+          if (mutation.addedNodes.length > 0 || mutation.removedNodes.length > 0) return true;
+          
+          // If attributes changed on cart elements
+          if (mutation.target.closest('tr.cart-item') && mutation.attributeName === 'value') return true;
+          
+          return false;
+        });
+        
+        if (cartUpdated) {
+          console.log('Cart content changed, reapplying custom prices');
+          applyCustomPrices();
+        }
+      });
+      
+      // Observe changes to the cart container and its descendants
+      observer.observe(cartContainer, { 
+        childList: true,      // Watch for changes to direct children
+        subtree: true,       // Watch for changes to all descendants
+        attributes: true,    // Watch for attribute changes
+        attributeFilter: ['value'] // Only watch value attribute changes (quantities)
+      });
+      
+      // Also listen for form submission events on the cart form
+      const cartForm = document.getElementById('cart');
+      if (cartForm) {
+        cartForm.addEventListener('submit', function() {
+          // Set a flag to reapply prices after page update
+          sessionStorage.setItem('reapplyCustomPrices', 'true');
+        });
+      }
+      
+      // Watch for plus/minus button clicks
+      document.querySelectorAll('.quantity__button').forEach(button => {
+        button.addEventListener('click', function() {
+          // Set timeout to reapply prices after AJAX completes
+          setTimeout(applyCustomPrices, 500);
+        });
+      });
+    }
+    
+    // Initialize everything
+    function initialize() {
+      applyCustomPrices();
+      setupMutationObserver();
+      
+      // Check if we need to reapply prices after page load (from form submission)
+      if (sessionStorage.getItem('reapplyCustomPrices') === 'true') {
+        sessionStorage.removeItem('reapplyCustomPrices');
+        setTimeout(applyCustomPrices, 500);
+      }
+    }
+    
+    // Run once DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initialize);
+    } else {
+      initialize();
+    }
+  </script>
+{% endif %}
                   </tr>
                 {%- endfor -%}
               </tbody>

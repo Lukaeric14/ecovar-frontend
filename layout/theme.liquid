@@ -35,6 +35,22 @@
       <script src="{{ 'animations.js' | asset_url }}" defer="defer"></script>
     {%- endif -%}
 
+    <!-- {% if customer %}
+    <script>
+      window.CUSTOMER_NS_ID = "{{ customer.metafields.netsuite.ns_id | escape }}";
+  
+      fetch("https://ecovar-middleware-production.up.railway.app/api/customer/netsuite/customer/{{ customer.metafields.netsuite.ns_id }}")
+        .then(res => res.json())
+        .then(data => {
+          console.log(data)
+          window.CUSTOMER_CUSTOM_PRICES = data.itempricing || [];
+        })
+        .catch(err => {
+          console.warn("Failed to fetch custom prices", err);
+        });
+    </script>
+    {% endif %} -->
+
     {{ content_for_header }}
 
     {%- liquid
@@ -368,5 +384,8 @@
     {%- if settings.predictive_search_enabled -%}
       <script src="{{ 'predictive-search.js' | asset_url }}" defer="defer"></script>
     {%- endif -%}
+
+    {% comment %} Sync favorites between metafields and cart attributes {% endcomment %}
+    {% render 'favorites-sync' %}
   </body>
 </html>
