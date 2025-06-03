@@ -160,9 +160,9 @@
         <div class="progress-bar" style="width: {{ progress_percentage }}%;"></div>
       </div>
       <div class="tier-requirements">
-        <span>{{ group_silver_aed | money_without_trailing_zeros }}</span>
-        <span>{{ group_gold_aed | money_without_trailing_zeros }}</span>
-        <span>{{ group_platinum_aed | money_without_trailing_zeros }}</span>
+        <span>{{ group_silver_aed }} AED</span>
+        <span>{{ group_gold_aed }} AED</span>
+        <span>{{ group_platinum_aed }} AED</span>
       </div>
     </div>
 
@@ -180,12 +180,9 @@
       {% endif %}
 
       {% if next_tier_target_spend_aed > 0 %}
-        <!-- Debug: cumulative_spend_for_tiering: {{ cumulative_spend_for_tiering }} | next_tier_target_spend_aed: {{ next_tier_target_spend_aed }} -->
         {%- assign aed_needed_for_next_tier = next_tier_target_spend_aed | minus: cumulative_spend_for_tiering -%}
-        <!-- Debug: aed_needed_for_next_tier (raw): {{ aed_needed_for_next_tier }} -->
         {% if aed_needed_for_next_tier > 0 %}
-          {%- assign formatted_aed_needed = aed_needed_for_next_tier | money_without_trailing_zeros -%}
-          {%- assign tier_status_note = "You're " | append: formatted_aed_needed | append: " away from " | append: next_tier_name_from_meta | append: " status." -%}
+          {%- assign tier_status_note = "You're " | append: aed_needed_for_next_tier | append: " AED away from " | append: next_tier_name_from_meta | append: " status." -%}
         {% else %}
           {%- assign tier_status_note = "Congratulations! You've qualified for " | append: next_tier_name_from_meta | append: " status!" -%}
         {% endif %}

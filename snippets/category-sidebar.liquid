@@ -1,0 +1,49 @@
+<div class="category-sidebar">
+  <h3 class="sidebar-title">{{ section.settings.sidebar_title | default: 'Categories' }}</h3>
+  
+  <div class="sidebar-categories">
+    {% if section.settings.collection_links != blank %}
+      <ul class="sidebar-category-list">
+        {% for link in linklists[section.settings.collection_links].links %}
+          {% assign current_link = link.url | split: '?' | first %}
+          {% assign is_current = false %}
+          {% if current_link == collection.url %}
+            {% assign is_current = true %}
+          {% endif %}
+          
+          <li class="sidebar-category-item{% if is_current %} active{% endif %}">
+            <a href="{{ link.url }}">{{ link.title }}</a>
+            
+            {% if link.links.size > 0 %}
+              <ul class="sidebar-subcategory-list">
+                {% for childlink in link.links %}
+                  {% assign child_current_link = childlink.url | split: '?' | first %}
+                  {% assign child_is_current = false %}
+                  {% if child_current_link == collection.url %}
+                    {% assign child_is_current = true %}
+                  {% endif %}
+                  
+                  <li class="sidebar-subcategory-item{% if child_is_current %} active{% endif %}">
+                    <a href="{{ childlink.url }}">{{ childlink.title }}</a>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+  
+  {% if section.settings.show_collection_filters %}
+    <div class="sidebar-filters">
+      <h3 class="sidebar-subtitle">{{ 'products.facets.filter_by_label' | t }}</h3>
+      {% render 'facets',
+        results: collection,
+        enable_filtering: true,
+        enable_sorting: false,
+        filter_type: 'vertical'
+      %}
+    </div>
+  {% endif %}
+</div>

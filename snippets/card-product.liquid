@@ -176,9 +176,9 @@
   .product-card__button {
     display: inline-block;
     min-width: 80%;
-    background: transparent;
-    color: #8F9A5B; /* Ecovar green */
-    border: 1px solid #8F9A5B;
+    background: transparent !important;
+    color: #8F9A5B !important; /* Ecovar green */
+    border: 1px solid #8F9A5B !important;
     border-radius: 4px;
     padding: 8px 15px;
     font-size: 14px;
@@ -320,24 +320,15 @@
         
         <!-- Add to Cart/Request Quote Button -->
         {% if customer %}
-          <!-- For logged-in users: Add to Cart button -->
+          <!-- For logged-in users: Add to Quote button -->
           <button
             type="button"
-            class="product-card__button"
+            class="product-card__button"  {# This class provides the desired outline style. #}
             data-product-id="{{ variant_id }}"
             data-product-url="{{ card_product.url }}"
           >
-            Add to Cart
+            {{ 'products.product.add_to_quote' | t: default: 'Add to quote' }}
           </button>
-        {% else %}
-          <!-- For non-logged-in users: Request Quote button -->
-          <a
-            href="/pages/contact?product={{ card_product.title | url_encode }}"
-            class="product-card__button"
-            onclick="localStorage.setItem('quoteProduct', '{{ card_product.title }}');"
-          >
-            Request Quote
-          </a>
         {% endif %}
       </div>
     </div>

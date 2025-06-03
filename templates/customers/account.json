@@ -1,1 +1,1 @@
-{"sections":{"main":{"type":"main-account","settings":{"padding_top":36,"padding_bottom":36}}},"order":["main"]}
+{"sections":{"main":{"type":"main-account","settings":{}},"customer_loyalty_Fn9RUi":{"type":"customer-loyalty","name":"Customer Loyalty Bar","settings":{"company_name":"Ecovar Group","use_burgundy_theme":false,"show_login_message":true,"use_placeholder_for_logged_out":true,"login_message":"Log in to view your loyalty status","default_tier":"silver","padding_top":0,"padding_bottom":0}}},"order":["customer_loyalty_Fn9RUi","main"]}

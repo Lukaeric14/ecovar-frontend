@@ -484,20 +484,21 @@
     `;
     document.head.appendChild(style);
     
-    // Store cart item NS IDs and their custom prices for persistence across cart updates
-    const CART_ITEM_DATA = {
-      {% for item in cart.items %}
-        '{{ item.variant_id }}': {
-          nsId: '{{ item.product.metafields.netsuite.ns_id }}',
-          handle: '{{ item.product.handle }}',
-          title: '{{ item.title | escape }}'
-        },
-      {% endfor %}
-    };
+    // Store cart item data for future reference
+    window.CART_ITEM_DATA = [];
+    {% for item in cart.items %}
+      window.CART_ITEM_DATA.push({
+        variant_id: '{{ item.variant_id }}',
+        ns_id: '{{ item.product.metafields.netsuite.ns_id }}',
+        product_handle: '{{ item.product.handle }}',
+        original_price: {{ item.price | divided_by: 100.0 }},
+        key: '{{ item.key }}'
+      });
+    {% endfor %}
     
-    // Function to update prices for a specific cart item row
-    function updateCartItemPrices(cartItemRow, nsId, customPrice) {
-      if (!cartItemRow || !nsId || !customPrice) return false;
+    // Function to update price for a specific cart item
+    function updateItemPrice(cartItemRow, nsId, quantity) {
+      if (!cartItemRow || !nsId) return false;
       
       // Find all price elements in this cart item
       const itemPrices = [];
@@ -514,45 +515,95 @@
         }
       });
       
-      // Any other price spans
-      const otherPriceEls = cartItemRow.querySelectorAll('.cart-item__price .price');
-      otherPriceEls.forEach(el => itemPrices.push(el));
-      
-      // Get the quantity of this item
-      const quantityInput = cartItemRow.querySelector('input[data-quantity-variant-id]');
-      const quantity = quantityInput ? parseInt(quantityInput.value, 10) : 1;
-      
-      // Calculate unit price and line price
-      const unitPrice = parseFloat(customPrice.price);
-      const linePrice = unitPrice * quantity;
-      
-      // Format prices
-      const formattedUnitPrice = `${unitPrice.toFixed(2)} AED`;
-      const formattedLinePrice = `${linePrice.toFixed(2)} AED`;
-      
-      console.log(`Updating prices - NS ID: ${nsId}, Unit: ${formattedUnitPrice}, Line: ${formattedLinePrice}, Qty: ${quantity}`);
-      
-      // Update all price elements
-      itemPrices.forEach(priceEl => {
-        if (priceEl) {
-          // Check if this is a line price or unit price element
-          const isLinePrice = priceEl.closest('.cart-item__totals') !== null;
-          
-          // Set the appropriate price
-          priceEl.textContent = isLinePrice ? formattedLinePrice : formattedUnitPrice;
-          priceEl.classList.remove('price-loading');
-          
-          // Store the unit price as a data attribute
-          priceEl.setAttribute('data-ns-id', nsId);
-          priceEl.setAttribute('data-unit-price', unitPrice.toString());
-          priceEl.setAttribute('data-custom-price', 'true');
+      // Any other price elements
+      const otherPriceEls = cartItemRow.querySelectorAll('.price');
+      otherPriceEls.forEach(el => {
+        if (!itemPrices.includes(el) && el.textContent.trim().includes('AED')) {
+          itemPrices.push(el);
         }
       });
       
-      return true;
+      console.log(`Found ${itemPrices.length} price elements for item with NS ID ${nsId}`);
+      
+      // Look for a matching custom price
+      const match = window.CUSTOMER_CUSTOM_PRICES?.find(p => p.item === nsId);
+      
+      if (match) {
+        // For unit price (single item price)
+        const unitPrice = parseFloat(match.price);
+        const formattedUnitPrice = `${unitPrice.toFixed(2)} AED`;
+        
+        // For line price (price × quantity)
+        const linePrice = unitPrice * quantity;
+        const formattedLinePrice = `${linePrice.toFixed(2)} AED`;
+        
+        console.log(`Updating to custom price: ${formattedUnitPrice} × ${quantity} = ${formattedLinePrice}`);
+        
+        // Update all price elements
+        itemPrices.forEach(priceEl => {
+          if (priceEl) {
+            // Determine if this is a line price or unit price
+            // Line prices are usually in the cart-item__price-wrapper
+            const isLinePrice = priceEl.closest('.cart-item__price-wrapper') !== null;
+            priceEl.textContent = isLinePrice ? formattedLinePrice : formattedUnitPrice;
+            priceEl.classList.remove('price-loading');
+            
+            // Store original and custom price data for reference
+            priceEl.dataset.customPrice = match.price;
+            priceEl.dataset.isCustomPriced = 'true';
+          }
+        });
+        return true;
+      } else {
+        // No custom price found, show original prices
+        itemPrices.forEach(priceEl => {
+          if (priceEl) priceEl.classList.remove('price-loading');
+        });
+        return false;
+      }
     }
     
-    // Function to safely apply custom prices and add loading indicators
+    // Function to find cart item row by variant ID or other identifiers
+    function findCartItemRow(identifiers) {
+      const { variant_id, product_handle, key } = identifiers;
+      const itemRows = document.querySelectorAll('tr.cart-item');
+      
+      for (let row of itemRows) {
+        // Try matching by variant ID
+        const variantInput = row.querySelector('input[data-quantity-variant-id]');
+        const rowVariantId = variantInput ? variantInput.getAttribute('data-quantity-variant-id') : null;
+        
+        if (rowVariantId === variant_id) {
+          return { row, quantityInput: variantInput };
+        }
+        
+        // Try matching by product URL if we have a handle
+        if (product_handle) {
+          const productLink = row.querySelector(`a[href*="/products/${product_handle}"]`);
+          if (productLink) {
+            const quantityInput = row.querySelector('input[data-quantity-variant-id]');
+            return { row, quantityInput };
+          }
+        }
+        
+        // Try matching by cart item key
+        if (key && row.getAttribute('data-key') === key) {
+          const quantityInput = row.querySelector('input[data-quantity-variant-id]');
+          return { row, quantityInput };
+        }
+      }
+      
+      return { row: null, quantityInput: null };
+    }
+    
+    // Update cart totals after price changes
+    function updateCartTotals() {
+      // This will be handled by the code in main-cart-footer.liquid
+      // We'll dispatch a custom event to notify the footer that quantities have changed
+      document.dispatchEvent(new CustomEvent('custom-prices-updated'));
+    }
+    
+    // Main function to apply custom prices to all cart items
     function applyCustomPrices() {
       console.log('Applying custom prices to cart items');
       
@@ -568,7 +619,7 @@
       });
       
       // Wait for custom prices to be available
-      (function waitForCustomPrices(retries = 200) {
+      (function waitForCustomPrices(retries = 500) {
         if (!window.CUSTOMER_CUSTOM_PRICES || !Array.isArray(window.CUSTOMER_CUSTOM_PRICES)) {
           if (retries > 0) return setTimeout(() => waitForCustomPrices(retries - 1), 10);
           // Show original prices if custom prices never load
@@ -579,109 +630,97 @@
         console.log('Custom prices available:', window.CUSTOMER_CUSTOM_PRICES);
         
         // Process each cart item
-        const itemRows = document.querySelectorAll('tr.cart-item');
-        let customPricesApplied = false;
-        
-        itemRows.forEach(row => {
-          // Find variant ID for this row
-          const variantInput = row.querySelector('input[data-quantity-variant-id]');
-          if (!variantInput) return;
+        window.CART_ITEM_DATA.forEach(itemData => {
+          if (!itemData.ns_id) return;
           
-          const variantId = variantInput.getAttribute('data-quantity-variant-id');
-          if (!variantId || !CART_ITEM_DATA[variantId]) return;
+          const { row, quantityInput } = findCartItemRow(itemData);
+          if (!row) {
+            console.log(`Could not find cart item row for variant ${itemData.variant_id}`);
+            return;
+          }
           
-          const nsId = CART_ITEM_DATA[variantId].nsId;
-          if (!nsId) return;
+          const quantity = quantityInput ? parseInt(quantityInput.value, 10) : 1;
+          updateItemPrice(row, itemData.ns_id, quantity);
           
-          // Find matching custom price
-          const match = window.CUSTOMER_CUSTOM_PRICES.find(p => p.item === nsId);
-          if (!match) return;
-          
-          // Update prices for this cart item
-          const updated = updateCartItemPrices(row, nsId, match);
-          if (updated) customPricesApplied = true;
+          // Setup quantity change listeners
+          if (quantityInput) {
+            // Store the NS ID directly on the quantity input for easy access
+            quantityInput.dataset.nsId = itemData.ns_id;
+            
+            // Listen for input event (when user types a number)
+            quantityInput.addEventListener('input', function() {
+              const newQuantity = parseInt(this.value, 10) || 1;
+              updateItemPrice(row, this.dataset.nsId, newQuantity);
+              updateCartTotals();
+            });
+            
+            // Also listen for the plus/minus buttons
+            const plusButton = row.querySelector('button[name="plus"]');
+            const minusButton = row.querySelector('button[name="minus"]');
+            
+            if (plusButton) {
+              plusButton.addEventListener('click', function() {
+                // Allow a small delay for the quantity to update
+                setTimeout(() => {
+                  const newQuantity = parseInt(quantityInput.value, 10) || 1;
+                  updateItemPrice(row, quantityInput.dataset.nsId, newQuantity);
+                  updateCartTotals();
+                }, 50);
+              });
+            }
+            
+            if (minusButton) {
+              minusButton.addEventListener('click', function() {
+                // Allow a small delay for the quantity to update
+                setTimeout(() => {
+                  const newQuantity = parseInt(quantityInput.value, 10) || 1;
+                  updateItemPrice(row, quantityInput.dataset.nsId, newQuantity);
+                  updateCartTotals();
+                }, 50);
+              });
+            }
+          }
         });
         
-        // If we applied custom prices, dispatch event to update totals
-        if (customPricesApplied) {
-          document.dispatchEvent(new CustomEvent('custom-prices-applied'));
-        }
+        // Update cart totals
+        updateCartTotals();
         
         // Ensure all prices are visible after processing
         setTimeout(() => {
           document.querySelectorAll('.price-loading').forEach(el => {
             el.classList.remove('price-loading');
           });
-        }, 500);
+        }, 1000);
+        
       })();
     }
     
-    // Setup a MutationObserver to detect cart changes and reapply custom prices
-    function setupMutationObserver() {
-      const cartContainer = document.querySelector('.cart__items');
-      if (!cartContainer) return;
+    // Listen for cart:item:quantity:updated events (Shopify's native event)
+    document.addEventListener('cart:item:quantity:updated', function(event) {
+      // Find the cart item row that was updated
+      const lineItem = event.detail.lineItem;
+      if (!lineItem) return;
       
-      const observer = new MutationObserver(function(mutations) {
-        // Check if any mutations affected the cart items
-        const cartUpdated = mutations.some(mutation => {
-          // If nodes were added or removed
-          if (mutation.addedNodes.length > 0 || mutation.removedNodes.length > 0) return true;
-          
-          // If attributes changed on cart elements
-          if (mutation.target.closest('tr.cart-item') && mutation.attributeName === 'value') return true;
-          
-          return false;
-        });
-        
-        if (cartUpdated) {
-          console.log('Cart content changed, reapplying custom prices');
-          applyCustomPrices();
+      // Find the cart item in our data
+      const itemData = window.CART_ITEM_DATA.find(item => 
+        item.variant_id === lineItem.variant_id.toString() ||
+        item.key === lineItem.key
+      );
+      
+      if (itemData && itemData.ns_id) {
+        const { row } = findCartItemRow(itemData);
+        if (row) {
+          updateItemPrice(row, itemData.ns_id, lineItem.quantity);
+          updateCartTotals();
         }
-      });
-      
-      // Observe changes to the cart container and its descendants
-      observer.observe(cartContainer, { 
-        childList: true,      // Watch for changes to direct children
-        subtree: true,       // Watch for changes to all descendants
-        attributes: true,    // Watch for attribute changes
-        attributeFilter: ['value'] // Only watch value attribute changes (quantities)
-      });
-      
-      // Also listen for form submission events on the cart form
-      const cartForm = document.getElementById('cart');
-      if (cartForm) {
-        cartForm.addEventListener('submit', function() {
-          // Set a flag to reapply prices after page update
-          sessionStorage.setItem('reapplyCustomPrices', 'true');
-        });
       }
-      
-      // Watch for plus/minus button clicks
-      document.querySelectorAll('.quantity__button').forEach(button => {
-        button.addEventListener('click', function() {
-          // Set timeout to reapply prices after AJAX completes
-          setTimeout(applyCustomPrices, 500);
-        });
-      });
-    }
-    
-    // Initialize everything
-    function initialize() {
-      applyCustomPrices();
-      setupMutationObserver();
-      
-      // Check if we need to reapply prices after page load (from form submission)
-      if (sessionStorage.getItem('reapplyCustomPrices') === 'true') {
-        sessionStorage.removeItem('reapplyCustomPrices');
-        setTimeout(applyCustomPrices, 500);
-      }
-    }
+    });
     
     // Run once DOM is ready
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initialize);
+      document.addEventListener('DOMContentLoaded', applyCustomPrices);
     } else {
-      initialize();
+      applyCustomPrices();
     }
   </script>
 {% endif %}

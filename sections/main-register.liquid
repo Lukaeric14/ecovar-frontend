@@ -22,7 +22,7 @@
     max-width: 520px !important;
     width: calc(100% - 40px) !important;
   }
-  
+
   @media screen and (min-width: 750px) {
     .customer.register {
       padding: 60px 80px !important;
@@ -115,27 +115,48 @@
     {%- comment -%} Hidden fields for first and last name to maintain compatibility {%- endcomment -%}
     <input type="hidden" name="customer[first_name]" id="first_name" value="">
     <input type="hidden" name="customer[last_name]" id="last_name" value="">
+    <input type="hidden" name="customer[note]" id="RegisterForm-Note">
+        
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('create_customer');
+    const fullNameField = document.getElementById('RegisterForm-FullName');
     
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const form = document.getElementById('create_customer');
-      const fullNameField = document.getElementById('RegisterForm-FullName');
-      
-      if (form && fullNameField) {
-        form.addEventListener('submit', function() {
-          // Split full name into first and last name for compatibility
+    if (form) {
+      form.addEventListener('submit', function() {
+        console.log("SUBMITTING");
+
+        // Split full name
+        if (fullNameField) {
           const fullName = fullNameField.value.trim();
           const nameParts = fullName.split(' ');
           const firstName = nameParts[0] || '';
           const lastName = nameParts.slice(1).join(' ') || '';
-          
-          // Set the hidden fields
           document.getElementById('first_name').value = firstName;
           document.getElementById('last_name').value = lastName;
-        });
-      }
-    });
-    </script>
+        }
+
+        const noteField = document.getElementById('RegisterForm-Note');
+        const phone = document.getElementById('RegisterForm-Phone');
+        const company = document.getElementById('RegisterForm-Company');
+        const category = document.getElementById('RegisterForm-Category');
+
+        console.log(phone?.value, company?.value, noteField?.value);
+
+        if (noteField) {
+          const noteData = {
+            phone: phone?.value?.trim() || '',
+            company: company?.value?.trim() || '',
+            category: category?.value || ''
+          };
+          noteField.value = JSON.stringify(noteData);
+          console.log("Note JSON:", noteField.value);
+        }
+      });
+    }
+  });
+</script>
+
     {%- if form.errors -%}
       <h2 class="form__message" tabindex="-1" autofocus>
         <svg aria-hidden="true" focusable="false">
@@ -158,6 +179,7 @@
         {%- endfor -%}
       </ul>
     {%- endif -%}
+
     <div class="field">
       <input
         type="text"
@@ -204,6 +226,43 @@
         {{ 'customer.register.phone' | default: 'Phone Number' | t }}
       </label>
     </div>
+     <div class="field">
+      <label for="RegisterForm-Category">Category</label>
+      <select name="customer[category]" id="RegisterForm-Category" required     style="color: #666; font-family: inherit; font-size: inherit; padding: 10px 20px; border: none; border-radius: 12px; width: 100%; box-sizing: border-box; background: white; appearance: none;">
+        <option value="" disabled selected>Select a category</option>
+        <option value="11">AGRICULTURE</option>
+        <option value="22">AVIATION</option>
+        <option value="23">CASH CUSTOMER</option>
+        <option value="30">CHEMICALS</option>
+        <option value="15">CLEANING SERVICES</option>
+        <option value="16">CONSTRUCTION</option>
+        <option value="25">CONSULTANTS</option>
+        <option value="21">EDUCATION</option>
+        <option value="8">ENGINEERING</option>
+        <option value="24">ENVIRONMENTAL</option>
+        <option value="5">FACILITY MANAGEMENT</option>
+        <option value="17">FARM/STABLE</option>
+        <option value="4">FOOD & BEVERAGE</option>
+        <option value="9">GOLF COURSE</option>
+        <option value="12">GOVERNMENT</option>
+        <option value="18">HEALTHCARE</option>
+        <option value="14">HOSPITALITY</option>
+        <option value="19">HOTEL</option>
+        <option value="10">INSURANCE</option>
+        <option value="7">KITCHEN SUPPLIER</option>
+        <option value="2">LANDSCAPING</option>
+        <option value="13">MANUFACTURING PLANT</option>
+        <option value="26">OTHERS</option>
+        <option value="1">PEST CONTROL</option>
+        <option value="31">PESTICIDES BUYERS</option>
+        <option value="29">PLUMBING & BUILDING MATERIALS</option>
+        <option value="27">RECREATION</option>
+        <option value="20">SHIPPING</option>
+        <option value="3">SUPERMARKET</option>
+        <option value="6">TRADING</option>
+        <option value="28">TRANSPORT</option>
+      </select>
+    </div>
     <div class="field">
       <input
         type="email"
@@ -235,7 +294,7 @@
         {{ form.errors.messages.email }}.
       </span>
     {%- endif -%}
-    <div class="field">     
+    <div class="field">
       <input
         type="password"
         name="customer[password]"
@@ -251,13 +310,14 @@
         {{ 'customer.register.password' | t }}
       </label>
     </div>
-    
+
     {%- if form.errors contains 'password' -%}
       <span id="RegisterForm-password-error" class="form__message">
         <svg aria-hidden="true" focusable="false">
           <use href="#icon-error" />
         </svg>
-        {{ form.errors.translated_fields.password | capitalize }} {{ form.errors.messages.password }}.
+        {{ form.errors.translated_fields.password | capitalize }}
+        {{ form.errors.messages.password }}.
       </span>
     {%- endif -%}
 

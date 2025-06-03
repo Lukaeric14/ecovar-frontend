@@ -48,7 +48,7 @@
     {%- if show_badges %} price--show-badge{% endif -%}
   "
 >
-  {% if customer %}
+  {% if customer and customer.metafields.approval.status == 'approved' %}
   <div class="price__container">
     {%- comment -%}
       Explanation of description list:
@@ -65,6 +65,7 @@
             <span>
               <s class="price-item price-item--regular variant-item__old-price">
                 {% if settings.currency_code_enabled %}
+                
                   {{ compare_at_price | money_with_currency }}
                 {% else %}
                   {{ compare_at_price | money }}
@@ -79,11 +80,48 @@
         </span>
       {%- else -%}
         <span class="visually-hidden visually-hidden--inline">{{ 'products.product.price.regular_price' | t }}</span>
-        <span class="price-item price-item--regular">
+        <div class="custom-price-wrapper" style="visibility: hidden;" id={{ product.id }}>
+        <span class="price-item price-item--regular ">
           {{ money_price }}
         </span>
+        </div>
+          
       {%- endif -%}
     </div>
+    
+    {% if customer %}
+    <script>
+      (function waitForCustomPrices(retries = 200) {
+        const productNsId = "{{ product.metafields.netsuite.ns_id }}";
+        const productId = "{{ product.id }}"
+
+        console.log({productId})
+        const wrapper = document.getElementById(productId)
+        const priceEl = wrapper?.querySelector('.price-item--regular');
+
+        console.log({priceEl})
+    
+        if (!productNsId || !priceEl || !wrapper) return;
+    
+        if (window.CUSTOMER_CUSTOM_PRICES && Array.isArray(window.CUSTOMER_CUSTOM_PRICES)) {
+          const match = window.CUSTOMER_CUSTOM_PRICES.find(p => p.item === productNsId);
+    
+          if (match) {
+            console.log('MATCH')
+            priceEl.textContent = `${parseFloat(match.price).toFixed(2)} AED`;
+          }
+
+         console.log('We here', wrapper)
+          wrapper.style.visibility = 'visible';
+        } else if (retries > 0) {
+          setTimeout(() => waitForCustomPrices(retries - 1), 10);
+        } else {
+         console.log('We here oh')
+          wrapper.style.visibility = 'visible'; // show fallback price
+        }
+      })();
+    </script>
+    {% endif %}
     <div class="price__sale">
       {%- unless product.price_varies == false and product.compare_at_price_varies %}
         <span class="visually-hidden visually-hidden--inline">{{ 'products.product.price.regular_price' | t }}</span>

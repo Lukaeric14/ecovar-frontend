@@ -188,20 +188,24 @@
                 {% endif %}
               </div>
             {%- else -%}
-              <div class="cart__ctas" {{ block.shopify_attributes }}>
+ <div class="cart__ctas" {{ block.shopify_attributes }}>
                 {% if customer %}
-                <!-- For logged-in customers: Regular checkout button -->
+                <!-- For logged-in customers: Custom checkout button that calls draft order API -->
                 <button
-                  type="submit"
-                  id="checkout"
+                  type="button"
+                  id="custom-checkout"
                   class="cart__checkout-button button"
-                  name="checkout"
+                  name="custom-checkout"
                   {% if cart == empty %}
                     disabled
                   {% endif %}
-                  form="cart"
                 >
-                  {{ 'sections.cart.checkout' | t }}
+                  <span>{{ 'sections.cart.checkout' | t }}</span>
+                  <span class="loading-spinner" style="display: none;">
+                    <svg class="spinner" viewBox="0 0 50 50">
+                      <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
+                    </svg>
+                  </span>
                 </button>
                 {% else %}
                 <!-- For non-logged in users: Quote request button -->
@@ -220,7 +224,6 @@
                 </a>
                 {% endif %}
               </div>
-
               {%- if additional_checkout_buttons -%}
                 <div class="cart__dynamic-checkout-buttons additional-checkout-buttons">
                   {{ content_for_additional_checkout_buttons }}
@@ -239,6 +242,121 @@
 {% unless customer %}
   {% render 'quote-form' %}
 {% endunless %}
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Draft Order API integration
+    const customCheckoutBtn = document.getElementById('custom-checkout');
+    if (customCheckoutBtn) {
+      customCheckoutBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // Show loading spinner
+        const spinnerEl = customCheckoutBtn.querySelector('.loading-spinner');
+        const textEl = customCheckoutBtn.querySelector('span:first-child');
+        if (spinnerEl) spinnerEl.style.display = 'inline-block';
+        customCheckoutBtn.disabled = true;
+        
+        // Get loyalty points data if available
+        const appliedPoints = parseInt(sessionStorage.getItem('appliedLoyaltyPoints') || '0', 10);
+        
+        // Create line items with relevant IDs for backend processing
+        const lineItems = [];
+        {% for item in cart.items %}
+          lineItems.push({
+            variantId: "gid://shopify/ProductVariant/{{ item.variant_id }}",
+            productId: "gid://shopify/Product/{{ item.product_id }}",
+            nsId: "{{ item.product.metafields.netsuite.ns_id }}",
+            quantity: {{ item.quantity }},
+            // Add cart price as fallback
+            cartPrice: {{ item.final_price | divided_by: 100.0 }}
+          });
+        {% endfor %}
+        
+        // Send custom prices as a separate array if available
+        const customPrices = window.CUSTOMER_CUSTOM_PRICES && Array.isArray(window.CUSTOMER_CUSTOM_PRICES) 
+          ? window.CUSTOMER_CUSTOM_PRICES 
+          : [];
+        
+        // Calculate loyalty points discount if applicable
+        let appliedDiscount = null;
+        if (appliedPoints > 0) {
+          const discountAmount = appliedPoints / 10;
+          appliedDiscount = {
+            description: `Applied ${appliedPoints} loyalty points`,
+            value: discountAmount,
+            amount: discountAmount,
+            valueType: 'FIXED_AMOUNT',
+            title: 'Loyalty Points'
+          };
+        }
+        
+        // Format the data according to ShopifyDraftOrderInput
+        const cartData = {
+          customerId: "gid://shopify/Customer/{{ customer.id }}",
+          lineItems: lineItems,
+          customPrices: customPrices,
+          email: "{{ customer.email }}",
+          note:  appliedPoints,
+          appliedDiscount: appliedDiscount,
+          // Store currency code separately for our backend but don't send to Shopify
+          currencyCode: "{{ cart.currency.iso_code }}"
+        };
+      
+        console.log('Sending draft order to: http://671f-94-207-19-31.ngrok-free.app/api/orders/draft');
+        
+        fetch('http://671f-94-207-19-31.ngrok-free.app/api/orders/draft', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(cartData)
+        })
+        .then(response => {
+          console.log('Response status:', response.status);
+          if (!response.ok) {
+            return response.json().then(errorData => {
+              console.error('API error details:', errorData);
+              throw new Error(`API error: ${JSON.stringify(errorData)}`);
+            });
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('Received data:', data);
+          // Check both invoice_url and invoiceUrl since the naming could vary
+          if (data.invoice_url || data.invoiceUrl || (data.draftOrder && data.draftOrder.invoiceUrl)) {
+            const url = data.invoice_url || data.invoiceUrl || (data.draftOrder && data.draftOrder.invoiceUrl);
+            // Clear applied loyalty points from session after successful checkout
+            sessionStorage.removeItem('appliedLoyaltyPoints');
+            sessionStorage.removeItem('appliedLoyaltyDiscount');
+            
+            // Redirect to the Shopify invoice URL
+            window.location.href = url;
+          } else {
+            throw new Error('No invoice URL returned');
+          }
+        })
+        .catch(error => {
+          console.error('Error during checkout:', error);
+          // Reset button state
+          if (spinnerEl) spinnerEl.style.display = 'none';
+          if (textEl) textEl.innerHTML = 'Checkout';
+          customCheckoutBtn.disabled = false;
+          
+          // Show error message
+          const errorEl = document.getElementById('cart-errors');
+          if (errorEl) {
+            errorEl.innerHTML = '<div class="cart-error-message" style="color: red; margin-top: 10px;">Something went wrong with checkout. Please try again.</div>';
+          } else {
+            alert('There was an error processing your order. Please try again.');
+          }
+        });
+      });
+    }
+  });
+</script>
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {

@@ -109,6 +109,7 @@
     "products": {
       "product": {
         "add_to_cart": "Add to cart",
+        "add_to_quote": "Add to quote",
         "view_options": "View options",
         "added_to_favorites_toast": "Added to favorites!",
         "removed_from_favorites_toast": "Removed from favorites.",
