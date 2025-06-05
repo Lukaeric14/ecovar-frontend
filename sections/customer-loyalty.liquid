@@ -13,6 +13,16 @@
     }
   }
   
+  .section-{{ section.id }}-padding .loyalty-bar__right a {
+    color: #000000 !important; /* Black */
+    text-decoration: underline; /* Ensure it's underlined */
+  }
+
+  .section-{{ section.id }}-padding .loyalty-bar__right a:hover {
+    color: #333333 !important; /* Darker grey for hover, or keep black */
+    text-decoration: underline; /* Optional: add underline on hover */
+  }
+  
   /* Customer Loyalty Bar Styles */
   .loyalty-bar {
     width: 100%;
@@ -116,7 +126,7 @@
             {{ section.settings.company_name | default: 'Ecovar Group' }}
           </div>
           <div class="loyalty-bar__right">
-            <span>{{ section.settings.login_message }}</span>
+            <a href="{{ routes.account_login_url }}">{{ section.settings.login_message }}</a>
           </div>
         </div>
       {% endif %}

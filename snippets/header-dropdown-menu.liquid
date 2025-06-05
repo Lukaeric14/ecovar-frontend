@@ -16,13 +16,25 @@
                 id="HeaderMenu-{{ link.handle }}"
                 class="header__menu-item list-menu__item link focus-inset"
               >
-                <span
-                  {%- if link.child_active %}
-                    class="header__active-menu-item"
-                  {% endif %}
-                >
-                  {{- link.title | escape -}}
-                </span>
+                {%- if forloop.first -%}
+                  <a href="/collections/products" style="text-decoration: none; color: inherit; display: inline-block;" class="header-products-link">
+                    <span
+                      {%- if link.child_active %}
+                        class="header__active-menu-item"
+                      {% endif %}
+                    >
+                      {{- link.title | escape -}}
+                    </span>
+                  </a>
+                {%- else -%}
+                  <span
+                    {%- if link.child_active %}
+                      class="header__active-menu-item"
+                    {% endif %}
+                  >
+                    {{- link.title | escape -}}
+                  </span>
+                {%- endif -%}
                 {% render 'icon-caret' %}
               </summary>
               <ul
@@ -101,3 +113,33 @@
     {%- endfor -%}
   </ul>
 </nav>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Script assumes the "Products" menu item is the first one in the list
+  // and that it is a dropdown (uses <details> element).
+  const productsLi = document.querySelector('.header__inline-menu > .list-menu--inline > li:first-child');
+  if (!productsLi) return;
+
+  const productsDetails = productsLi.querySelector('details');
+  if (!productsDetails) return; // Not a dropdown or structure changed
+
+  let leaveTimeout;
+
+  productsLi.addEventListener('mouseenter', function() {
+    clearTimeout(leaveTimeout);
+    productsDetails.open = true;
+  });
+
+  productsLi.addEventListener('mouseleave', function() {
+    leaveTimeout = setTimeout(function() {
+      const isHoveringDetailsContent = productsDetails.querySelector('ul.header__submenu')?.matches(':hover');
+      const isHoveringSummary = productsDetails.querySelector('summary')?.matches(':hover');
+
+      if (!isHoveringDetailsContent && !isHoveringSummary) {
+         productsDetails.open = false;
+      }
+    }, 200); // Adjust delay as needed
+  });
+});
+</script>

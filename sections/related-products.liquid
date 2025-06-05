@@ -23,7 +23,13 @@
 <div class="color-{{ section.settings.color_scheme }} gradient">
   <product-recommendations
     class="related-products page-width section-{{ section.id }}-padding isolate{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}"
-    data-url="{{ routes.product_recommendations_url }}?section_id={{ section.id }}&product_id={{ product.id }}&limit={{ section.settings.products_to_show }}"
+    {%- liquid
+      assign recommendation_product_id = product.id
+      if recommendation_product_id == blank and cart.item_count > 0
+        assign recommendation_product_id = cart.items.first.product.id
+      endif
+    -%}
+    data-url="{{ routes.product_recommendations_url }}?section_id={{ section.id }}{% if recommendation_product_id %}&product_id={{ recommendation_product_id }}{% endif %}&limit={{ section.settings.products_to_show }}"
   >
     {% if recommendations.performed and recommendations.products_count > 0 %}
       <h2 class="related-products__heading inline-richtext {{ section.settings.heading_size }}">

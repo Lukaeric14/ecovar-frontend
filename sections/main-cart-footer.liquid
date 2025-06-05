@@ -85,6 +85,17 @@
     padding: 20px;
     background-color: #f9f9f9;
   }
+  {% unless customer %}
+    #quote-request {
+      background: #000 !important;
+      color: #fff !important;
+      border: none !important;
+    }
+    #quote-request:hover {
+      background: #222 !important;
+      color: #fff !important;
+    }
+  {% endunless %}
 {%- endstyle -%}
 
 <div
@@ -213,7 +224,6 @@
                   href="/pages/contact"
                   id="quote-request"
                   class="cart__checkout-button button"
-                  style="background-color: #8F9A5B;"
                   {% if cart == empty %}
                     disabled
                     aria-disabled="true"

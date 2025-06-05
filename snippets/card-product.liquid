@@ -37,6 +37,7 @@
   
   /* Image container */
   .product-card__media {
+    position: relative; /* Added for positioning context */
     height: 220px;
     padding: 10px;
     display: flex;
@@ -95,53 +96,116 @@
     margin-bottom: 15px;
   }
   
-  .quantity-input {
+  /* Inline quantity and button row */
+  .product-card__qty-row {
     display: flex;
-    align-items: center;
-    border: 1px solid #8F9A5B; /* Match Ecovar green border */
-    border-radius: 4px;
-    overflow: hidden;
-    max-width: 120px;
-    margin: 0 auto;
+    align-items: stretch;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    width: 100%;
+    flex-wrap: wrap;
   }
-  
-  .quantity-btn {
-    background: #f9f9f9;
-    border: none;
-    color: #8F9A5B; /* Ecovar green */
-    width: 30px;
-    height: 30px;
-    font-size: 16px;
+  .native-qty-input {
+    flex: 0 0 60px;
+    min-width: 52px;
+    max-width: 70px;
+    height: 48px;
+    border: 1.5px solid #222;
+    border-radius: 6px;
+    font-size: 18px;
+    font-weight: 500;
+    color: #222;
+    background: #fff;
+    outline: none;
+    text-align: center;
+    box-sizing: border-box;
+    appearance: number-input;
+    transition: border 0.2s;
+    margin: 0;
+  }
+  .native-qty-input:focus {
+    border-color: #222;
+  }
+  .native-qty-input::-webkit-input-placeholder { color: #222; }
+  .native-qty-input::-webkit-outer-spin-button,
+  .native-qty-input::-webkit-inner-spin-button {
+    -webkit-appearance: inner-spin-button;
+    opacity: 1;
+    color: #222;
+  }
+  .native-qty-input[type=number]::-ms-input-placeholder { color: #222; }
+  .native-qty-input[type=number]::-moz-placeholder { color: #222; }
+  .native-qty-input[type=number]:-ms-input-placeholder { color: #222; }
+  .native-qty-input[type=number]::placeholder { color: #222; }
+
+  .simple-quote-btn {
+    flex: 1 1 0;
+    min-width: 120px;
+    height: 48px;
+    border: 1.5px solid #222 !important;
+    border-radius: 6px;
+    background: #fff !important;
+    color: #222 !important;
+    font-size: 18px;
     font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
     cursor: pointer;
+    transition: background 0.2s, color 0.2s;
     display: flex;
     align-items: center;
     justify-content: center;
-    user-select: none;
-    transition: all 0.2s ease;
-  }
-  
-  .quantity-btn:hover {
-    background: #f0f2e6; /* Light Ecovar green */
-  }
-  
-  .quantity-input input {
-    width: 40px;
-    height: 30px;
-    text-align: center;
-    border: none;
-    border-left: 1px solid #e0e0e0;
-    border-right: 1px solid #e0e0e0;
-    font-size: 14px;
-    font-weight: 500;
-    -moz-appearance: textfield;
-    color: #333;
-  }
-  
-  .quantity-input input::-webkit-outer-spin-button,
-  .quantity-input input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
+    box-sizing: border-box;
     margin: 0;
+  }
+  .simple-quote-btn:hover {
+    background: #222 !important;
+    color: #fff !important;
+  }
+  @media (max-width: 600px) {
+    .product-card__qty-row {
+      flex-direction: column;
+      gap: 8px;
+    }
+    .native-qty-input, .simple-quote-btn {
+      width: 100%;
+      min-width: 0;
+      max-width: 100%;
+    }
+  }
+
+  .native-qty-input::-webkit-input-placeholder { color: #b8bb8a; }
+  .native-qty-input::-webkit-outer-spin-button,
+  .native-qty-input::-webkit-inner-spin-button {
+    -webkit-appearance: inner-spin-button;
+    opacity: 1;
+    color: #b8bb8a;
+  }
+  .native-qty-input[type=number]::-ms-input-placeholder { color: #b8bb8a; }
+  .native-qty-input[type=number]::-moz-placeholder { color: #b8bb8a; }
+  .native-qty-input[type=number]:-ms-input-placeholder { color: #b8bb8a; }
+  .native-qty-input[type=number]::placeholder { color: #b8bb8a; }
+
+  /* Actellic style Add to Quote button */
+  .simple-quote-btn {
+    min-width: 0;
+    flex: 1 1 0;
+    padding: 12px 0;
+    border: 1.5px solid #b8bb8a !important;
+    border-radius: 6px;
+    background: #fff !important;
+    color: #b8bb8a !important;
+    font-size: 18px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+  }
+  .simple-quote-btn:hover {
+    background: #b8bb8a !important;
+    color: #fff !important;
   }
   
   /* Confirmation message styling */
@@ -215,12 +279,12 @@
     border-radius: 2px;
   }
   
-  /* Favorites icon styling */
-  .product-card__favorite {
+  /* Quick View icon styling */
+  .quick-view-btn {
     position: absolute;
     top: 10px;
     right: 10px;
-    z-index: 3;
+    z-index: 3; /* Ensure it's above the image */
     background: rgba(255, 255, 255, 0.9);
     border-radius: 50%;
     width: 32px;
@@ -229,33 +293,19 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: none;
+    padding: 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     transition: all 0.2s ease;
   }
-  
-  .product-card__favorite:hover {
+
+  .quick-view-btn:hover {
     transform: scale(1.1);
+    background: white;
   }
-  
-  .product-card__favorite svg {
-    width: 20px;
-    height: 20px;
-    fill: none;
-    stroke: #666;
-    stroke-width: 2px;
-    transition: all 0.2s ease;
-  }
-  
-  .product-card__favorite.is-favorite svg {
-    fill: #8F9A5B;
-    stroke: #8F9A5B;
-  }
-  
-  .product-card__favorite-wrapper {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 10;
+
+  .quick-view-btn svg {
+    fill: #333; /* Adjust color as needed */
   }
 </style>
 
@@ -263,27 +313,27 @@
   <div class="product-card-wrapper">
     <div class="product-card">
       <!-- Product Media (Link to product page) -->
-      <a href="{{ card_product.url }}" class="product-card__media-link">
         <div class="product-card__media">
-          {% if customer %}
-            <div onclick="event.stopPropagation();">
-              {% render 'product-favorite', product: card_product %}
-            </div>
-          {% endif %}
-          {%- if card_product.featured_media -%}
-            <img
-              src="{{ card_product.featured_media | image_url: width: 300 }}"
-              alt="{{ card_product.featured_media.alt | escape }}"
-              class="product-card__image"
-              {% unless lazy_load == false %}loading="lazy"{% endunless %}
-              width="{{ card_product.featured_media.width }}"
-              height="{{ card_product.featured_media.height }}"
-            >
-          {%- else -%}
-            {{ 'product-apparel-2' | placeholder_svg_tag: 'product-card__image placeholder-svg' }}
-          {%- endif -%}
+          <button type="button" class="quick-view-btn" data-product-handle="{{ card_product.handle }}" aria-label="{{ 'products.product.quick_view' | t: product_title: card_product.title }}" >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20px" height="20px" aria-hidden="true">
+              <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5A6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+            </svg>
+          </button>
+          <a href="{{ card_product.url }}" class="product-card__image-link">
+            {%- if card_product.featured_media -%}
+              <img
+                src="{{ card_product.featured_media | image_url: width: 300 }}"
+                alt="{{ card_product.featured_media.alt | escape }}"
+                class="product-card__image"
+                {% unless lazy_load == false %}loading="lazy"{% endunless %}
+                width="{{ card_product.featured_media.width }}"
+                height="{{ card_product.featured_media.height }}"
+              >
+            {%- else -%}
+              {{ 'product-apparel-2' | placeholder_svg_tag: 'product-card__image placeholder-svg' }}
+            {%- endif -%}
+          </a>
         </div>
-      </a>
       
       <!-- Product Content -->
       <div class="product-card__content">
@@ -306,30 +356,19 @@
           {% render 'price', product: card_product %}
         </div>
         
-        <!-- Quantity Selector - Only show for logged-in users -->
-        {% if customer %}
-          <div class="product-card__quantity">
-            <div class="quantity-input">
-              {% assign variant_id = card_product.first_available_variant.id | default: card_product.variants.first.id %}
-              <button type="button" class="quantity-btn decrease" data-product-id="{{ variant_id }}" aria-label="Decrease quantity">−</button>
-              <input type="number" min="1" value="1" id="quantity-{{ variant_id }}" aria-label="Quantity" pattern="[0-9]*">
-              <button type="button" class="quantity-btn increase" data-product-id="{{ variant_id }}" aria-label="Increase quantity">+</button>
-            </div>
-          </div>
-        {% endif %}
-        
-        <!-- Add to Cart/Request Quote Button -->
-        {% if customer %}
-          <!-- For logged-in users: Add to Quote button -->
+        <!-- Native Quantity Selector and Add to Quote Button -->
+        <div class="product-card__qty-row">
+          {% assign variant_id = card_product.first_available_variant.id | default: card_product.variants.first.id %}
+          <input type="number" min="1" value="1" id="quantity-{{ variant_id }}" aria-label="Quantity" class="native-qty-input">
           <button
             type="button"
-            class="product-card__button"  {# This class provides the desired outline style. #}
+            class="product-card__button simple-quote-btn"
             data-product-id="{{ variant_id }}"
             data-product-url="{{ card_product.url }}"
           >
-            {{ 'products.product.add_to_quote' | t: default: 'Add to quote' }}
+            {{ 'products.product.add_to_quote' | t: default: 'Add To Quote' | upcase }}
           </button>
-        {% endif %}
+        </div>
       </div>
     </div>
   </div>

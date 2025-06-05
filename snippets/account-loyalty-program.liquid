@@ -50,6 +50,35 @@
   font-weight: 500 !important;
   padding: 1.125rem 1.25rem !important;
 }
+#loyalty .progress {
+  height: 24px !important;
+  background-color: #e9ecef !important;
+  border-radius: 12px !important;
+  margin-bottom: 15px !important;
+  overflow: hidden !important;
+}
+#loyalty .progress-bar {
+  height: 100% !important;
+  background-color: #8F9A5B !important;
+  border-radius: 12px !important;
+  transition: width 0.6s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+#loyalty .progress-percentage {
+  color: white !important;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2) !important;
+}
+#loyalty .current-spend {
+  text-align: center !important;
+  margin-top: 10px !important;
+  font-size: 1.125rem !important;
+  font-weight: 600 !important;
+  color: #333 !important;
+}
 #loyalty .status-badge {
   font-size: 1rem !important;
   font-weight: 600 !important;
@@ -140,8 +169,8 @@
           {%- assign group_platinum_aed = 40000 -%}
       {%- endcase -%}
 
-      {%- comment %} Progress bar visualizes spend from 0 up to the Platinum threshold for the customer's group. Labels show the group's Silver, Gold, and Platinum AED thresholds. {%- endcomment %}
-      {%- assign progress_bar_visual_min_aed = 0 -%}
+      {%- comment %} Progress bar visualizes spend from the customer's group Silver tier threshold up to the Platinum threshold for the customer's group. Labels show the group's Silver, Gold, and Platinum AED thresholds. {%- endcomment %}
+      {%- assign progress_bar_visual_min_aed = group_silver_aed -%} 
       {%- assign progress_bar_visual_max_aed = group_platinum_aed -%}
 
       {%- assign spend_for_bar = cumulative_spend_for_tiering | at_least: progress_bar_visual_min_aed -%}
@@ -157,37 +186,55 @@
       {%- assign progress_percentage = progress_percentage | at_most: 100 | at_least: 0 -%}
 
       <div class="progress">
-        <div class="progress-bar" style="width: {{ progress_percentage }}%;"></div>
+        <div class="progress-bar" style="width: {{ progress_percentage }}%;">
+          <span class="progress-percentage">{{ progress_percentage }}%</span>
+        </div>
       </div>
       <div class="tier-requirements">
         <span>{{ group_silver_aed }} AED</span>
-        <span>{{ group_gold_aed }} AED</span>
         <span>{{ group_platinum_aed }} AED</span>
+      </div>
+      <div class="current-spend">
+        <span>Your current spend: {{ cumulative_spend_for_tiering }} AED</span>
       </div>
     </div>
 
     {%- assign aed_needed_for_next_tier = 0 -%}
     {%- assign tier_status_note = "" -%}
 
-    {% if current_tier_name_from_meta == 'Platinum' or next_tier_name_from_meta == blank %}
-      {%- assign tier_status_note = "You've reached the top tier for your group!" -%}
+    {%- comment %} First determine if customer is at Platinum tier already %} {% endcomment -%}
+    {% if current_tier_name_from_meta == 'Platinum' %}
+      {%- assign tier_status_note = "Congratulations! You've reached the top Platinum tier for your group!" -%}
     {% else %}
+      {%- comment %} Determine next tier target spend based on current tier %} {% endcomment -%}
       {%- assign next_tier_target_spend_aed = 0 -%}
-      {% if next_tier_name_from_meta == 'Gold' %}
+      
+      {%- comment %} If customer is Silver, next tier is Gold %} {% endcomment -%}
+      {% if current_tier_name_from_meta == 'Silver' %}
         {%- assign next_tier_target_spend_aed = group_gold_aed -%}
-      {% elsif next_tier_name_from_meta == 'Platinum' %}
+        {%- assign next_tier_name = 'Gold' -%}
+      {%- comment %} If customer is Gold, next tier is Platinum %} {% endcomment -%}
+      {% elsif current_tier_name_from_meta == 'Gold' %}
         {%- assign next_tier_target_spend_aed = group_platinum_aed -%}
+        {%- assign next_tier_name = 'Platinum' -%}
       {% endif %}
-
-      {% if next_tier_target_spend_aed > 0 %}
-        {%- assign aed_needed_for_next_tier = next_tier_target_spend_aed | minus: cumulative_spend_for_tiering -%}
-        {% if aed_needed_for_next_tier > 0 %}
-          {%- assign tier_status_note = "You're " | append: aed_needed_for_next_tier | append: " AED away from " | append: next_tier_name_from_meta | append: " status." -%}
-        {% else %}
-          {%- assign tier_status_note = "Congratulations! You've qualified for " | append: next_tier_name_from_meta | append: " status!" -%}
-        {% endif %}
+      
+      {%- comment %} Calculate how much more spending is needed %} {% endcomment -%}
+      {%- assign aed_needed_for_next_tier = next_tier_target_spend_aed | minus: cumulative_spend_for_tiering -%}
+      
+      {%- comment %} If customer needs to spend more to reach next tier %} {% endcomment -%}
+      {% if aed_needed_for_next_tier > 0 %}
+        {%- assign tier_status_note = "You're " | append: aed_needed_for_next_tier | append: " AED away from " | append: next_tier_name | append: " status." -%}
+      {%- comment %} If customer has reached next tier threshold %} {% endcomment -%}
       {% else %}
-        {%- assign tier_status_note = "You are currently in the " | append: current_tier_name_from_meta | append: " tier." -%}
+        {%- comment %} Only show congratulations for reaching Platinum %} {% endcomment -%}
+        {% if next_tier_name == 'Platinum' %}
+          {%- assign tier_status_note = "Congratulations! You've qualified for Platinum status!" -%}
+        {% else %}
+          {%- comment %} For Gold, show progress toward Platinum instead %} {% endcomment -%}
+          {%- assign platinum_needed = group_platinum_aed | minus: cumulative_spend_for_tiering -%}
+          {%- assign tier_status_note = "You've reached Gold status! You're " | append: platinum_needed | append: " AED away from Platinum status." -%}
+        {% endif %}
       {% endif %}
     {% endif %}
     <p class="tier-note">{{ tier_status_note }}</p>
@@ -203,11 +250,6 @@
   <div class="points-history">
     <div class="section-header">
       <h3>Points History</h3>
-      <div class="view-options">
-        <button class="active">All</button>
-        <button>Earned</button>
-        <button>Spent</button>
-      </div>
     </div>
     
     <div class="points-table">

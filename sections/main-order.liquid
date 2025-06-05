@@ -12,6 +12,124 @@
       padding-bottom: {{ section.settings.padding_bottom }}px;
     }
   }
+
+  .request-return-btn {
+    margin-left: 10px; 
+    vertical-align: middle; /* Align button nicely with text */
+  }
+
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+  }
+
+  .modal-content {
+    background-color: #fefefe;
+    margin: 10% auto; /* Adjusted margin for better vertical centering */
+    padding: 20px;
+    border: 1px solid #ddd;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 4px;
+    position: relative;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+  }
+
+  .modal-content h3 {
+    margin-top: 0;
+    font-size: 1.2em;
+    margin-bottom: 15px;
+  }
+
+  .modal-content label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+
+  .modal-content textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    min-height: 80px;
+  }
+
+  .modal-content .button {
+    margin-right: 10px;
+  }
+  .modal-content .button:last-child {
+    margin-right: 0;
+  }
+
+  .close-modal-btn {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    line-height: 1;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+  }
+
+  .close-modal-btn:hover,
+  .close-modal-btn:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  /* Responsive adjustments for the order table's total cell */
+  .order-details td[headers*="ColumnTotal"] > div, /* If price is wrapped in a div */
+  .order-details td[headers*="ColumnTotal"] > dl, /* If price uses dl for discounts */
+  .order-details td[headers*="ColumnTotal"] > span, /* If price is a direct span */
+  .order-details td[headers*="ColumnTotal"] > button.request-return-btn {
+    display: block; /* Make price and button stack by default if needed */
+    margin-bottom: 5px; /* Add some space between stacked items */
+  }
+
+  .order-details td[headers*="ColumnTotal"] > button.request-return-btn {
+    margin-left: 0; /* Remove left margin when stacked */
+    margin-top: 5px; /* Add top margin when stacked below price */
+    width: auto; /* Allow button to size naturally or be constrained by parent */
+    white-space: normal; /* Allow button text to wrap if necessary */
+    text-align: left; /* Align button text to the left if it wraps */
+  }
+
+  .order-details td[headers*="ColumnTotal"] .regular-price + dd span,
+  .order-details td[headers*="ColumnTotal"] > span { /* Target the actual price display */
+    display: inline-block; /* Keep price on one line if possible */
+    margin-right: 10px; /* Space before button if on same line */
+  }
+
+  @media screen and (min-width: 750px) {
+    .order-details td[headers*="ColumnTotal"] {
+      text-align: left; /* Ensure wrapped items align left, overrides potential theme right-align */
+    }
+
+    .order-details td[headers*="ColumnTotal"] > div,
+    .order-details td[headers*="ColumnTotal"] > dl,
+    .order-details td[headers*="ColumnTotal"] > span,
+    .order-details td[headers*="ColumnTotal"] > button.request-return-btn {
+      display: inline-block; /* Align price and button horizontally on larger screens */
+      vertical-align: middle;
+      margin-bottom: 0;
+    }
+    .order-details td[headers*="ColumnTotal"] > button.request-return-btn {
+      margin-left: 10px; /* Restore left margin for horizontal layout */
+      margin-top: 0;
+    }
+  }
 {%- endstyle -%}
 
 <div class="customer order section-{{ section.id }}-padding">
@@ -27,7 +145,13 @@
 
   <div>
     <div>
-      <h2>{{ 'customer.order.title' | t: name: order.name }}</h2>
+      <h2>
+        {{ 'customer.order.title' | t: name: order.name }}
+        {%- assign invoice_number = order.metafields.custom.invoicenumber -%}
+        {%- if invoice_number != blank -%}
+          <span style="font-size:0.8em; color:#888; margin-left:1em;">Invoice #: {{ invoice_number }}</span>
+        {%- endif -%}
+      </h2>
       {%- assign order_date = order.created_at | time_tag: format: 'date_at_time' -%}
       <p>{{ 'customer.order.date_html' | t: date: order_date }}</p>
       {%- if order.cancelled -%}
@@ -343,6 +467,80 @@
     </div>
   </div>
 </div>
+
+{%- if order.metafields.custom.invoicecopy != blank -%}
+  <div style="margin-top:2em; text-align:center;">
+    <a href="{{ order.metafields.custom.invoicecopy }}" class="button button--primary" download target="_blank">Download Invoice PDF</a>
+  </div>
+{%- endif -%}
+
+<div id="returnRequestModal" class="modal">
+  <div class="modal-content">
+    <span class="close-modal-btn">&times;</span>
+    <h3 id="modalProductTitle">Request Return</h3>
+    <form id="returnRequestForm">
+      <input type="hidden" id="modalLineItemKey" name="line_item_key">
+      <div>
+        <label for="returnReason">{{ 'customer.order.return_reason' | t | default: 'Reason for return:' }}</label>
+        <textarea id="returnReason" name="return_reason" rows="4" required></textarea>
+      </div>
+      <p>{{ 'customer.order.refund_amount_if_approved' | t | default: 'Refund amount if approved:' }} <strong id="modalRefundAmount"></strong></p>
+      <button type="submit" class="button button--primary">{{ 'customer.order.submit_request' | t | default: 'Submit Request' }}</button>
+      <button type="button" class="button button--secondary close-modal-btn-footer">{{ 'customer.order.cancel' | t | default: 'Cancel' }}</button>
+    </form>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const modal = document.getElementById('returnRequestModal');
+  if (!modal) return; // Guard clause if modal is not found
+
+  const modalProductTitle = document.getElementById('modalProductTitle');
+  const modalRefundAmount = document.getElementById('modalRefundAmount');
+  const modalLineItemKeyInput = document.getElementById('modalLineItemKey');
+  const returnReasonTextarea = document.getElementById('returnReason');
+  const closeButtonTop = modal.querySelector('.close-modal-btn');
+  const closeButtonFooter = modal.querySelector('.close-modal-btn-footer');
+  // const requestReturnButtons = document.querySelectorAll('.request-return-btn'); // Buttons removed, so this selector is no longer needed.
+  const returnRequestForm = document.getElementById('returnRequestForm');
+  const orderCurrency = "{{ order.currency }}";
+
+  // Event listeners for requestReturnButtons removed as the buttons themselves are no longer present.
+
+  function closeModal() {
+    modal.style.display = 'none';
+    if (returnReasonTextarea) returnReasonTextarea.value = ''; // Clear textarea on close
+  }
+
+  if (closeButtonTop) closeButtonTop.addEventListener('click', closeModal);
+  if (closeButtonFooter) closeButtonFooter.addEventListener('click', closeModal);
+
+  window.addEventListener('click', function(event) {
+    if (event.target == modal) {
+      closeModal();
+    }
+  });
+
+  if (returnRequestForm) {
+    returnRequestForm.addEventListener('submit', function(event) {
+      event.preventDefault();
+      const lineItemKey = modalLineItemKeyInput ? modalLineItemKeyInput.value : 'N/A';
+      const reason = returnReasonTextarea ? returnReasonTextarea.value : 'N/A';
+      const displayedRefundAmount = modalRefundAmount ? modalRefundAmount.textContent : 'N/A';
+
+      // For now, we'll just alert. In a real scenario, you'd send this to a backend.
+      alert(
+        `{{ 'customer.order.return_request_submitted.line_item_key' | t | default: 'Line Item Key:' }} ${lineItemKey}\n` +
+        `{{ 'customer.order.return_request_submitted.reason' | t | default: 'Reason:' }} ${reason}\n` +
+        `{{ 'customer.order.return_request_submitted.potential_refund' | t | default: 'Potential Refund:' }} ${displayedRefundAmount}`
+      );
+      
+      closeModal();
+    });
+  }
+});
+</script>
 
 {% schema %}
 {

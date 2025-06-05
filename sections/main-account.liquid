@@ -142,6 +142,79 @@
   </div>
 </div>
 
+ <script>
+      window.CUSTOMER_NS_ID = "{{ customer.metafields.netsuite.ns_id | default: 'MISSING' }}";
+      console.log("CUSTOMER_NS_ID = ",  window.CUSTOMER_NS_ID);
+    
+    
+      document.addEventListener('DOMContentLoaded', function () {
+        const nsId = "{{ customer.metafields.netsuite.ns_id | escape }}";
+        console.log({nsId })
+        if (!nsId) {
+          console.warn("No NetSuite ID found for this customer.");
+          return;
+        }
+    
+        fetch(`https://ecovar-middleware-production.up.railway.app/api/customer/netsuite/loyalty/${nsId}`)
+          .then(response => response.json())
+          .then(data => {
+          if (!Array.isArray(data)) return;
+        
+          const tbody = document.querySelector('.points-table tbody');
+          const paginationContainer = document.querySelector('.pagination');
+          if (!tbody || !paginationContainer) return;
+        
+          const perPage = 5;
+          let currentPage = 1;
+        
+          function renderPage(page) {
+            const start = (page - 1) * perPage;
+            const end = start + perPage;
+            const pageData = data.slice(start, end);
+        
+            tbody.innerHTML = '';
+            pageData.forEach(entry => {
+              const tr = document.createElement('tr');
+              const date = entry.date || '';
+              const desc = entry.description || '—';
+              const pts = Number(entry.points || 0);
+        
+              tr.innerHTML = `
+                <td>${date}</td>
+                <td>${desc}</td>
+                <td class="points-earned">+${pts}</td>
+                <td><span class="status-badge">Completed</span></td>
+              `;
+        
+              tbody.appendChild(tr);
+            });
+          }
+        
+          function renderPagination(totalPages) {
+            paginationContainer.innerHTML = '';
+            for (let i = 1; i <= totalPages; i++) {
+              const btn = document.createElement('button');
+              btn.textContent = i;
+              btn.className = i === currentPage ? 'active' : '';
+              btn.addEventListener('click', () => {
+                currentPage = i;
+                renderPage(currentPage);
+                renderPagination(totalPages);
+              });
+              paginationContainer.appendChild(btn);
+            }
+          }
+        
+          const totalPages = Math.ceil(data.length / perPage);
+          renderPage(currentPage);
+          renderPagination(totalPages);
+        })
+          .catch(err => {
+            console.error("Failed to fetch loyalty history:", err);
+          });
+      });
+   </script>
+   
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   const tabs = document.querySelectorAll('.account-tab');
@@ -322,6 +395,34 @@ document.addEventListener('DOMContentLoaded', function() {
   margin-bottom: 8px;
 }
 
+.account-links a.account-tab {
+  display: flex; /* Use flex for icon and text alignment */
+  align-items: center;
+  padding: 10px 15px;
+  color: #2d3748; /* Dark gray for text */
+  text-decoration: none;
+  border-radius: 4px;
+  margin-bottom: 5px; /* Space between items */
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.account-links a.account-tab:hover {
+  background-color: #e9ecef; /* Lighter gray for hover */
+  color: #000;
+}
+
+.account-links a.account-tab.active {
+  background-color: #e0e0e0; /* Slightly darker gray for active */
+  color: #000;
+  font-weight: bold;
+}
+
+.account-links .nav-icon {
+  margin-right: 10px; /* Space between icon and text */
+  width: 18px; /* Consistent icon size */
+  height: 18px;
+}
+
 .submenu a {
   color: #4a5568;
   text-decoration: none;
@@ -331,8 +432,14 @@ document.addEventListener('DOMContentLoaded', function() {
   transition: color 0.3s ease;
 }
 
+.submenu a.account-tab {
+  padding-left: 30px; /* Indent submenu items more clearly */
+  font-size: 0.9em;
+}
+
+/* Hover and active states for submenu items will be inherited from .account-links a.account-tab */
 .submenu a:hover {
-  color: #38a169;
+  /* This can be removed if hover is handled by the general .account-tab:hover */
 }
 
 /* Orders overview styles */
@@ -413,6 +520,11 @@ document.addEventListener('DOMContentLoaded', function() {
   display: block;
   padding: 10px 15px;
   color: #4a5568;
+}
+
+/* Ensure the parent 'Orders' tab doesn't stay highlighted if a sub-item is not active */
+.account-links li.has-submenu > a.account-tab:not(.active) {
+ /* If needed, add specific styles if the parent shouldn't look active when a child is */
 }
 
 /* Mobile Bottom Navigation */

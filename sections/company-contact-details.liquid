@@ -1,333 +1,298 @@
-{{ 'section-company-contact.css' | asset_url | stylesheet_tag }}
+{% comment %}
+  This section displays company contact information including multiple addresses with maps, phone, hours, and email.
+  It is designed to be configurable through the Shopify Theme Editor.
+{% endcomment %}
 
-<div class="company-contact{% if section.settings.full_width %} company-contact--full-width{% endif %}">
-  <div class="page-width">
-    <div class="company-contact__container">
-      <div class="company-contact__details">
-        <h2 class="company-contact__heading">{{ section.settings.heading }}</h2>
-        
-        {% if section.settings.show_address %}
-        <div class="contact-item">
-          <div class="contact-item__header">
-            <div class="contact-item__icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-address">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                <circle cx="12" cy="10" r="3"></circle>
-              </svg>
+<div class="company-contact-section page-width{% if section.settings.full_width %} company-contact-section--full-width{% endif %}">
+  <h2 class="company-contact-section__main-heading">{{ section.settings.main_heading }}</h2>
+
+  {% if section.settings.show_address_section %}
+    <div class="contact-group contact-group--address">
+      <div class="contact-group__header">
+        <svg class="icon icon-map-pin" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+          <circle cx="12" cy="10" r="3"></circle>
+        </svg>
+        <h3 class="contact-group__title">{{ section.settings.address_section_heading }}</h3>
+      </div>
+
+      <!-- First row: Office and New Office -->
+      <div class="location-row">
+        {% if section.settings.show_office_address %}
+          <div class="location-block location-block--wide">
+            <div class="location-block__details">
+              <h4 class="location-block__title">{{ section.settings.office_label }}</h4>
+              <div class="location-block__address">
+                {{ section.settings.office_address | newline_to_br }}
+              </div>
             </div>
-            <h3 class="contact-item__title">{{ section.settings.address_heading }}</h3>
+            {% if section.settings.office_map_embed_code != blank %}
+              <div class="location-block__map">
+                {{ section.settings.office_map_embed_code }}
+              </div>
+            {% endif %}
           </div>
-          <div class="contact-item__content">
-            
-            <div class="address-columns">
-              {% if section.settings.show_office_address %}
-                <div class="address-column">
-                  <h4 class="address-column__title">{{ section.settings.office_label }}</h4>
-                  <div class="address-column__text">
-                    {{ section.settings.office_address | replace: ',', '<br>' | replace: '|', '<br>' }}
-                  </div>
-                </div>
-              {% endif %}
-              
-              {% if section.settings.show_warehouse_address %}
-                <div class="address-column">
-                  <h4 class="address-column__title">{{ section.settings.warehouse_label }}</h4>
-                  <div class="address-column__text">
-                    {{ section.settings.warehouse_address | replace: ',', '<br>' | replace: '|', '<br>' }}
-                  </div>
-                </div>
-              {% endif %}
-            </div>
-          </div>
-        </div>
         {% endif %}
 
-        {% if section.settings.show_phone %}
-        <div class="contact-item">
-          <div class="contact-item__header">
-            <div class="contact-item__icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-phone">
-                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-              </svg>
+        {% if section.settings.show_new_office_address %}
+          <div class="location-block location-block--wide">
+            <div class="location-block__details">
+              <h4 class="location-block__title">{{ section.settings.new_office_label }}</h4>
+              <div class="location-block__address">
+                {{ section.settings.new_office_address | newline_to_br }}
+              </div>
             </div>
-            <h3 class="contact-item__title">{{ section.settings.phone_heading }}</h3>
+            {% if section.settings.new_office_map_embed_code != blank %}
+              <div class="location-block__map">
+                {{ section.settings.new_office_map_embed_code }}
+              </div>
+            {% endif %}
           </div>
-          <div class="contact-item__content">
-            <a href="tel:{{ section.settings.phone_number | replace: ' ', '' }}" class="contact-item__link">
-              {{ section.settings.phone_number }}
-            </a>
-          </div>
-        </div>
-        {% endif %}
-
-        {% if section.settings.show_hours %}
-        <div class="contact-item">
-          <div class="contact-item__header">
-            <div class="contact-item__icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-clock">
-                <circle cx="12" cy="12" r="10"></circle>
-                <polyline points="12 6 12 12 16 14"></polyline>
-              </svg>
-            </div>
-            <h3 class="contact-item__title">{{ section.settings.hours_heading }}</h3>
-          </div>
-          <div class="contact-item__content">
-            
-            <div class="hours-columns">
-              {% if section.settings.show_office_hours %}
-                <div class="hours-column">
-                  <h4 class="hours-column__title">{{ section.settings.office_label }}</h4>
-                  <div class="hours-column__text">
-                    {{ section.settings.office_hours | replace: ',', '<br>' | replace: '|', '<br>' }}
-                  </div>
-                </div>
-              {% endif %}
-              
-              {% if section.settings.show_warehouse_hours %}
-                <div class="hours-column">
-                  <h4 class="hours-column__title">{{ section.settings.warehouse_label }}</h4>
-                  <div class="hours-column__text">
-                    {{ section.settings.warehouse_hours | replace: ',', '<br>' | replace: '|', '<br>' }}
-                  </div>
-                </div>
-              {% endif %}
-            </div>
-          </div>
-        </div>
-        {% endif %}
-
-        {% if section.settings.show_email %}
-        <div class="contact-item">
-          <div class="contact-item__header">
-            <div class="contact-item__icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-email">
-                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                <polyline points="22,6 12,13 2,6"></polyline>
-              </svg>
-            </div>
-            <h3 class="contact-item__title">{{ section.settings.email_heading }}</h3>
-          </div>
-          <div class="contact-item__content">
-            <a href="mailto:{{ section.settings.email_address }}" class="contact-item__link contact-item__link--email">
-              {{ section.settings.email_address }}
-            </a>
-          </div>
-        </div>
         {% endif %}
       </div>
       
-      <div class="company-contact__map">
-        {% if section.settings.map_embed_code != blank %}
-          <div class="map-container">
-            {{ section.settings.map_embed_code }}
-          </div>
-        {% else %}
-          <div class="map-placeholder">
-            <div class="map-placeholder__text">
-              {{ 'sections.map.placeholder' | t }}
+      <!-- Second row: Warehouse -->
+      <div class="location-row">
+        {% if section.settings.show_warehouse_address %}
+          <div class="location-block location-block--full">
+            <div class="location-block__details">
+              <h4 class="location-block__title">{{ section.settings.warehouse_label }}</h4>
+              <div class="location-block__address">
+                {{ section.settings.warehouse_address | newline_to_br }}
+              </div>
             </div>
+            {% if section.settings.warehouse_map_embed_code != blank %}
+              <div class="location-block__map">
+                {{ section.settings.warehouse_map_embed_code }}
+              </div>
+            {% endif %}
           </div>
         {% endif %}
       </div>
     </div>
-  </div>
+  {% endif %}
+
+  {% if section.settings.show_phone_section %}
+    <div class="contact-group contact-group--phone">
+      <div class="contact-group__header">
+        <svg class="icon icon-phone" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+        </svg>
+        <h3 class="contact-group__title">{{ section.settings.phone_section_heading }}</h3>
+      </div>
+      <div class="contact-group__content">
+        <a href="tel:{{ section.settings.phone_number | replace: ' ', '' }}">{{ section.settings.phone_number }}</a>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if section.settings.show_hours_section %}
+    <div class="contact-group contact-group--hours">
+      <div class="contact-group__header">
+        <svg class="icon icon-clock" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+        <h3 class="contact-group__title">{{ section.settings.hours_section_heading }}</h3>
+      </div>
+      <div class="contact-group__content hours-content">
+        {% if section.settings.office_hours != blank %}
+            <div class="hours-entry">
+                <span class="hours-entry__label">{{ section.settings.office_label }}:</span>
+                <span class="hours-entry__text">{{ section.settings.office_hours | newline_to_br }}</span>
+            </div>
+        {% endif %}
+        {% if section.settings.warehouse_hours != blank %}
+            <div class="hours-entry">
+                <span class="hours-entry__label">{{ section.settings.warehouse_label }}:</span>
+                <span class="hours-entry__text">{{ section.settings.warehouse_hours | newline_to_br }}</span>
+            </div>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+
+  {% if section.settings.show_email_section %}
+    <div class="contact-group contact-group--email">
+      <div class="contact-group__header">
+        <svg class="icon icon-email" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+          <polyline points="22,6 12,13 2,6"></polyline>
+        </svg>
+        <h3 class="contact-group__title">{{ section.settings.email_section_heading }}</h3>
+      </div>
+      <div class="contact-group__content">
+        <a href="mailto:{{ section.settings.email_address }}">{{ section.settings.email_address }}</a>
+      </div>
+    </div>
+  {% endif %}
 </div>
 
+{%- comment %}
+  Inline SVGs for icons to avoid multiple file requests and allow CSS styling.
+  These should ideally be in snippets/icons if used elsewhere.
+{% endcomment %}
+{% comment %}
+  Icons are now included directly in the file to minimize the number of files in the theme.
+{% endcomment %}
+
 <style>
-  .company-contact {
-    padding: 60px 0;
+  .company-contact-section {
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
     background-color: {{ section.settings.background_color }};
+    color: {{ section.settings.text_color }};
   }
-  
-  .company-contact--full-width .company-contact__container {
+  .company-contact-section--full-width {
     max-width: 100%;
-    padding: 0;
+    padding-left: 0;
+    padding-right: 0;
   }
-  
-  .company-contact__container {
+  .company-contact-section__main-heading {
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 40px;
+    text-align: center;
+    color: {{ section.settings.main_heading_color }};
+  }
+  .contact-group {
+    margin-bottom: 40px;
+  }
+  .contact-group__header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+  .contact-group__header .icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+    fill: {{ section.settings.icon_color }};
+    stroke: {{ section.settings.icon_color }};
+  }
+  .contact-group__title {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+    color: {{ section.settings.group_title_color }};
+  }
+  .contact-group__content a {
+    color: {{ section.settings.link_color }};
+    text-decoration: none;
+  }
+  .contact-group__content a:hover {
+    color: {{ section.settings.link_hover_color }};
+    text-decoration: underline;
+  }
+  .location-row {
     display: flex;
     flex-direction: column;
+    gap: 30px;
+    margin-bottom: 30px;
   }
   
   @media screen and (min-width: 750px) {
-    .company-contact__container {
+    .location-row {
       flex-direction: row;
-      gap: 40px;
+    }
+    .location-block--wide {
+      flex: 1;
+    }
+    .location-block--full {
+      width: 100%;
     }
   }
   
-  .company-contact__details {
-    flex: 1;
-    padding-right: 20px;
-  }
-  
-  .company-contact__map {
-    flex: 1;
-    min-height: 300px;
-  }
-  
-  .company-contact__heading {
-    font-size: 28px;
-    font-weight: 600;
-    margin-bottom: 30px;
-    color: {{ section.settings.heading_color }};
-  }
-  
-  .contact-item {
-    margin-bottom: 30px;
-  }
-  
-  .contact-item__header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-  }
-  
-  .contact-item__icon {
-    flex: 0 0 35px;
-    margin-right: 15px;
-  }
-  
-  .contact-item__icon svg {
-    width: 24px;
-    height: 24px;
-    color: {{ section.settings.icon_color }};
-    vertical-align: middle;
-    display: block;
-  }
-  
-  .contact-item__content {
-    flex: 1;
-  }
-  
-  .contact-item__title {
-    font-size: 18px;
-    font-weight: 600;
-    margin: 0;
-    color: {{ section.settings.title_color }};
-    line-height: 24px; /* Matches icon height */
-  }
-  
-  .address-columns,
-  .hours-columns {
+  .location-block {
+    background-color: {{ section.settings.location_block_bg_color }};
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     display: flex;
     flex-direction: column;
     gap: 15px;
   }
-  
-  @media screen and (min-width: 750px) {
-    .address-columns,
-    .hours-columns {
+
+  @media screen and (min-width: 550px) { /* Side-by-side text/map in a block */
+    .location-block {
       flex-direction: row;
-      gap: 30px;
     }
-    
-    .address-column,
-    .hours-column {
+    .location-block__details {
       flex: 1;
+      min-width: 200px;
+    }
+    .location-block__map {
+      flex: 2;
+      min-width: 300px; /* Ensure map has good width */
     }
   }
-  
-  .address-column__title,
-  .hours-column__title {
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 5px;
-    color: {{ section.settings.subtitle_color }};
+
+  .location-block__title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: {{ section.settings.location_title_color }};
   }
-  
-  .address-column__text,
-  .hours-column__text {
-    font-size: 14px;
-    line-height: 1.5;
-    color: {{ section.settings.text_color }};
+  .location-block__address {
+    font-size: 15px;
+    line-height: 1.6;
   }
-  
-  .contact-item__link {
-    display: inline-block;
-    font-size: 16px;
-    text-decoration: none;
-    color: {{ section.settings.link_color }};
-    transition: color 0.2s ease;
-  }
-  
-  .contact-item__link:hover {
-    color: {{ section.settings.link_hover_color }};
-    text-decoration: underline;
-  }
-  
-  .contact-item__link--email {
-    color: {{ section.settings.email_color }};
-  }
-  
-  .map-container {
+  .location-block__map iframe {
     width: 100%;
-    height: 100%;
-    min-height: 400px;
-    border-radius: 8px;
-    overflow: hidden;
+    height: 300px; /* Increased height for better map visibility */
+    border: none;
+    border-radius: 4px;
   }
-  
-  .map-container iframe {
-    width: 100%;
-    height: 100%;
-    min-height: 400px;
-    border: 0;
-  }
-  
-  .map-placeholder {
-    width: 100%;
-    height: 100%;
-    min-height: 400px;
-    background-color: #f5f5f5;
-    border-radius: 8px;
+  .hours-content {
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-direction: column;
+    gap: 10px;
   }
-  
-  .map-placeholder__text {
-    font-size: 16px;
-    color: #666;
+  .hours-entry {
+    display: flex;
+    gap: 8px;
+  }
+  .hours-entry__label {
+    font-weight: bold;
   }
 </style>
 
 {% schema %}
 {
-  "name": "Company Contact",
+  "name": "Company Contact Details",
   "settings": [
     {
       "type": "text",
-      "id": "heading",
-      "label": "Heading",
+      "id": "main_heading",
+      "label": "Main Heading",
       "default": "Company Details"
     },
     {
       "type": "checkbox",
       "id": "full_width",
-      "label": "Full width section",
+      "label": "Enable full width section",
       "default": false
     },
     {
       "type": "header",
-      "content": "Address Information"
+      "content": "Address Section"
     },
     {
       "type": "checkbox",
-      "id": "show_address",
+      "id": "show_address_section",
       "label": "Show address section",
       "default": true
     },
     {
       "type": "text",
-      "id": "address_heading",
-      "label": "Address Heading",
+      "id": "address_section_heading",
+      "label": "Address Section Heading",
       "default": "Address"
     },
     {
       "type": "checkbox",
       "id": "show_office_address",
-      "label": "Show office address",
+      "label": "Show Office Address",
       "default": true
     },
     {
@@ -340,13 +305,19 @@
       "type": "textarea",
       "id": "office_address",
       "label": "Office Address",
-      "default": "Building 1, Office 104|Bay Square, Business Bay|Dubai, United Arab Emirates",
-      "info": "Use commas or | to add line breaks"
+      "default": "Building 1\nOffice 104\nBay Square\nBusiness Bay\nDubai\nUnited Arab Emirates",
+      "info": "Use new lines for line breaks."
+    },
+    {
+      "type": "html",
+      "id": "office_map_embed_code",
+      "label": "Office Map Embed Code",
+      "info": "Paste Google Maps embed code here."
     },
     {
       "type": "checkbox",
       "id": "show_warehouse_address",
-      "label": "Show warehouse address",
+      "label": "Show Warehouse Address",
       "default": true
     },
     {
@@ -359,23 +330,54 @@
       "type": "textarea",
       "id": "warehouse_address",
       "label": "Warehouse Address",
-      "default": "4th St - Al Khabaisi|Dubai, United Arab Emirates",
-      "info": "Use commas or | to add line breaks"
+      "default": "4th St - Al Khabaisi\nDubai\nUnited Arab Emirates",
+      "info": "Use new lines for line breaks."
     },
     {
-      "type": "header",
-      "content": "Phone Information"
+      "type": "html",
+      "id": "warehouse_map_embed_code",
+      "label": "Warehouse Map Embed Code",
+      "info": "Paste Google Maps embed code here."
     },
     {
       "type": "checkbox",
-      "id": "show_phone",
+      "id": "show_new_office_address",
+      "label": "Show New Office Address",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "new_office_label",
+      "label": "New Office Label",
+      "default": "New Office"
+    },
+    {
+      "type": "textarea",
+      "id": "new_office_address",
+      "label": "New Office Address",
+      "default": "Riyadh, Saudi Arabia",
+      "info": "Use new lines for line breaks."
+    },
+    {
+      "type": "html",
+      "id": "new_office_map_embed_code",
+      "label": "New Office Map Embed Code",
+      "info": "Paste Google Maps embed code here."
+    },
+    {
+      "type": "header",
+      "content": "Phone Section"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_phone_section",
       "label": "Show phone section",
       "default": true
     },
     {
       "type": "text",
-      "id": "phone_heading",
-      "label": "Phone Heading",
+      "id": "phone_section_heading",
+      "label": "Phone Section Heading",
       "default": "Phone"
     },
     {
@@ -386,60 +388,48 @@
     },
     {
       "type": "header",
-      "content": "Hours Information"
+      "content": "Hours Section"
     },
     {
       "type": "checkbox",
-      "id": "show_hours",
+      "id": "show_hours_section",
       "label": "Show hours section",
       "default": true
     },
     {
       "type": "text",
-      "id": "hours_heading",
-      "label": "Hours Heading",
+      "id": "hours_section_heading",
+      "label": "Hours Section Heading",
       "default": "Open Hours"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_office_hours",
-      "label": "Show office hours",
-      "default": true
     },
     {
       "type": "textarea",
       "id": "office_hours",
-      "label": "Office Hours",
-      "default": "Monday to Friday: 8:00 - 17:00|Saturday: 8:00 - 12:00",
-      "info": "Use commas or | to add line breaks"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_warehouse_hours",
-      "label": "Show warehouse hours",
-      "default": true
+      "label": "Office Hours Text",
+      "default": "Monday to Friday: 8:00 - 17:00\nSaturday: 8:00 - 12:00",
+      "info": "Use new lines for line breaks. Applies to 'Office' label."
     },
     {
       "type": "textarea",
       "id": "warehouse_hours",
-      "label": "Warehouse Hours",
-      "default": "Monday to Friday: 8:00 - 17:00|Saturday: 8:00 - 12:00",
-      "info": "Use commas or | to add line breaks"
+      "label": "Warehouse Hours Text",
+      "default": "Monday to Friday: 8:00 - 17:00\nSaturday: 8:00 - 12:00",
+      "info": "Use new lines for line breaks. Applies to 'Warehouse' label."
     },
     {
       "type": "header",
-      "content": "Email Information"
+      "content": "Email Section"
     },
     {
       "type": "checkbox",
-      "id": "show_email",
+      "id": "show_email_section",
       "label": "Show email section",
       "default": true
     },
     {
       "type": "text",
-      "id": "email_heading",
-      "label": "Email Heading",
+      "id": "email_section_heading",
+      "label": "Email Section Heading",
       "default": "Email"
     },
     {
@@ -450,53 +440,63 @@
     },
     {
       "type": "header",
-      "content": "Map Settings"
+      "content": "Styling & Layout"
     },
     {
-      "type": "html",
-      "id": "map_embed_code",
-      "label": "Google Maps Embed Code",
-      "info": "Paste the embed code from Google Maps"
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Top",
+      "default": 36
     },
     {
-      "type": "header",
-      "content": "Colors"
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Bottom",
+      "default": 36
     },
     {
       "type": "color",
       "id": "background_color",
-      "label": "Background Color",
+      "label": "Section Background Color",
       "default": "#FFFFFF"
     },
     {
       "type": "color",
-      "id": "heading_color",
-      "label": "Heading Color",
-      "default": "#000000"
-    },
-    {
-      "type": "color",
-      "id": "title_color",
-      "label": "Title Color",
-      "default": "#000000"
-    },
-    {
-      "type": "color",
-      "id": "subtitle_color",
-      "label": "Subtitle Color",
+      "id": "text_color",
+      "label": "General Text Color",
       "default": "#333333"
     },
     {
       "type": "color",
-      "id": "text_color",
-      "label": "Text Color",
-      "default": "#666666"
+      "id": "main_heading_color",
+      "label": "Main Heading Color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "group_title_color",
+      "label": "Group Title Color (Address, Phone etc.)",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "location_title_color",
+      "label": "Location Title Color (Office, Warehouse etc.)",
+      "default": "#222222"
     },
     {
       "type": "color",
       "id": "icon_color",
       "label": "Icon Color",
-      "default": "#8F9A5B"
+      "default": "#8F9A5B" 
     },
     {
       "type": "color",
@@ -512,15 +512,15 @@
     },
     {
       "type": "color",
-      "id": "email_color",
-      "label": "Email Link Color",
-      "default": "#8F9A5B"
+      "id": "location_block_bg_color",
+      "label": "Location Block Background Color",
+      "default": "#F9F9F9"
     }
   ],
   "presets": [
     {
-      "name": "Company Contact",
-      "category": "Contact"
+      "name": "Company Contact Details",
+      "category": "Store information"
     }
   ]
 }

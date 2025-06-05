@@ -18,6 +18,9 @@ Smooth continuous scroll of up to 10 logos using CSS animation and duplication f
       {%- endfor -%}
     </div>
   </div>
+  <div class="partners-button-container">
+    <a href="/pages/partners" class="partners-button">Explore our partners</a>
+  </div>
 </section>
 
 <style>
@@ -44,6 +47,30 @@ Smooth continuous scroll of up to 10 logos using CSS animation and duplication f
 @keyframes marquee-scroll {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
+}
+
+.partners-button-container {
+  text-align: center;
+  margin-top: 3rem; /* Increased top margin */
+  margin-bottom: 4rem; /* Significantly increased bottom margin */
+  padding: 0 15px; /* Add some padding for smaller screens */
+}
+
+.partners-button {
+  display: inline-block;
+  padding: 12px 25px;
+  background-color: #b8bb8a; /* Updated to light green */
+  color: #ffffff;
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.partners-button:hover {
+  background-color: #a8ab7a; /* Darker shade of light green for hover */
 }
 </style>
 

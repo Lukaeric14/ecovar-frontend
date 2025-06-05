@@ -1,0 +1,18 @@
+{% comment %}
+  Template: Partners Page
+  Displays the main page content (if any) and the partners grid section.
+{% endcomment %}
+
+<div class="page-width">
+  {% if page.title != blank %}
+    <h1 class="main-page-title page-title h0--desktop h1--mobile" style="text-align: center; margin-bottom: 2rem;">{{ page.title }}</h1>
+  {% endif %}
+  {% if page.content != blank %}
+    <div class="rte" style="margin-bottom: 2rem;">
+      {{ page.content }}
+    </div>
+  {% endif %}
+</div>
+
+{% comment %} The 'partners-grid' section will display the grid of partner logos. {% endcomment %}
+{% section 'partners-grid' %}

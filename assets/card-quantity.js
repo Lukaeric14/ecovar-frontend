@@ -90,7 +90,7 @@ function addToCartWithQuantity(variantId, productUrl, buttonElement) {
   addButton.textContent = 'Adding...';
   addButton.disabled = true;
   addButton.classList.add('processing');
-  
+
   // Add to cart using Shopify AJAX API
   fetch('/cart/add.js', {
     method: 'POST',
@@ -105,44 +105,84 @@ function addToCartWithQuantity(variantId, productUrl, buttonElement) {
   })
   .then(response => {
     if (!response.ok) {
-      throw new Error('Network response was not ok');
+      return response.json().then(err => { throw err; }); // Throw with error details from Shopify
     }
-    return response.json();
+    return response.json(); // This is the line item added
   })
-  .then(data => {
-    // Success - update cart count and show feedback
-    updateCartCounter();
-    
-    // Show success state
-    addButton.textContent = 'Added!';
-    addButton.classList.add('added');
-    
-    // Show toast notification
-    showToast(`${quantity} item(s) added to cart`, 'success');
-    
-    // Reset button after 2 seconds
-    setTimeout(() => {
-      addButton.textContent = originalText;
-      addButton.disabled = false;
-      addButton.classList.remove('processing');
-      addButton.classList.remove('added');
-    }, 2000);
+  .then(addedItemData => {
+    updateCartCounter(); // Update cart count display elsewhere on the page
+
+    // Fetch full product details for the modal
+    // Ensure productUrl is the product page URL, e.g., /products/product-handle
+    const productJsonUrl = productUrl.includes('.js') ? productUrl : productUrl.split('?')[0] + '.js';
+
+    fetch(productJsonUrl)
+      .then(response => response.json())
+      .then(productDataFull => {
+        const productInfo = productDataFull.product || productDataFull; // Handle cases where product data might be nested or not
+
+        // Fetch current cart state for total item count
+        fetch('/cart.js')
+          .then(response => response.json())
+          .then(cartData => {
+            const modalData = {
+              message: `${quantity} × ${productInfo.title} added to cart`,
+              productImage: productInfo.featured_image || (productInfo.images && productInfo.images.length > 0 ? productInfo.images[0].src : ''),
+              productTitle: productInfo.title,
+              productId: productInfo.id, // Added product ID for related products
+              cartItemCount: cartData.item_count,
+              type: 'cart'
+            };
+
+            const modalElement = document.querySelector('cascade-atc-modal-element');
+            if (modalElement && typeof modalElement.open === 'function') {
+              modalElement.open(modalData);
+            } else {
+              console.error('Cascade ATC Modal element not found or open method is not available.');
+              // Fallback to original toast if modal isn't ready
+              showToast(`${quantity} item(s) added to cart`, 'success');
+            }
+
+            // Reset the button on the product card
+            addButton.textContent = originalText;
+            addButton.disabled = false;
+            addButton.classList.remove('processing');
+            // No 'added' class needed on the button itself anymore
+          })
+          .catch(cartError => {
+            console.error('Error fetching cart.js for modal:', cartError);
+            showToast(`${quantity} item(s) added to cart (cart info unavailable)`, 'success');
+            // Reset button even on partial failure
+            addButton.textContent = originalText;
+            addButton.disabled = false;
+            addButton.classList.remove('processing');
+          });
+      })
+      .catch(productError => {
+        console.error('Error fetching product.js for modal:', productError);
+        // Fallback: still show toast, but try to get cart count for a basic message
+        fetch('/cart.js').then(r => r.json()).then(cartData => {
+          showToast(`${quantity} item(s) added to cart. Cart has ${cartData.item_count} items.`, 'success');
+        }).catch(() => showToast(`${quantity} item(s) added to cart`, 'success'));
+        
+        // Reset button even on partial failure
+        addButton.textContent = originalText;
+        addButton.disabled = false;
+        addButton.classList.remove('processing');
+      });
   })
   .catch(error => {
     console.error('Error adding to cart:', error);
+    let errorMsg = 'Could not add to cart. Please try again.';
+    if (error && error.description) {
+        errorMsg = error.description; // Use Shopify's error message if available
+    }
+    showToast(errorMsg, 'error');
     
-    // Show error state
-    addButton.textContent = 'Try Again';
-    
-    // Show toast notification for error
-    showToast('Could not add to cart. Please try again.', 'error');
-    
-    // Reset button after 2 seconds
-    setTimeout(() => {
-      addButton.textContent = originalText;
-      addButton.disabled = false;
-      addButton.classList.remove('processing');
-    }, 2000);
+    // Reset button on error
+    addButton.textContent = originalText;
+    addButton.disabled = false;
+    addButton.classList.remove('processing');
   });
 }
 

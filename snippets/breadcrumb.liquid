@@ -43,12 +43,12 @@ Documentation - http://docs.shopify.com/support/your-website/navigation/creating
   <strong>{{ page_title }}</strong>
 
   {% endif %}
-  <a href="/" title="{{ 'general.breadcrumbs.home_link_title' | t }}"><i class="fa fa-angle-left" aria-hidden="true"></i>{{ 'general.breadcrumbs.home' | t }}</a>
+  <a href="#" onclick="history.back(); return false;" title="{{ 'general.breadcrumbs.back_link_title' | t | default: 'Back' }}" style="text-decoration: none; margin-right: 10px; border: 2px solid red !important; color: red !important; font-size: 20px !important; padding: 2px 5px !important; background-color: yellow !important;"><i class="fa fa-chevron-left" aria-hidden="true"></i></a> <a href="/" title="{{ 'general.breadcrumbs.home_link_title' | t }}"><i class="fa fa-angle-left" aria-hidden="true"></i>{{ 'general.breadcrumbs.home' | t }}</a>
 
 </div>
 {% else %}
 <div class="bread-crumb">
-  <a href="/" title="{{ 'general.breadcrumbs.home_link_title' | t }}">{{ 'general.breadcrumbs.home' | t }}<i class="fa fa-angle-right" aria-hidden="true"></i></a>
+  <a href="#" onclick="history.back(); return false;" title="{{ 'general.breadcrumbs.back_link_title' | t | default: 'Back' }}" style="text-decoration: none; margin-right: 10px; border: 2px solid red !important; color: red !important; font-size: 20px !important; padding: 2px 5px !important; background-color: yellow !important;"><i class="fa fa-chevron-left" aria-hidden="true"></i></a> <a href="/" title="{{ 'general.breadcrumbs.home_link_title' | t }}">{{ 'general.breadcrumbs.home' | t }}<i class="fa fa-angle-right" aria-hidden="true"></i></a>
   {% if template contains 'product' %}
 
   {% if collection %}

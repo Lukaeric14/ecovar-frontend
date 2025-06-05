@@ -28,6 +28,112 @@
 <script src="{{ 'card-quantity.js' | asset_url }}" defer="defer"></script>
 
 {%- style -%}
+  /* Mobile Categories Drawer Styles */
+  .categories-toggle-btn {
+    display: none;
+    background: transparent;
+    color: #111;
+    border: none;
+    border-radius: 0;
+    padding: 0 0 18px 0;
+    font-size: 1.7rem !important;
+    font-weight: 300 !important;
+    font-family: inherit !important;
+    letter-spacing: 0.01em !important;
+    margin-bottom: 0;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    box-shadow: none;
+    outline: none;
+    transition: color 0.2s;
+    line-height: 1.3;
+  }
+  .categories-toggle-btn svg {
+    vertical-align: middle;
+    margin-right: 6px;
+    color: #111;
+    width: 1.15em;
+    height: 1.15em;
+    display: inline-block;
+  }
+  @media (max-width: 989px) {
+    .categories-toggle-btn {
+      display: flex;
+      background: transparent;
+      color: #111;
+      border: none;
+      border-radius: 0;
+      padding: 0 0 18px 0;
+      font-size: 1.08rem;
+      font-weight: 700;
+      margin-bottom: 0;
+      box-shadow: none;
+    }
+    .categories-sidebar {
+      display: none;
+    }
+    .categories-drawer {
+      display: block;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 80vw;
+      max-width: 340px;
+      height: 100vh;
+      background: #fff;
+      box-shadow: 2px 0 16px rgba(0,0,0,0.18);
+      z-index: 9999;
+      transform: translateX(-100%);
+      transition: transform 0.3s cubic-bezier(.7,0,.3,1);
+      overflow-y: auto;
+      border-radius: 0 12px 12px 0;
+      padding-left: 18px;
+    }
+    .categories-drawer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 12px 6px 0;
+      font-size: 1.08rem;
+      font-weight: 700;
+      border-bottom: none;
+      background: none;
+      color: #111;
+    }
+    .categories-list {
+      padding-left: 8px;
+    }
+    .categories-drawer-close {
+      background: none;
+      border: none;
+      font-size: 2rem;
+      color: #8F9A5B;
+      cursor: pointer;
+      margin-left: 8px;
+      line-height: 1;
+    }
+    .categories-drawer-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.35);
+      z-index: 9998;
+    }
+    body.show-categories-drawer .categories-drawer {
+      transform: translateX(0);
+    }
+    body.show-categories-drawer .categories-drawer-overlay {
+      display: block;
+    }
+    body.show-categories-drawer {
+      overflow: hidden;
+    }
+  }
+
   .section-{{ section.id }}-padding {
     padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
     padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
@@ -126,10 +232,20 @@
     display: block;
   }
   
-  .categories-list a:hover,
-  .categories-list a.active {
+  .categories-list a:hover {
     color: rgb(var(--color-foreground));
     text-decoration: underline;
+  }
+
+  .categories-list a.active {
+    background-color: #e9e9e9; /* Light gray background for the 'box' */
+    color: rgb(var(--color-foreground)); /* Ensure text color contrasts well */
+    font-weight: 600; /* Make text slightly bolder */
+    padding: 6px 12px; /* Add padding inside the box */
+    border-radius: 4px; /* Rounded corners for the box */
+    display: block; /* Make the anchor a block for proper padding and background */
+    text-decoration: none; /* Remove underline for active state */
+    border: 1px solid #d0d0d0; /* Subtle border for the box */
   }
   
   .categories-list li {
@@ -140,89 +256,100 @@
     font-size: 14px;
     color: rgba(var(--color-foreground), 0.85);
     line-height: 1.5;
-    font-weight: normal;
+    font-weight: 600; /* Make all category links bold by default */
+  }
+
+  .categories-list > li > span.category-heading {
+    display: block;
+    padding: 6px 0; 
+    font-weight: 600;
+    color: rgba(var(--color-foreground), 0.95);
+    margin-bottom: 8px; 
+    font-size: 14px; 
+    line-height: 1.5; 
+  }
+
+  .categories-list .sub-categories-list {
+    padding-left: 20px; 
+    list-style: none; 
+    margin-top: 8px;
+  }
+
+  .categories-list .sub-categories-list li {
+    margin-bottom: 10px; 
+  }
+
+  .categories-list .sub-categories-list li a {
+    font-weight: normal; /* Sub-category links normal weight */
+  }
+
+  /* Ensure active sub-category links re-apply bold from the .active class */
+  .categories-list .sub-categories-list li a.active {
+    font-weight: 600;
   }
 {%- endstyle -%}
 
 <div class="section-{{ section.id }}-padding gradient color-{{ section.settings.color_scheme }}">
   {%- paginate collection.products by section.settings.products_per_page -%}
     <div class="page-width collection-layout">
-      <!-- Categories Sidebar -->
-      <div class="categories-sidebar">
-        <h2 class="categories-heading">CATEGORIES</h2>
+      <!-- Mobile Categories Toggle Button -->
+      <button class="categories-toggle-btn" aria-label="Show categories" type="button" onclick="document.body.classList.add('show-categories-drawer')">
+        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="2" rx="1"/><rect x="3" y="11" width="18" height="2" rx="1"/><rect x="3" y="16" width="18" height="2" rx="1"/></svg>
+        Categories
+      </button>
+      <!-- Categories Sidebar as Drawer -->
+      <div class="categories-sidebar categories-drawer">
+        <div class="categories-drawer-header">
+          <span>CATEGORIES</span>
+          <button class="categories-drawer-close" aria-label="Close categories" type="button" onclick="document.body.classList.remove('show-categories-drawer')">&times;</button>
+        </div>
         <ul class="categories-list">
-          <!-- All categories as shown in the image, in exact order with no hierarchy -->
-          <li>
-            <a href="/collections/ec" {% if collection.handle == 'ec' %}class="active"{% endif %}>EC</a>
-          </li>
-          <li>
-            <a href="/collections/mc" {% if collection.handle == 'mc' %}class="active"{% endif %}>MC</a>
-          </li>
-          <li>
-            <a href="/collections/sc" {% if collection.handle == 'sc' %}class="active"{% endif %}>SC</a>
-          </li>
-          <li>
-            <a href="/collections/ew" {% if collection.handle == 'ew' %}class="active"{% endif %}>EW</a>
-          </li>
-          <li>
-            <a href="/collections/green-products" {% if collection.handle == 'green-products' %}class="active"{% endif %}>Green Products</a>
-          </li>
-          <li>
-            <a href="/collections/gel-baits" {% if collection.handle == 'gel-baits' %}class="active"{% endif %}>Gel & Baits</a>
-          </li>
-          <li>
-            <a href="/collections/cockroaches" {% if collection.handle == 'cockroaches' %}class="active"{% endif %}>Cockroaches</a>
-          </li>
-          <li>
-            <a href="/collections/rodents" {% if collection.handle == 'rodents' %}class="active"{% endif %}>Rodents</a>
-          </li>
-          <li>
-            <a href="/collections/bedbugs" {% if collection.handle == 'bedbugs' %}class="active"{% endif %}>Bedbugs</a>
-          </li>
-          <li>
-            <a href="/collections/ants" {% if collection.handle == 'ants' %}class="active"{% endif %}>Ants</a>
-          </li>
-          <li>
-            <a href="/collections/flies" {% if collection.handle == 'flies' %}class="active"{% endif %}>Flies</a>
-          </li>
-          <li>
-            <a href="/collections/mosquitoes" {% if collection.handle == 'mosquitoes' %}class="active"{% endif %}>Mosquitoes</a>
-          </li>
-          <li>
-            <a href="/collections/termite" {% if collection.handle == 'termite' %}class="active"{% endif %}>Termite</a>
-          </li>
-          <li>
-            <a href="/collections/snakes" {% if collection.handle == 'snakes' %}class="active"{% endif %}>Snakes</a>
-          </li>
-          <li>
-            <a href="/collections/birds" {% if collection.handle == 'birds' %}class="active"{% endif %}>Birds</a>
-          </li>
-          <li>
-            <a href="/collections/stored-product-pest" {% if collection.handle == 'stored-product-pest' %}class="active"{% endif %}>Stored Product Pest</a>
-          </li>
-          <li>
-            <a href="/collections/slugs-snails" {% if collection.handle == 'slugs-snails' %}class="active"{% endif %}>Slugs & Snails</a>
-          </li>
-          <li>
-            <a href="/collections/wasp-hornets" {% if collection.handle == 'wasp-hornets' %}class="active"{% endif %}>Wasp & Hornets</a>
-          </li>
-          <li>
-            <a href="/collections/glue-traps" {% if collection.handle == 'glue-traps' %}class="active"{% endif %}>Glue & Traps</a>
-          </li>
-          <li>
-            <a href="/collections/equipments" {% if collection.handle == 'equipments' %}class="active"{% endif %}>Equipments</a>
-          </li>
-          <li>
-            <a href="/collections/spare-parts" {% if collection.handle == 'spare-parts' %}class="active"{% endif %}>Spare Parts</a>
-          </li>
-          <li>
-            <a href="/collections/ilt-units-consumables" {% if collection.handle == 'ilt-units-consumables' %}class="active"{% endif %}>ILT Units & Consumables</a>
-          </li>
-          <li>
-            <a href="/collections/stray-animals" {% if collection.handle == 'stray-animals' %}class="active"{% endif %}>Stray Animals</a>
-          </li>
-        </ul>
+            <li>
+              <a href="/collections/all" {% if collection.handle == 'all' %}class="active"{% endif %}>All Products</a>
+            </li>
+            <li>
+              <span class="category-heading">Insecticides</span>
+              <ul class="sub-categories-list">
+                <li><a href="/collections/ec" {% if collection.handle == 'ec' %}class="active"{% endif %}>EC</a></li>
+                <li><a href="/collections/mc" {% if collection.handle == 'mc' %}class="active"{% endif %}>MC</a></li>
+                <li><a href="/collections/sc" {% if collection.handle == 'sc' %}class="active"{% endif %}>SC</a></li>
+                <li><a href="/collections/ew" {% if collection.handle == 'ew' %}class="active"{% endif %}>EW</a></li>
+                <li><a href="/collections/green-products" {% if collection.handle == 'green-products' %}class="active"{% endif %}>Green Products</a></li>
+                <li><a href="/collections/gel-baits" {% if collection.handle == 'gel-baits' %}class="active"{% endif %}>Gel & Baits</a></li>
+                <li><a href="/collections/cockroaches" {% if collection.handle == 'cockroaches' %}class="active"{% endif %}>Cockroaches</a></li>
+                <li><a href="/collections/rodents" {% if collection.handle == 'rodents' %}class="active"{% endif %}>Rodents</a></li>
+                <li><a href="/collections/bedbugs" {% if collection.handle == 'bedbugs' %}class="active"{% endif %}>Bedbugs</a></li>
+                <li><a href="/collections/ants" {% if collection.handle == 'ants' %}class="active"{% endif %}>Ants</a></li>
+                <li><a href="/collections/flies" {% if collection.handle == 'flies' %}class="active"{% endif %}>Flies</a></li>
+                <li><a href="/collections/mosquitoes" {% if collection.handle == 'mosquitoes' %}class="active"{% endif %}>Mosquitoes</a></li>
+                <li><a href="/collections/termite" {% if collection.handle == 'termite' %}class="active"{% endif %}>Termite</a></li>
+                <li><a href="/collections/snakes" {% if collection.handle == 'snakes' %}class="active"{% endif %}>Snakes</a></li>
+                <li><a href="/collections/birds" {% if collection.handle == 'birds' %}class="active"{% endif %}>Birds</a></li>
+                <li><a href="/collections/stored-product-pest" {% if collection.handle == 'stored-product-pest' %}class="active"{% endif %}>Stored Product Pest</a></li>
+                <li><a href="/collections/slugs-snails" {% if collection.handle == 'slugs-snails' %}class="active"{% endif %}>Slugs & Snails</a></li>
+                <li><a href="/collections/wasp-hornets" {% if collection.handle == 'wasp-hornets' %}class="active"{% endif %}>Wasp & Hornets</a></li>
+              </ul>
+            </li>
+            <li>
+              <a href="/collections/glue-traps" {% if collection.handle == 'glue-traps' %}class="active"{% endif %}>Glue & Traps</a>
+            </li>
+            <li>
+              <a href="/collections/equipments" {% if collection.handle == 'equipments' %}class="active"{% endif %}>Equipments</a>
+            </li>
+            <li>
+              <a href="/collections/spare-parts" {% if collection.handle == 'spare-parts' %}class="active"{% endif %}>Spare Parts</a>
+            </li>
+            <li>
+              <a href="/collections/ilt-units-consumables" {% if collection.handle == 'ilt-units-consumables' %}class="active"{% endif %}>ILT Units & Consumables</a>
+            </li>
+            <li>
+              <a href="/collections/stray-animals" {% if collection.handle == 'stray-animals' %}class="active"{% endif %}>Stray Animals</a>
+            </li>
+          </ul>
       </div>
+      
+      <!-- Overlay for Drawer -->
+      <div class="categories-drawer-overlay" onclick="document.body.classList.remove('show-categories-drawer')"></div>
       
       <!-- Collection Products Container -->
       <div class="collection-container">
@@ -323,6 +450,13 @@
           %}
         </aside>
       {%- endif -%}
+      
+      <!-- Collection Title -->
+      <div class="collection-title-wrapper" style="margin: 20px 0;">
+        <h1 class="collection-title" style="margin: 20px 0 20px 15px; font-size: 28px; font-weight: 600; color: #333333;">
+          {{ collection.title }}
+        </h1>
+      </div>
 
       <div
         class="product-grid-container{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}"
@@ -353,6 +487,7 @@
             <ul
               id="product-grid"
               data-id="{{ section.id }}"
+              data-next-url="{{ paginate.next.url | default: '' }}" {# Add next URL for infinite scroll #}
               class="
                 grid product-grid grid--{{ section.settings.columns_mobile }}-col-tablet-down
                 grid--{{ section.settings.columns_desktop }}-col-desktop
@@ -386,9 +521,7 @@
               {%- endfor -%}
             </ul>
 
-            {%- if paginate.pages > 1 -%}
-              {% render 'pagination', paginate: paginate, anchor: '' %}
-            {%- endif -%}
+            
           </div>
         {%- endif -%}
       </div>
@@ -396,12 +529,315 @@
     <!-- End Collection Container -->
     </div>
     <!-- End Collection Layout -->
+    {% render 'quick-view-modal' %}
   {%- endpaginate -%}
   {% if section.settings.image_shape == 'arch' %}
     {% render 'mask-arch' %}
   {%- endif -%}
 </div>
 
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const productGrid = document.getElementById('product-grid');
+  if (!productGrid) return;
+
+  let nextUrl = productGrid.dataset.nextUrl || '';
+  let isLoading = false;
+  const scrollOffset = 300; // Pixels from bottom to trigger load
+
+  if (!nextUrl) {
+    // console.log('Infinite scroll: No initial next URL.');
+    return;
+  }
+
+  function loadMoreProducts() {
+    if (isLoading || !nextUrl) return;
+    isLoading = true;
+
+    // Loading indicator removed as per user request
+
+    fetch(nextUrl)
+      .then(response => response.text())
+      .then(text => {
+        const parser = new DOMParser();
+        const htmlDocument = parser.parseFromString(text, 'text/html');
+        const newGrid = htmlDocument.getElementById('product-grid');
+        
+        if (newGrid) {
+          const newProducts = newGrid.querySelectorAll(':scope > li:not(#infinite-scroll-loading-indicator)');
+          if (newProducts.length > 0) {
+            newProducts.forEach(product => {
+              productGrid.appendChild(product); 
+            });
+          }
+          nextUrl = newGrid.dataset.nextUrl || '';
+          productGrid.dataset.nextUrl = nextUrl; // Update current grid's data attribute
+        } else {
+          nextUrl = ''; // No new grid found, assume end of products
+        }
+        
+        if (!nextUrl) {
+          window.removeEventListener('scroll', scrollHandler);
+          // console.log('Infinite scroll: No more pages.');
+        }
+      })
+      .catch(error => {
+        console.error('Infinite scroll error:', error);
+      })
+      .finally(() => {
+        // Loading indicator removal logic removed as indicator is no longer added
+        isLoading = false;
+      });
+  }
+
+  function scrollHandler() {
+    const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+    if (scrollTop + clientHeight >= scrollHeight - scrollOffset) {
+      loadMoreProducts();
+    }
+  }
+
+  window.addEventListener('scroll', scrollHandler, { passive: true });
+
+  // Initial check in case the page isn't scrollable yet but has more items
+  setTimeout(() => {
+    if (nextUrl && (document.documentElement.scrollHeight <= document.documentElement.clientHeight)) {
+      // console.log('Infinite scroll: Initial content too short, loading more.');
+      loadMoreProducts();
+    }
+  }, 500);
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('QuickView Script: DOMContentLoaded');
+  const quickViewModal = document.getElementById('quickViewModal');
+  if (!quickViewModal) {
+    console.error('QuickView Error: Modal element #quickViewModal not found.');
+    return;
+  }
+  console.log('QuickView: Modal element #quickViewModal found:', quickViewModal);
+
+  const quickViewImage = document.getElementById('quickViewImage');
+  const quickViewTitle = document.getElementById('quickViewModalTitle');
+  const quickViewPrice = document.getElementById('quickViewPrice');
+  const quickViewDescription = document.getElementById('quickViewDescription');
+  const quickViewDetailsLink = document.getElementById('quickViewDetailsLink');
+  const isCustomerLoggedIn = {{ customer | json }};
+  const moneyFormatString = {{ shop.money_format | json }};
+  console.log('QuickView: moneyFormatString initialized. Value:', moneyFormatString, 'Type:', typeof moneyFormatString);
+
+  function formatShopifyMoney(cents, formatString) {
+    const numericCents = typeof cents === 'string' ? parseInt(cents.replace(/[^0-9]/g, ''), 10) : cents;
+
+    if (typeof numericCents !== 'number' || isNaN(numericCents)) {
+      console.error('QuickView: Invalid cents value for formatting:', cents);
+      return ''; 
+    }
+
+    if (typeof formatString !== 'string' || formatString.trim() === '') {
+      // Fallback basic formatting if formatString is invalid
+      const fallbackAmount = (numericCents / 100).toFixed(2);
+      console.warn('QuickView: Invalid or empty moneyFormatString. Using fallback formatting:', fallbackAmount);
+      return fallbackAmount; 
+    }
+
+    function getFormattedValue(target, amountInCents) {
+      const amount = amountInCents / 100;
+      switch (target) {
+        case 'amount':
+          return amount.toFixed(2);
+        case 'amount_no_decimals':
+          return amount.toFixed(0);
+        case 'amount_with_comma_separator':
+          // Standard toLocaleString should handle comma separation based on locale.
+          // Forcing a specific style like en-US if needed, or relying on browser default.
+          return amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        case 'amount_no_decimals_with_comma_separator':
+          return amount.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0 });
+        // Shopify might have other formats like amount_with_apostrophe_separator etc.
+        // Add more cases here if other Shopify money formats are used in your theme
+        default:
+          // If the placeholder is unknown, return it as is to avoid breaking the string,
+          // or return a default formatting. For now, log a warning and use default.
+          console.warn('QuickView: Unknown money format placeholder:', target);
+          return amount.toFixed(2);
+      }
+    }
+
+    const placeholderRegex = /\{\{\s*([\w]+)\s*\}\}/g;
+    let result = formatString;
+    let match;
+    let placeholderFound = false;
+
+    // Replace all occurrences of {{placeholder}} in the format string
+    while ((match = placeholderRegex.exec(formatString)) !== null) {
+      placeholderFound = true;
+      const fullPlaceholder = match[0]; // Full match, e.g., "{{amount}}"
+      const placeholderKey = match[1];    // Captured group, e.g., "amount"
+      const formattedValue = getFormattedValue(placeholderKey, numericCents);
+      result = result.replace(fullPlaceholder, formattedValue);
+    }
+
+    if (!placeholderFound) {
+        // If the formatString was valid but contained no recognizable {{amount}} style placeholders
+        // (e.g. it was just 'USD' or some other static text by mistake), return it or a default.
+        // For safety, return the formatted amount directly if no placeholders were processed.
+        console.warn('QuickView: No Shopify money placeholders found in formatString. Using default formatting for value:', formatString);
+        return (numericCents / 100).toFixed(2);
+    }
+    return result;
+  }
+
+  function getResizedShopifyImage(src, size) { // size like '600x600'
+    if (!src || !size) return src;
+    try {
+      const versionMarker = '?v=';
+      const versionIndex = src.lastIndexOf(versionMarker);
+      let baseUrl = src;
+      let versionQuery = '';
+
+      if (versionIndex !== -1) {
+        baseUrl = src.substring(0, versionIndex);
+        versionQuery = src.substring(versionIndex);
+      }
+
+      const extensionIndex = baseUrl.lastIndexOf('.');
+      if (extensionIndex === -1) {
+        console.warn('QuickView: Could not find extension in image src for resizing:', src);
+        return src; // No extension found, return original
+      }
+
+      const filename = baseUrl.substring(0, extensionIndex);
+      const extension = baseUrl.substring(extensionIndex);
+
+      return `${filename}_${size}${extension}${versionQuery}`;
+    } catch (e) {
+      console.error('QuickView: Error resizing image URL:', e, 'Original src:', src);
+      return src; // Fallback to original src if error
+    }
+  }
+
+
+  function openQuickView(productHandle) {
+    console.log('QuickView: Entered openQuickView. moneyFormatString value:', moneyFormatString, 'Type:', typeof moneyFormatString);
+    console.log('QuickView: openQuickView called with handle:', productHandle);
+    if (!productHandle) return;
+
+    fetch(`/products/${productHandle}.js`)
+      .then(response => response.json())
+      .then(product => {
+        quickViewTitle.textContent = product.title;
+        
+        if (quickViewImage) {
+        quickViewImage.classList.remove('is-loaded'); // Reset for new image
+          quickViewImage.src = product.featured_image ? getResizedShopifyImage(product.featured_image, '600x600') : ''; // Use client-side helper for size
+          quickViewImage.alt = product.title || 'Product image';
+
+        quickViewImage.onload = () => {
+          quickViewImage.classList.add('is-loaded');
+        };
+        // If image is already cached and complete, trigger loaded state directly
+        if (quickViewImage.complete) {
+          quickViewImage.classList.add('is-loaded');
+        }
+        }
+
+        if (isCustomerLoggedIn && product.price) {
+          console.log('QuickView: Inside fetch.then, before using moneyFormatString. Value:', moneyFormatString, 'Type:', typeof moneyFormatString);
+          quickViewPrice.innerHTML = `<span class="price-item price-item--regular">${formatShopifyMoney(product.price, moneyFormatString)}</span>`;
+        } else if (!isCustomerLoggedIn) {
+          quickViewPrice.innerHTML = ''; // Clear previous price
+          const loginPrompt = document.createElement('span');
+          loginPrompt.textContent = '{{ 'products.product.login_to_see_price' | t: default: "Log in to see price" }}';
+          quickViewPrice.appendChild(loginPrompt);
+        } else {
+          quickViewPrice.innerHTML = ''; // E.g. logged in but no price / price is 0
+        }
+
+        if (quickViewDescription) {
+          let descriptionText = product.description;
+          const tempDiv = document.createElement('div');
+          tempDiv.innerHTML = descriptionText;
+          descriptionText = tempDiv.textContent || tempDiv.innerText || ""; // Strip HTML
+          quickViewDescription.textContent = descriptionText.substring(0, 250) + (descriptionText.length > 250 ? '...' : ''); // Truncate
+        }
+        
+        if (quickViewDetailsLink) {
+          quickViewDetailsLink.href = product.url;
+        }
+
+        console.log('QuickView: Product data fetched, attempting to show modal.');
+        quickViewModal.classList.add('is-active');
+        document.body.classList.add('quickview-modal-open'); // Prevent background scroll
+
+        // Debugging overlay
+        const overlayEl = quickViewModal.querySelector('.quick-view-modal__overlay');
+        console.log('QuickView: Overlay element:', overlayEl);
+        if (overlayEl) {
+          const computedOverlayStyles = window.getComputedStyle(overlayEl);
+          console.log('QuickView: Overlay computed - display:', computedOverlayStyles.display);
+          console.log('QuickView: Overlay computed - backgroundColor:', computedOverlayStyles.backgroundColor);
+          console.log('QuickView: Overlay computed - opacity:', computedOverlayStyles.opacity);
+          console.log('QuickView: Overlay computed - zIndex:', computedOverlayStyles.zIndex);
+        }
+        const computedModalStyles = window.getComputedStyle(quickViewModal);
+        console.log('QuickView: Modal container computed - display:', computedModalStyles.display);
+        console.log('QuickView: Modal container computed - zIndex:', computedModalStyles.zIndex);
+      })
+      .catch(error => {
+        console.error('Error fetching product data for quick view:', error);
+      });
+  }
+
+  function closeQuickView() {
+    console.log('QuickView: closeQuickView called.');
+    quickViewModal.classList.remove('is-active');
+    document.body.classList.remove('quickview-modal-open'); // Restore background scroll
+  }
+
+  const productGridContainer = document.getElementById('product-grid');
+  console.log('QuickView: productGridContainer found:', productGridContainer);
+  if (productGridContainer) {
+    console.log('QuickView: productGridContainer is valid, attempting to add click listener.');
+    productGridContainer.addEventListener('click', (event) => {
+      console.log('QuickView: Click detected on productGridContainer. Event target:', event.target);
+      const quickViewButton = event.target.closest('.quick-view-btn');
+      console.log('QuickView: Attempting to find .quick-view-btn. Found:', quickViewButton);
+      if (quickViewButton) {
+        console.log('QuickView: .quick-view-btn found successfully.');
+        event.preventDefault();
+        event.stopPropagation();
+        const productHandle = quickViewButton.dataset.productHandle;
+        if (productHandle) {
+          console.log('QuickView: productHandle found:', productHandle);
+          openQuickView(productHandle);
+        } else {
+          console.log('QuickView: productHandle NOT found on the button.');
+        }
+      } else {
+        console.log('QuickView: .quick-view-btn NOT found by event.target.closest(). Click was on:', event.target);
+      }
+    });
+  }
+
+  quickViewModal.addEventListener('click', (event) => {
+    if (event.target.closest('[data-quick-view-close]')) { // Use .closest() to handle clicks on child elements of the button
+      closeQuickView();
+    }
+  });
+
+  // Close modal on ESC key press
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && quickViewModal.classList.contains('is-active')) {
+      closeQuickView();
+    }
+  });
+});
+</script>
+
+{% render 'added-to-cart-modal' %}
 {% schema %}
 {
   "name": "t:sections.main-collection-product-grid.name",

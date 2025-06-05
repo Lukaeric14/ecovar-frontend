@@ -139,15 +139,14 @@
         const noteField = document.getElementById('RegisterForm-Note');
         const phone = document.getElementById('RegisterForm-Phone');
         const company = document.getElementById('RegisterForm-Company');
-        const category = document.getElementById('RegisterForm-Category');
+        // const category = form.querySelector('#RegisterForm-Category'); // Category field removed
 
         console.log(phone?.value, company?.value, noteField?.value);
 
         if (noteField) {
           const noteData = {
             phone: phone?.value?.trim() || '',
-            company: company?.value?.trim() || '',
-            category: category?.value || ''
+            company: company?.value?.trim() || ''
           };
           noteField.value = JSON.stringify(noteData);
           console.log("Note JSON:", noteField.value);
@@ -225,43 +224,6 @@
       <label for="RegisterForm-Phone">
         {{ 'customer.register.phone' | default: 'Phone Number' | t }}
       </label>
-    </div>
-     <div class="field">
-      <label for="RegisterForm-Category">Category</label>
-      <select name="customer[category]" id="RegisterForm-Category" required     style="color: #666; font-family: inherit; font-size: inherit; padding: 10px 20px; border: none; border-radius: 12px; width: 100%; box-sizing: border-box; background: white; appearance: none;">
-        <option value="" disabled selected>Select a category</option>
-        <option value="11">AGRICULTURE</option>
-        <option value="22">AVIATION</option>
-        <option value="23">CASH CUSTOMER</option>
-        <option value="30">CHEMICALS</option>
-        <option value="15">CLEANING SERVICES</option>
-        <option value="16">CONSTRUCTION</option>
-        <option value="25">CONSULTANTS</option>
-        <option value="21">EDUCATION</option>
-        <option value="8">ENGINEERING</option>
-        <option value="24">ENVIRONMENTAL</option>
-        <option value="5">FACILITY MANAGEMENT</option>
-        <option value="17">FARM/STABLE</option>
-        <option value="4">FOOD & BEVERAGE</option>
-        <option value="9">GOLF COURSE</option>
-        <option value="12">GOVERNMENT</option>
-        <option value="18">HEALTHCARE</option>
-        <option value="14">HOSPITALITY</option>
-        <option value="19">HOTEL</option>
-        <option value="10">INSURANCE</option>
-        <option value="7">KITCHEN SUPPLIER</option>
-        <option value="2">LANDSCAPING</option>
-        <option value="13">MANUFACTURING PLANT</option>
-        <option value="26">OTHERS</option>
-        <option value="1">PEST CONTROL</option>
-        <option value="31">PESTICIDES BUYERS</option>
-        <option value="29">PLUMBING & BUILDING MATERIALS</option>
-        <option value="27">RECREATION</option>
-        <option value="20">SHIPPING</option>
-        <option value="3">SUPERMARKET</option>
-        <option value="6">TRADING</option>
-        <option value="28">TRANSPORT</option>
-      </select>
     </div>
     <div class="field">
       <input

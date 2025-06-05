@@ -1,6 +1,6 @@
 <section
   id="MainProduct-{{ section.id }}"
-  class="section-{{ section.id }}-padding gradient color-{{ section.settings.color_scheme }}"
+  class="section-{{ section.id }}-padding gradient color-{{ section.settings.color_scheme }} {% unless customer %}product--logged-out{% endunless %}"
   data-section="{{ section.id }}"
 >
   {{ 'section-main-product.css' | asset_url | stylesheet_tag }}
@@ -29,6 +29,54 @@
         padding-top: {{ section.settings.padding_top }}px;
         padding-bottom: {{ section.settings.padding_bottom }}px;
       }
+    }
+
+    /* Hide standard Add to Cart / Buy Now buttons for logged-out users */
+    .product--logged-out .product-form__buttons {
+      display: none !important;
+    }
+
+    .breadcrumbs {
+      margin-bottom: 1rem; /* Adjust spacing as needed */
+      font-size: 0.9em;
+    }
+
+    .breadcrumbs__list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-wrap: wrap; /* Allow wrapping on small screens */
+    }
+
+    .breadcrumbs__item {
+      display: flex;
+      align-items: center;
+    }
+
+    .breadcrumbs__item:not(:last-child)::after {
+      content: '/';
+      margin: 0 0.5em;
+      color: #666; /* Separator color */
+    }
+
+    .breadcrumbs__item--back-arrow::after {
+      content: none !important; /* Remove the separator */
+      margin: 0 !important; /* Remove any margin associated with the separator */
+    }
+
+    .breadcrumbs__link {
+      color: #333; /* Link color */
+      text-decoration: none;
+    }
+
+    .breadcrumbs__link:hover {
+      text-decoration: underline;
+    }
+
+    .breadcrumbs__item--current .breadcrumbs__link {
+      color: #777; /* Current page color */
+      font-weight: normal;
     }
   {%- endstyle -%}
 
@@ -67,6 +115,35 @@
 
   {% assign variant_images = product.images | where: 'attached_to_variant?', true | map: 'src' %}
   <div class="page-width">
+    <nav class="breadcrumbs" aria-label="Breadcrumb" style="display: flex; align-items: center;">
+      <a href="#" onclick="history.back(); return false;" title="{{ 'general.breadcrumbs.back_link_title' | t | default: 'Back' }}" class="breadcrumbs__back" style="margin-right: 10px; font-size: 1.2em; color: #333; display: flex; align-items: center; text-decoration: none;">
+        <span style="font-size: 1.2em; display: inline-block;">&#8592;</span>
+      </a>
+      <ol class="breadcrumbs__list">
+
+        <li class="breadcrumbs__item">
+          <a class="breadcrumbs__link" href="{{ routes.root_url }}">Home</a>
+        </li>
+        {%- if collection -%}
+          <li class="breadcrumbs__item">
+            <a class="breadcrumbs__link" href="{{ collection.url }}">{{ collection.title }}</a>
+          </li>
+          <li class="breadcrumbs__item breadcrumbs__item--current" aria-current="page">
+            <span class="breadcrumbs__link">{{ product.title }}</span>
+          </li>
+        {%- else -%}
+          {%- assign current_collection = product.collections.first -%}
+          {%- if current_collection -%}
+            <li class="breadcrumbs__item">
+              <a class="breadcrumbs__link" href="{{ current_collection.url }}">{{ current_collection.title }}</a>
+            </li>
+          {%- endif -%}
+          <li class="breadcrumbs__item breadcrumbs__item--current" aria-current="page">
+            <span class="breadcrumbs__link">{{ product.title }}</span>
+          </li>
+        {%- endif -%}
+      </ol>
+    </nav>
     <div class="product product--{{ section.settings.media_size }} product--{{ section.settings.media_position }} product--{{ section.settings.gallery_layout }} product--mobile-{{ section.settings.mobile_thumbnails }} grid grid--1-col {% if product.media.size > 0 %}grid--2-col-tablet{% else %}product--no-media{% endif %}">
       <div class="grid__item product__media-wrapper">
         {% render 'product-media-gallery', variant_images: variant_images %}
@@ -114,14 +191,16 @@
                     <span>{{ 'products.product.volume_pricing.note' | t }}</span>
                   </div>
                 {%- endif -%}
+                {% if customer %}
                 <div class="product__tax caption rte">
                   {%- if cart.taxes_included -%}
-                    {{ 'products.product.include_taxes' | t }}
+                    {% comment %} {{ 'products.product.include_taxes' | t }} {% endcomment %}
                   {%- endif -%}
                   {%- if shop.shipping_policy.body != blank -%}
                     {{ 'products.product.shipping_policy_html' | t: link: shop.shipping_policy.url }}
                   {%- endif -%}
                 </div>
+                {% endif %}
                 <div {{ block.shopify_attributes }}>
                   {%- assign product_form_installment_id = 'product-form-installment-' | append: section.id -%}
                   {%- form 'product', product, id: product_form_installment_id, class: 'installment caption-large' -%}
@@ -187,7 +266,15 @@
               {%- when 'description' -%}
                 {%- if product.description != blank -%}
                   <div class="product__description rte quick-add-hidden" {{ block.shopify_attributes }}>
-                    {{ product.description }}
+                    {% if customer %}
+                      {{ product.description }}
+                    {% else %}
+                      {% if product.description contains "Documents:" %}
+                        {{ product.description | split: "Documents:" | first }}
+                      {% else %}
+                        {{ product.description }}
+                      {% endif %}
+                    {% endif %}
                   </div>
                 {%- endif -%}
               {%- when 'sku' -%}
@@ -226,6 +313,7 @@
                   class="product-form__input product-form__quantity{% if settings.inputs_shadow_vertical_offset != 0 and settings.inputs_shadow_vertical_offset < 0 %} product-form__quantity-top{% endif %}"
                   {{ block.shopify_attributes }}
                 >
+                  {% if customer %}
                   {% comment %} TODO: enable theme-check once `item_count_for_variant` is accepted as valid filter {% endcomment %}
                   {% # theme-check-disable %}
                   {%- assign cart_qty = cart
@@ -428,6 +516,7 @@
                       {%- endif -%}
                     </volume-pricing>
                   {%- endif -%}
+                  {% endif %}
                 </div>
               {%- when 'popup' -%}
                 <modal-opener
@@ -458,7 +547,7 @@
                   product: product,
                   product_form_id: product_form_id,
                   section_id: section.id,
-                  show_pickup_availability: true
+                  show_pickup_availability: false
                 -%}
               {%- when 'rating' -%}
                 {%- if product.metafields.reviews.rating.value != blank -%}

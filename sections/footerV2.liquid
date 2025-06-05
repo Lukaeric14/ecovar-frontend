@@ -11,22 +11,6 @@
       {% endif %}
     </div>
 
-    <!-- Categories Column -->
-    <div class="footer-col footer-categories">
-      <h3>Categories</h3>
-      <ul>
-        {% for block in section.blocks %}
-          {% if block.type == 'category_link' %}
-            <li>
-              <a href="{{ block.settings.link_url }}">
-                {{ block.settings.link_text }}
-              </a>
-            </li>
-          {% endif %}
-        {% endfor %}
-      </ul>
-    </div>
-
     <!-- Quick Links Column -->
     <div class="footer-col footer-links">
       <h3>Quick Links</h3>

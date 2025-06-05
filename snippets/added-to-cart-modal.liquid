@@ -1,0 +1,320 @@
+{% comment %} ----- Added to Cart / Quote Modal ----- {% endcomment %}
+<div id="cascade-atc-modal" class="cascade-atc-modal" aria-hidden="true" role="dialog" aria-modal="true" tabindex="-1">
+  <div class="cascade-atc-modal__overlay" tabindex="-1" data-cascade-modal-close></div>
+  <div class="cascade-atc-modal__content">
+    <button class="cascade-atc-modal__close" aria-label="Close modal" data-cascade-modal-close>&times;</button>
+
+    <div class="cascade-atc-modal__body">
+      <div class="cascade-atc-modal__left">
+        <p class="cascade-atc-modal__success-message">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="20" height="20" style="color: green; margin-right: 5px;">
+            <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
+          </svg>
+          <span id="cascade-atc-modal-message-text">Item added successfully!</span>
+        </p>
+        <div class="cascade-atc-modal__product-image-wrapper">
+          <img id="cascade-atc-modal-product-image" src="" alt="Product Image" class="cascade-atc-modal__product-image">
+        </div>
+        <p id="cascade-atc-modal-product-title" class="cascade-atc-modal__product-title">Product Name</p>
+      </div>
+
+      <div class="cascade-atc-modal__right">
+        <p id="cascade-atc-modal-cart-info" class="cascade-atc-modal__cart-info">There are X items in your cart.</p>
+        <a href="{{ routes.cart_url }}" id="cascade-atc-modal-continue-shopping" class="cascade-atc-modal__button cascade-atc-modal__button--secondary" data-cascade-modal-close>Continue Shopping</a>
+        <a href="{{ routes.cart_url }}" id="cascade-atc-modal-go-to-cart" class="cascade-atc-modal__button cascade-atc-modal__button--primary">Go To Cart</a>
+        <a href="{{ routes.checkout_url }}" id="cascade-atc-modal-proceed-to-checkout" class="cascade-atc-modal__button cascade-atc-modal__button--primary">Proceed To Checkout</a>
+      </div>
+    </div>
+    <div id="cascade-atc-modal-related-products-container" class="cascade-atc-modal__related-products-container" style="display: none; margin-top: 30px;">
+      <div id="cascade-atc-modal-related-products" class="cascade-atc-modal__related-products"></div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .cascade-atc-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1050; /* Sits above overlay, like quick-view content */
+    display: none; /* Hidden by default */
+    align-items: center;
+    justify-content: center;
+  }
+  .cascade-atc-modal[aria-hidden="false"] {
+    display: flex;
+    background-color: rgba(0, 0, 0, 0.6); /* Host becomes the overlay */
+  }
+  .cascade-atc-modal__overlay {
+    display: none !important; /* This div is no longer used for the overlay */
+  }
+  .cascade-atc-modal__content {
+    position: relative;
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    z-index: 1;
+    width: 90%;
+    max-width: 900px; /* Increased max-width for related products */
+    min-height: 650px; /* Further increased min-height for taller modal */
+    display: flex;
+    flex-direction: column;
+  }
+  .cascade-atc-modal__close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    line-height: 1;
+    color: #888;
+    cursor: pointer;
+  }
+  .cascade-atc-modal__close:hover {
+    color: #000;
+  }
+  .cascade-atc-modal__body {
+    display: flex;
+    gap: 30px; /* Increased gap */
+  }
+  .cascade-atc-modal__left {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center items for better presentation */
+    text-align: center;
+  }
+  .cascade-atc-modal__right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .cascade-atc-modal__success-message {
+    font-size: 1.5rem; /* Further increased size */
+    font-weight: bold;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Center the success message */
+    color: #28a745; /* Green color for success */
+  }
+  .cascade-atc-modal__product-image-wrapper {
+    width: 220px; /* Increased width for image wrapper */
+    height: 220px; /* Increased height for image wrapper */
+    margin-bottom: 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .cascade-atc-modal__product-image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+  .cascade-atc-modal__product-title {
+    font-size: 1.5rem; /* Further increased size for prominence */
+    font-weight: 600;
+    color: #333;
+  }
+  .cascade-atc-modal__cart-info {
+    font-size: 1.5rem; /* Further increased size */
+    margin-bottom: 20px;
+    color: #555;
+    text-align: center; /* Center the cart info text */
+    width: 100%; /* Ensure full width for proper centering */
+  }
+  .cascade-atc-modal__button {
+    display: block;
+    width: 100%;
+    padding: 15px 20px; /* Larger button size */
+    margin-bottom: 10px;
+    font-size: 1.2rem; /* Increased button font size */
+    text-align: center; /* Ensure text is centered */
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: bold;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    border: 1px solid transparent;
+  }
+  .cascade-atc-modal__button--primary {
+    background-color: #8F9A5B; /* Muted green from memory */
+    color: white;
+    border-color: #8F9A5B;
+  }
+  .cascade-atc-modal__button--primary:hover {
+    background-color: #7a854b; /* Darker shade for hover */
+    border-color: #7a854b;
+  }
+  .cascade-atc-modal__button--secondary {
+    background-color: #f8f8f8; /* Light gray from memory */
+    color: #333;
+    border: 1px solid #e0e0e0; /* Light gray border */
+  }
+  .cascade-atc-modal__button--secondary:hover {
+    background-color: #e0e0e0;
+    border-color: #ccc;
+    color: #333;
+  }
+
+  /* Ensure the last button doesn't have margin-bottom if it's the last child */
+  .cascade-atc-modal__right .cascade-atc-modal__button:last-child {
+    margin-bottom: 0;
+  }
+
+  .cascade-atc-modal__related-products {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Adjust minmax for card size */
+    gap: 15px;
+  }
+
+  @media (max-width: 600px) {
+    .cascade-atc-modal__body {
+      flex-direction: column;
+      align-items: center;
+    }
+    .cascade-atc-modal__left,
+    .cascade-atc-modal__right {
+      width: 100%;
+      align-items: center;
+      text-align: center;
+    }
+    .cascade-atc-modal__content {
+      padding: 20px;
+    }
+  }
+</style>
+
+<script>
+  class CascadeATCModal extends HTMLElement {
+    constructor() {
+      super();
+      this.modal = document.getElementById('cascade-atc-modal');
+      this.closeButtons = this.modal.querySelectorAll('[data-cascade-modal-close]');
+      this.messageTextElement = this.modal.querySelector('#cascade-atc-modal-message-text');
+      this.productImageElement = this.modal.querySelector('#cascade-atc-modal-product-image');
+      this.productTitleElement = this.modal.querySelector('#cascade-atc-modal-product-title');
+      this.cartInfoElement = this.modal.querySelector('#cascade-atc-modal-cart-info');
+      this.goToCartButton = this.modal.querySelector('#cascade-atc-modal-go-to-cart');
+      this.proceedToCheckoutButton = this.modal.querySelector('#cascade-atc-modal-proceed-to-checkout');
+
+      this.closeButtons.forEach(button => button.addEventListener('click', this.close.bind(this)));
+      this.modal.addEventListener('click', (event) => {
+        // If the click is directly on the host (the overlay background) and not on the content part
+        if (event.target === this.modal) {
+          this.close();
+        }
+      });
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && this.modal.getAttribute('aria-hidden') === 'false') {
+          this.close();
+        }
+      });
+    }
+
+    open(details) { // Renamed back to 'open' to match card-quantity.js call
+      // data: { message, productImage, productTitle, cartItemCount, cartUrl, checkoutUrl, type: 'cart' | 'quote' }
+      if (this.messageTextElement) {
+        this.messageTextElement.textContent = details.message || 'Item processed successfully!';
+      }
+      if (this.productImageElement) {
+        this.productImageElement.src = details.productImage || '{{ "product-1" | asset_url }}'; // Fallback image
+        this.productImageElement.alt = details.productTitle || 'Product Image';
+      }
+      if (this.productTitleElement) {
+        this.productTitleElement.textContent = details.productTitle || 'Product Name';
+      }
+      if (this.cartInfoElement) {
+        this.cartInfoElement.textContent = `There are ${details.cartItemCount || 0} items in your cart.`;
+      }
+
+      // Adjust buttons based on type
+      if (details.type === 'quote') {
+        if (this.cartInfoElement) this.cartInfoElement.style.display = 'none'; // Hide cart info for quote
+        if (this.goToCartButton) this.goToCartButton.style.display = 'none'; // Hide "Go To Cart"
+        if (this.proceedToCheckoutButton) this.proceedToCheckoutButton.textContent = 'View Quote Requests'; // Or similar
+        // Potentially change link for proceedToCheckoutButton if needed for quotes
+        if (this.productTitleElement) this.productTitleElement.style.display = 'none';
+        this.cartInfoElement.style.display = 'none';
+        this.goToCartButton.style.display = 'none';
+        this.proceedToCheckoutButton.style.display = 'none';
+        // Also ensure related products container is hidden for quote
+        const relatedProductsContainer = this.modal.querySelector('#cascade-atc-modal-related-products-container');
+        if (relatedProductsContainer) relatedProductsContainer.style.display = 'none';
+      } else { // Default to 'cart' type
+        if (this.cartInfoElement) this.cartInfoElement.style.display = 'block';
+        if (this.goToCartButton) this.goToCartButton.style.display = 'block';
+        if (this.proceedToCheckoutButton) {
+          this.proceedToCheckoutButton.textContent = 'Proceed To Checkout';
+          this.proceedToCheckoutButton.href = details.checkoutUrl || '{{ routes.checkout_url }}';
+        }
+        if (this.goToCartButton) {
+          this.goToCartButton.href = details.cartUrl || '{{ routes.cart_url }}';
+        }
+      }
+
+      this.modal.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('overflow-hidden');
+
+      const relatedProductsContainer = this.modal.querySelector('#cascade-atc-modal-related-products-container');
+      const relatedProductsContent = this.modal.querySelector('#cascade-atc-modal-related-products');
+      relatedProductsContent.innerHTML = ''; // Clear previous related products
+      relatedProductsContainer.style.display = 'none'; // Start hidden
+
+      if (details.type === 'cart' && details.productId) {
+        relatedProductsContainer.style.display = 'block'; // Show only if attempting to load for cart
+        // Show a loading state if desired
+        // relatedProductsContent.innerHTML = '<p>Loading recommendations...</p>'; 
+        fetch(`/recommendations/products?section_id=related-products&product_id=${details.productId}&limit=3&intent=related`)
+          .then(response => response.text())
+          .then(html => {
+            if (html.trim().length > 0) {
+              relatedProductsContent.innerHTML = html;
+              // Potentially re-initialize any JS components within the fetched HTML if needed
+              // For example, if product cards have their own JS for variants, etc.
+            } else {
+              relatedProductsContainer.style.display = 'none'; // Hide if no recommendations
+            }
+          })
+          .catch(error => {
+            console.error('Error fetching related products:', error);
+            relatedProductsContainer.style.display = 'none';
+          });
+      } else if (details.type === 'quote') {
+        // Ensure related products are hidden for quote type
+        relatedProductsContainer.style.display = 'none';
+      }
+    }
+
+    close() {
+      this.modal.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('overflow-hidden');
+    }
+  }
+
+  if (!customElements.get('cascade-atc-modal-element')) {
+    customElements.define('cascade-atc-modal-element', CascadeATCModal);
+  }
+
+  // Global function to open the modal (can be called from other scripts)
+  // window.showCascadeATCModal = (data) => {
+  //   const modalElement = document.querySelector('cascade-atc-modal-element') || document.createElement('cascade-atc-modal-element');
+  //   if (!document.querySelector('cascade-atc-modal-element')) {
+  //     document.body.appendChild(modalElement); // Ensure it's in the DOM
+  //   }
+  //   // Ensure the modal's internal methods are ready
+  //   setTimeout(() => modalElement.open(data), 0);
+  // };
+  // Simpler: just ensure the <cascade-atc-modal-element> tag is in your theme.liquid
+  // and then you can do:
+  // document.querySelector('cascade-atc-modal-element').open({ ...data... });
+
+</script>
+<cascade-atc-modal-element></cascade-atc-modal-element>

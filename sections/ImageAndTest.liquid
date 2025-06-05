@@ -16,15 +16,8 @@
 
   <div class="testimonials-slider">
     {% for block in section.blocks %}
-      <div class="testimonial-item{% if forloop.first %} active{% endif %}">
-        <div class="logo-circle">
-          {% if section.settings.logo %}
-            <img
-              src="{{ section.settings.logo | img_url: '100x' }}"
-              alt="{{ section.settings.logo_alt_text }}"
-            >
-          {% endif %}
-        </div>
+      <div class="testimonial-item{% if forloop.first %} active{% endif %}" data-index="{{ forloop.index0 }}">
+        {% comment %} Logo circle removed as per request {% endcomment %}
         <p class="quote">“{{ block.settings.quote }}”</p>
         <p class="author">— {{ block.settings.author }}</p>
         <div class="photo-circle">
@@ -37,6 +30,13 @@
         </div>
       </div>
     {% endfor %}
+    {% if section.blocks.size > 1 %}
+    <div class="testimonial-dots">
+      {% for block in section.blocks %}
+        <span class="dot{% if forloop.first %} active{% endif %}" data-index="{{ forloop.index0 }}"></span>
+      {% endfor %}
+    </div>
+    {% endif %}
   </div>
 </section>
 
@@ -44,8 +44,9 @@
   .testimonials-with-image {
     display: flex;
     gap: 2rem;
-    align-items: stretch;
-    margin: 2rem;
+    align-items: stretch; /* Changed from center to allow items to define their height */
+    margin: 2rem auto; /* Centered with auto margins */
+    max-width: 1200px; /* Added max-width */
   }
 
   .testimonials-image {
@@ -58,31 +59,34 @@
 
   .testimonials-slider {
     flex: 1 1 50%;
-    display: flex; align-items: center; justify-content: center;
+    display: flex; 
+    flex-direction: column; /* To stack items and dots */
+    align-items: center; 
+    justify-content: center;
     padding: 1rem;
     min-height: 350px; /* fallback for small images */
   }
 
   .testimonial-item {
     position: relative;
-    background: #fff;
-    border: 1px solid #e0e0e0;
+    background: #e9ede0; /* Changed background color */
+    border: 1px solid #d0d5c0; /* Adjusted border for new background */
     border-radius: 0.75rem;
     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     padding: 2rem;
     max-width: 600px; width: 100%;
     min-height: 200px; /* ensure enough height */
-    height: 60%; /* fill slider height */
+    /* height: 60%; Removed for responsive height */
     display: none; opacity: 0;
-    transition: opacity 0.6s ease-in-out;
+    transition: opacity 0.6s ease-in-out; /* Existing fade animation */
+    margin-bottom: 1rem; /* Space before dots if they are outside */
   }
   .testimonial-item.active { display: block; opacity: 1; }
 
-  .logo-circle { text-align: center; margin-bottom: 1rem; }
-  .logo-circle img { width: 50px; height: 50px; border-radius:50%; object-fit:cover; display:inline-block; border:none; }
+  /* .logo-circle CSS removed as element is removed */
 
-  .quote { font-size: 1.25rem; line-height:1.6; color:#333; margin-bottom:1rem; }
-  .author { font-weight:600; font-size:1.125rem; color:#111; text-align:right; margin-top:1rem; }
+  .quote { font-size: 1.4rem; line-height:1.6; color:#333; margin-bottom:1rem; } /* Font size increased */
+  .author { font-weight:600; font-size:1.25rem; color:#111; text-align:right; margin-top:1rem; } /* Font size increased */
 
   .photo-circle {
     position:absolute; bottom:1rem; left:1rem;
@@ -91,20 +95,71 @@
   }
   .photo-circle img { width:100%; height:100%; object-fit:cover; }
 
+  .testimonial-dots {
+    text-align: center;
+    margin-top: 1rem; /* Space above dots */
+  }
+  .dot {
+    height: 10px;
+    width: 10px;
+    margin: 0 5px;
+    background-color: #bbb;
+    border-radius: 50%;
+    display: inline-block;
+    transition: background-color 0.3s ease;
+    cursor: default; /* Not clickable for now */
+  }
+  .dot.active {
+    background-color: #525c30; /* Active dot color */
+  }
+
   @media screen and (max-width:768px) {
     .testimonials-with-image { flex-direction:column; }
     .testimonials-image, .testimonials-slider { flex:0 0 100%; width:100%; }
     .testimonials-slider { margin-top:-8rem; padding-top:3rem; min-height:auto; }
-    .testimonial-item { margin:0 auto; height:60%; min-height:200px; }
+    .testimonial-item { margin-left:auto; margin-right:auto; /* height:60%; Removed */ }
   }
 </style>
 
 <script>
-  (function(){document.addEventListener('DOMContentLoaded',function(){
-    var items=document.querySelectorAll('#{{ section.id }} .testimonial-item');
-    if(items.length<2) return; var idx=0;
-    setInterval(function(){items[idx].classList.remove('active'); idx=(idx+1)%items.length; items[idx].classList.add('active');},5000);
-  });})();
+  (function(){
+    document.addEventListener('DOMContentLoaded',function(){
+      var sectionId = '{{ section.id }}';
+      var items = document.querySelectorAll('#' + sectionId + ' .testimonial-item');
+      var dotsContainer = document.querySelector('#' + sectionId + ' .testimonial-dots');
+      var dots = [];
+
+      if (dotsContainer) {
+        dots = dotsContainer.querySelectorAll('.dot');
+      }
+
+      if(items.length < 2) {
+        if (dotsContainer) {
+          dotsContainer.style.display = 'none';
+        }
+        return;
+      }
+      
+      var idx = 0;
+      function showTestimonial(index) {
+        items.forEach(item => item.classList.remove('active'));
+        dots.forEach(dot => dot.classList.remove('active'));
+        
+        items[index].classList.add('active');
+        if (dots[index]) {
+          dots[index].classList.add('active');
+        }
+      }
+
+      // Initial display
+      showTestimonial(idx);
+
+      setInterval(function(){
+        idx = (idx + 1) % items.length;
+        showTestimonial(idx);
+      }, 5000);
+    });
+  })();
 </script>
 
 {% schema %}
