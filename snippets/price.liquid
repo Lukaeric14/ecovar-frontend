@@ -80,7 +80,7 @@
         </span>
       {%- else -%}
         <span class="visually-hidden visually-hidden--inline">{{ 'products.product.price.regular_price' | t }}</span>
-        <div class="custom-price-wrapper" style="visibility: hidden;" id={{ product.id }}>
+        <div class="custom-price-wrapper" id={{ product.id }}>
         <span class="price-item price-item--regular ">
           {{ money_price }}
         </span>
@@ -89,14 +89,16 @@
       {%- endif -%}
     </div>
     
-    {% if customer %}
+  {% if customer and customer.metafields.approval.status == 'approved' %}
     <script>
       (function waitForCustomPrices(retries = 200) {
+    
         const productNsId = "{{ product.metafields.netsuite.ns_id }}";
         const productId = "{{ product.id }}"
 
         console.log({productId})
         const wrapper = document.getElementById(productId)
+        wrapper.style.visibility = 'hidden'
         const priceEl = wrapper?.querySelector('.price-item--regular');
 
         console.log({priceEl})
@@ -107,16 +109,13 @@
           const match = window.CUSTOMER_CUSTOM_PRICES.find(p => p.item === productNsId);
     
           if (match) {
-            console.log('MATCH')
             priceEl.textContent = `${parseFloat(match.price).toFixed(2)} AED`;
           }
 
-         console.log('We here', wrapper)
           wrapper.style.visibility = 'visible';
         } else if (retries > 0) {
           setTimeout(() => waitForCustomPrices(retries - 1), 10);
         } else {
-         console.log('We here oh')
           wrapper.style.visibility = 'visible'; // show fallback price
         }
       })();
@@ -166,6 +165,7 @@
   {%- endif -%}
   {% else %}
   <div class="price__container">
+{% unless customer %}
     <div class="price__regular">
       <div class="quote-form-container">
         <input type="hidden" name="id" class="variant-id" value="{% if product.selected_or_first_available_variant %}{{ product.selected_or_first_available_variant.id }}{% elsif target %}{{ target.id }}{% else %}{{ product.variants.first.id }}{% endif %}">
@@ -179,6 +179,7 @@
         </button>
       </div>
     </div>
+    {% endunless %}
 
   <script>
     // Create toast element if it doesn't exist

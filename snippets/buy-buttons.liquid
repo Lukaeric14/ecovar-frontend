@@ -65,7 +65,7 @@
           {%- render 'gift-card-recipient-form', product: product, form: form, section: section -%}
         {%- endif -%}
 
-        {% if customer %}
+       {% if customer and customer.metafields.approval.status == 'approved' %}
         <div class="product-form__buttons">
           {%- liquid
             assign check_against_inventory = true
@@ -94,9 +94,6 @@
             </span>
             {%- render 'loading-spinner' -%}
           </button>
-          {%- if show_dynamic_checkout -%}
-            {{ form | payment_button }}
-          {%- endif -%}
         </div>
         {% endif %}
       {%- endform -%}

@@ -85,6 +85,7 @@
     padding: 20px;
     background-color: #f9f9f9;
   }
+
   {% unless customer %}
     #quote-request {
       background: #000 !important;
@@ -179,8 +180,8 @@
                 {% if customer %}
                 <div id="loyalty-checkout-success-message" class="cart-checkout-success-message" style="color: green; text-align: center; margin-bottom: 10px; font-weight: bold; display: none;"></div>
                   <div class="totals">
-                  <h2 class="totals__total">{{ 'sections.cart.estimated_total' | t }}</h2>
-                  <p class="totals__total-value">{{ cart.total_price | money_with_currency }}</p>
+                  <h2 style="display: none;" class="totals__total">{{ 'sections.cart.estimated_total' | t }}</h2>
+                  <p style="display: none;" class="totals__total-value">{{ cart.total_price | money_with_currency }}</p>
                 </div>
                 {% endif %}
 
@@ -199,7 +200,7 @@
                 {% endif %}
               </div>
             {%- else -%}
- <div class="cart__ctas" {{ block.shopify_attributes }}>
+          <div class="cart__ctas" {{ block.shopify_attributes }}>
                 {% if customer %}
                 <!-- For logged-in customers: Custom checkout button that calls draft order API -->
                 <button
@@ -220,18 +221,19 @@
                 </button>
                 {% else %}
                 <!-- For non-logged in users: Quote request button -->
-                <a
-                  href="/pages/contact"
+                <button
+                  type="button"
                   id="quote-request"
                   class="cart__checkout-button button"
+                  style="background-color: #8F9A5B;"
                   {% if cart == empty %}
                     disabled
                     aria-disabled="true"
                   {% endif %}
-                  onclick="localStorage.setItem('quoteItems', JSON.stringify({{ cart.items | json }}));"
+                  onclick="openQuoteForm()"
                 >
                   Request Quote
-                </a>
+                </button>
                 {% endif %}
               </div>
               {%- if additional_checkout_buttons -%}
@@ -251,6 +253,21 @@
 
 {% unless customer %}
   {% render 'quote-form' %}
+
+  <script>
+    function openQuoteForm() {
+      // First show the quote popup
+      document.getElementById('quote-popup').style.display = 'block';
+      
+      // Then store cart items in localStorage - safely using Shopify's pre-serialized JSON
+      try {
+        const cartItems = {{ cart.items | json }};
+        localStorage.setItem('quoteItems', JSON.stringify(cartItems));
+      } catch(e) {
+        console.error('Error storing cart items:', e);
+      }
+    }
+  </script>
 {% endunless %}
 
 <script>
@@ -313,9 +330,9 @@
           currencyCode: "{{ cart.currency.iso_code }}"
         };
       
-        console.log('Sending draft order to: http://671f-94-207-19-31.ngrok-free.app/api/orders/draft');
+        console.log('Sending draft order to:https://ecovar-middleware-production.up.railway.app/api/orders/draft');
         
-        fetch('http://671f-94-207-19-31.ngrok-free.app/api/orders/draft', {
+        fetch('https://ecovar-middleware-production.up.railway.app/api/orders/draft', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

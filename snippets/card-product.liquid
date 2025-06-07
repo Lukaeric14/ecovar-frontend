@@ -356,18 +356,30 @@
           {% render 'price', product: card_product %}
         </div>
         
-        <!-- Native Quantity Selector and Add to Quote Button -->
+        <!-- Native Quantity Selector and Add to Quote/Cart Button -->
         <div class="product-card__qty-row">
           {% assign variant_id = card_product.first_available_variant.id | default: card_product.variants.first.id %}
           <input type="number" min="1" value="1" id="quantity-{{ variant_id }}" aria-label="Quantity" class="native-qty-input">
-          <button
-            type="button"
-            class="product-card__button simple-quote-btn"
-            data-product-id="{{ variant_id }}"
-            data-product-url="{{ card_product.url }}"
-          >
-            {{ 'products.product.add_to_quote' | t: default: 'Add To Quote' | upcase }}
-          </button>
+          {% if customer and customer.metafields.approval.status == 'approved' %}
+            <button
+              type="button"
+              class="product-card__button simple-quote-btn"
+              data-product-id="{{ variant_id }}"
+              data-action="add-to-cart"
+            >
+              {{ 'products.product.add_to_cart' | t: default: 'Add To Cart' | upcase }}
+            </button>
+          {% else %}
+            <button
+              type="button"
+              class="product-card__button simple-quote-btn"
+              data-product-id="{{ variant_id }}"
+              data-product-url="{{ card_product.url }}"
+              data-action="add-to-quote"
+            >
+              {{ 'products.product.add_to_quote' | t: default: 'Add To Quote' | upcase }}
+            </button>
+          {% endif %}
         </div>
       </div>
     </div>

@@ -34,22 +34,22 @@
     {%- if settings.animations_reveal_on_scroll -%}
       <script src="{{ 'animations.js' | asset_url }}" defer="defer"></script>
     {%- endif -%}
+    
+{% if customer and customer.metafields.approval.status == 'approved' and customer.metafields.netsuite.ns_id %}
+  <script>
+    window.CUSTOMER_NS_ID = "{{ customer.metafields.netsuite.ns_id | escape }}";
 
-    {% if customer %}
-    <script>
-      window.CUSTOMER_NS_ID = "{{ customer.metafields.netsuite.ns_id | escape }}";
-  
-      fetch("https://ecovar-middleware-production.up.railway.app/api/customer/netsuite/customer/{{ customer.metafields.netsuite.ns_id }}")
-        .then(res => res.json())
-        .then(data => {
-          console.log(data)
-          window.CUSTOMER_CUSTOM_PRICES = data.itempricing || [];
-        })
-        .catch(err => {
-          console.warn("Failed to fetch custom prices", err);
-        });
-    </script>
-    {% endif %}
+    fetch("https://ecovar-middleware-production.up.railway.app/api/customer/netsuite/customer/{{ customer.metafields.netsuite.ns_id }}")
+      .then(res => res.json())
+      .then(data => {
+        console.log(data)
+        window.CUSTOMER_CUSTOM_PRICES = data.itempricing || [];
+      })
+      .catch(err => {
+        console.warn("Failed to fetch custom prices", err);
+      });
+  </script>
+{% endif %}
 
     {{ content_for_header }}
 
