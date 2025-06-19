@@ -18,10 +18,72 @@
       padding-bottom: {{ section.settings.padding_bottom }}px;
     }
   }
+  
+  #related-{{ section.id }} .card {
+    height: 100%;
+    width: 100%;
+  }
+  
+  #related-{{ section.id }} .grid__item {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+  
+  /* Mobile: Stack cards vertically */
+  @media screen and (max-width: 749px) {
+    #related-{{ section.id }} .grid__item {
+      max-width: 100% !important;
+      flex-basis: 100% !important;
+      width: 100% !important;
+      margin-bottom: 1rem;
+      padding-left: 0;
+      padding-right: 0;
+    }
+    
+    #related-{{ section.id }} .grid {
+      flex-direction: column !important;
+      gap: 0;
+      display: flex !important;
+    }
+    
+    #related-{{ section.id }} .card {
+      width: 100% !important;
+      max-width: 100% !important;
+      margin: 0 auto;
+    }
+    
+    /* Override grid system classes */
+    #related-{{ section.id }} .product-grid {
+      grid-template-columns: 1fr !important;
+      display: grid !important;
+    }
+    
+    #related-{{ section.id }} .grid--1-col-tablet-down,
+    #related-{{ section.id }} .grid--2-col-tablet-down {
+      grid-template-columns: 1fr !important;
+    }
+  }
+  
+  /* Tablet and up */
+  @media screen and (min-width: 750px) and (max-width: 989px) {
+    #related-{{ section.id }} .grid__item {
+      max-width: 50%;
+      flex-basis: 50%;
+    }
+  }
+  
+  /* Desktop */
+  @media screen and (min-width: 990px) {
+    #related-{{ section.id }} .grid__item {
+      max-width: 33.33%;
+      flex-basis: 33.33%;
+    }
+  }
 {%- endstyle -%}
 
 <div class="color-{{ section.settings.color_scheme }} gradient">
   <product-recommendations
+    id="related-{{ section.id }}"
     class="related-products page-width section-{{ section.id }}-padding isolate{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}"
     {%- liquid
       assign recommendation_product_id = product.id
@@ -36,10 +98,10 @@
         {{ section.settings.heading }}
       </h2>
       <ul
-        class="grid product-grid grid--{{ section.settings.columns_desktop }}-col-desktop grid--{{ section.settings.columns_mobile }}-col-tablet-down"
+        class="grid product-grid grid--{{ section.settings.columns_desktop }}-col-desktop grid--{{ section.settings.columns_mobile }}-col-tablet-down" style="width: 100%; justify-content: center; column-gap: 0;"
         role="list"
       >
-        {% for recommendation in recommendations.products %}
+        {% for recommendation in recommendations.products limit: 3 %}
           <li class="grid__item">
             {% render 'card-product',
               card_product: recommendation,
@@ -101,7 +163,7 @@
       "min": 2,
       "max": 10,
       "step": 1,
-      "default": 4,
+      "default": 3,
       "label": "t:sections.related-products.settings.products_to_show.label"
     },
     {
@@ -110,7 +172,7 @@
       "min": 1,
       "max": 6,
       "step": 1,
-      "default": 4,
+      "default": 3,
       "label": "t:sections.related-products.settings.columns_desktop.label"
     },
     {

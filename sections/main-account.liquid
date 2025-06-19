@@ -1,5 +1,46 @@
 <!-- /templates/customers/account.liquid -->
 <link rel="stylesheet" href="{{ 'base.css' | asset_url }}" />
+<style>
+  /* Main wrapper for all content - initially hidden */
+  html:not(.page-loaded) .customer-account-page {
+    opacity: 0;
+  }
+  
+  html.page-loaded .customer-account-page {
+    opacity: 1;
+    transition: opacity 0.2s ease;
+  }
+  
+  /* Pre-load fix to prevent large blue icons */
+  svg {
+    max-width: 24px;
+    max-height: 24px;
+    fill: none;
+  }
+  
+  svg circle {
+    fill: none;
+  }
+  
+  .nav-icon {
+    width: 16px;
+    height: 16px;
+  }
+  
+  /* Fix for duplicate navigation */
+  html:not(.page-loaded) .mobile-bottom-nav,
+  html:not(.page-loaded) .mobile-nav-dropdown,
+  html:not(.page-loaded) #profile ~ * {
+    display: none !important;
+  }
+  
+  /* Fix for blue icon flash during page load */
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+</style>
+
 <div class="customer-account-page container">
   <div class="row">
     <!-- Desktop Sidebar Navigation -->
@@ -65,21 +106,14 @@
         </svg>
         <span>Profile</span>
       </a>
-      <div class="mobile-nav-dropdown open">
-        <a href="#" class="mobile-nav-item" data-tab="order-history">
-          <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-            <line x1="3" y1="6" x2="21" y2="6"></line>
-            <path d="M16 10a4 4 0 0 1-8 0"></path>
-          </svg>
-          <span>Orders</span>
-        </a>
-        <div class="mobile-submenu">
-          <a href="#" class="mobile-nav-subitem" data-tab="order-history">Order History</a>
-          <a href="#" class="mobile-nav-subitem" data-tab="quotations">Quotations</a>
-          <a href="#" class="mobile-nav-subitem" data-tab="reorder">Reorder items</a>
-        </div>
-      </div>
+      <a href="#" class="mobile-nav-item" data-tab="orders">
+        <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <path d="M16 10a4 4 0 0 1-8 0"></path>
+        </svg>
+        <span>Orders</span>
+      </a>
       <a href="#" class="mobile-nav-item" data-tab="loyalty">
         <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
@@ -97,6 +131,102 @@
 
     <!-- Main Content -->
     <div class="col-md-9 account-content">
+<script>
+// Tab logic for desktop (sidebar) and mobile (bottom nav)
+function activateTab(tab) {
+  var tabName = tab.getAttribute('data-tab');
+  var allTabs = document.querySelectorAll('.account-tab, .mobile-nav-item');
+  var allContents = document.querySelectorAll('.tab-content');
+  allTabs.forEach(function(t) { t.classList.remove('active'); });
+  tab.classList.add('active');
+  allContents.forEach(function(content) {
+    // Only show desktop tab-content blocks on desktop
+    if(window.innerWidth >= 768) {
+      if(content.id === tabName) {
+        content.classList.add('active');
+        content.style.display = '';
+      } else {
+        content.classList.remove('active');
+        content.style.display = 'none';
+      }
+    } else {
+      // On mobile, only show the main tab-content for the active tab
+      if(content.id === tabName) {
+        content.classList.add('active');
+        content.style.display = '';
+      } else {
+        content.classList.remove('active');
+        content.style.display = 'none';
+      }
+    }
+  });
+  // Special handling for mobile Orders tab
+  if(window.innerWidth < 768 && tabName === 'orders') {
+    var selector = document.querySelector('.mobile-orders-selector');
+    if(selector) selector.style.display = 'flex';
+    // Show Order History subtab by default
+    var defaultBtn = document.querySelector('.orders-toggle-btn[data-tab="order-history"]');
+    if(defaultBtn) activateOrderSubtab(defaultBtn);
+  } else if(window.innerWidth < 768 && tabName !== 'orders') {
+    var selector = document.querySelector('.mobile-orders-selector');
+    if(selector) selector.style.display = 'none';
+    // Hide all mobile orders subtab content
+    document.querySelectorAll('.orders-subtab-content').forEach(function(el){ el.style.display = 'none'; el.classList.remove('active'); });
+  }
+}
+
+function activateOrderSubtab(btn) {
+  var subtab = btn.getAttribute('data-tab');
+  document.querySelectorAll('.orders-toggle-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  // Only toggle mobile subtab content
+  document.querySelectorAll('#order-history-mobile, #quotations-mobile, #reorder-mobile').forEach(function(content) {
+    if(content.id === subtab + '-mobile') {
+      content.classList.add('active');
+      content.style.display = '';
+    } else {
+      content.classList.remove('active');
+      content.style.display = 'none';
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Main tab logic
+  var tabLinks = document.querySelectorAll('.account-tab, .mobile-nav-item');
+  var tabContents = document.querySelectorAll('.tab-content');
+  // If no tab is active, activate profile by default
+  var anyActive = false;
+  tabLinks.forEach(function(link) { if(link.classList.contains('active')) anyActive = true; });
+  if (!anyActive) {
+    var profileTab = document.querySelector('.account-tab[data-tab="profile"], .mobile-nav-item[data-tab="profile"]');
+    if(profileTab) activateTab(profileTab);
+  } else {
+    // Ensure only one tab/content is active
+    var foundActive = false;
+    tabLinks.forEach(function(link) {
+      if(link.classList.contains('active') && !foundActive) {
+        activateTab(link);
+        foundActive = true;
+      }
+    });
+  }
+  // Tab click handlers
+  tabLinks.forEach(function(link) {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      activateTab(link);
+    });
+  });
+  // Orders subtab logic (mobile selector)
+  var orderBtns = document.querySelectorAll('.orders-toggle-btn');
+  orderBtns.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      activateOrderSubtab(btn);
+    });
+  });
+});
+</script>
       <!-- Profile Tab Content -->
       <div id="profile" class="tab-content active">
         {% render 'account-profile' %}
@@ -104,8 +234,63 @@
 
       <!-- Orders Tab Content - Redirects to Order History -->
       <div id="orders" class="tab-content">
-        <!-- This is a redirect tab, content is in order-history tab -->
-      </div>
+  <!-- Mobile-only Orders sub-navigation -->
+  <div class="mobile-orders-selector d-md-none" style="margin: 12px 0 20px 0;">
+    <button type="button" class="orders-toggle-btn active" data-tab="order-history">Order History</button>
+    <button type="button" class="orders-toggle-btn" data-tab="quotations">Quotations</button>
+    <button type="button" class="orders-toggle-btn" data-tab="reorder">Reorder Items</button>
+  </div>
+  <div id="order-history-mobile" class="orders-subtab-content d-md-none active">
+    {% render 'account-order-history' %}
+  </div>
+  <div id="quotations-mobile" class="orders-subtab-content d-md-none" style="display:none;">
+    {% render 'account-quotations' %}
+  </div>
+  <div id="reorder-mobile" class="orders-subtab-content d-md-none" style="display:none;">
+    {% render 'account-reorder-items' %}
+  </div>
+  <style>
+    .mobile-orders-selector {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .orders-toggle-btn {
+      flex: 1;
+      padding: 10px 0;
+      border: 1px solid #b0b88f;
+      background: #fff;
+      color: #b0b88f;
+      font-weight: 600;
+      border-radius: 6px;
+      font-size: 15px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .orders-toggle-btn.active, .orders-toggle-btn:active {
+      background: #b0b88f;
+      color: #fff;
+    }
+    @media (min-width: 768px) {
+      .mobile-orders-selector, .orders-subtab-content { display: none !important; }
+    }
+    @media (max-width: 767px) {
+      .orders-desktop-content { display: none !important; }
+      .orders-subtab-content { display: none; }
+      .orders-subtab-content.active { display: block !important; }
+    }
+  </style>
+</div>
+<!-- Desktop: show each Orders subcategory as its own .tab-content, as before -->
+<div id="order-history" class="tab-content">
+  {% render 'account-order-history' %}
+</div>
+<div id="quotations" class="tab-content">
+  {% render 'account-quotations' %}
+</div>
+<div id="reorder" class="tab-content">
+  {% render 'account-reorder-items' %}
+</div>
+
       
       <!-- Order History Tab Content -->
 
@@ -217,6 +402,33 @@
    </script>
    
 <script>
+// Fix for blue icon flash - preload fix applied before DOM is ready
+(function() {
+  // Immediately fix SVG icons to prevent blue flash
+  var style = document.createElement('style');
+  style.textContent = '\
+    .nav-icon { \
+      width: 16px !important; \
+      height: 16px !important; \
+      fill: none !important; \
+    } \
+    svg circle { \
+      fill: none !important; \
+    } \
+  ';
+  document.head.appendChild(style);
+  
+  // Add page-loaded class after DOM content and images are fully loaded
+  window.addEventListener('load', function() {
+    document.documentElement.classList.add('page-loaded');
+  });
+  
+  // Fallback in case load event doesn't fire
+  setTimeout(function() {
+    document.documentElement.classList.add('page-loaded');
+  }, 500);
+})();
+
 document.addEventListener('DOMContentLoaded', function() {
   const tabs = document.querySelectorAll('.account-tab');
   const mobileNavItems = document.querySelectorAll('.mobile-nav-item');
@@ -228,16 +440,23 @@ document.addEventListener('DOMContentLoaded', function() {
   // Initialize the page with Order History tab active unless another tab is specified
   const activeTabOnLoad = window.location.hash ? window.location.hash.substring(1) : 'order-history';
   
-  // Set the default active tab after a short delay to ensure DOM is fully loaded
-  setTimeout(function() {
-    if (activeTabOnLoad === 'order-history') {
-      // Make sure Order History tab is active by default
+  // Determine which tab to activate based on URL hash or default
+  const urlHash = window.location.hash.substring(1);
+  // If there's a hash in the URL, use that as the active tab
+  if (urlHash && document.querySelector('#' + urlHash)) {
+    setTimeout(function() {
+      activateTab(urlHash);
+    }, 10);
+  } 
+  // Otherwise use the default tab behavior from before
+  else if (activeTabOnLoad === 'order-history') {
+    setTimeout(function() {
       const orderHistoryTab = document.querySelector('[data-tab="order-history"]');
       if (orderHistoryTab) {
         activateTab('order-history');
       }
-    }
-  }, 100);
+    }, 10);
+  }
   
   // Function to activate a tab
   function activateTab(tabId) {
@@ -574,12 +793,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
 /* Desktop Navigation Icons */
 .nav-icon {
-  width: 16px;
-  height: 16px;
+  width: 16px !important;
+  height: 16px !important;
   margin-right: 8px;
   vertical-align: middle;
   stroke-width: 1.5;
   display: inline-block;
+  fill: none !important; /* Prevent blue fills */
+  max-width: 16px !important; /* Prevent oversized icons */
+  min-width: 16px !important;
+  overflow: visible;
 }
 
 /* Adjust content padding for mobile */
@@ -691,6 +914,39 @@ document.addEventListener('DOMContentLoaded', function() {
   display: none;
   animation: fadeIn 0.3s ease;
   min-height: 400px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Prevent any large elements during load */
+svg {
+  max-width: 24px !important;
+  max-height: 24px !important;
+  fill: none !important; /* Prevent blue fills on any SVGs */
+  transition: none !important; /* Prevent transition artifacts during page load */
+  display: inline-block;
+}
+
+svg circle {
+  fill: none !important;
+  stroke-width: 1.5;
+  stroke: currentColor;
+}
+
+body .account-tab svg,
+body .mobile-nav-item svg {
+  fill: none !important;
+  width: 16px !important;
+  height: 16px !important;
+  overflow: visible;
+}
+
+/* Show profile tab immediately to prevent flash of unstyled content */
+#profile.tab-content {
+  opacity: 1;
 }
 
 .tab-content.active {

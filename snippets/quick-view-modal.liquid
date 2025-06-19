@@ -13,11 +13,54 @@
         <div id="quickViewPrice" class="quick-view-modal__price">
           <!-- Price will be populated by JS -->
         </div>
-        <div id="quickViewDescription" class="quick-view-modal__description">
-          <!-- Description will be populated by JS -->
-        </div>
+        <div id="quickViewDescriptionWrapper" class="quick-view-modal__description-wrapper">
+  <div id="quickViewDescription" class="quick-view-modal__description">
+  <!-- Description will be populated by JS -->
+</div>
+<button type="button" id="quickViewShowMoreBtn" class="quick-view-modal__show-more" style="display:none;">See more</button>
+<div id="quickViewDocuments" class="quick-view-modal__documents" style="margin-top: 10px; display:none;">
+  <!-- Documents will be injected here by JS if user is logged in and documents exist -->
+</div>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var desc = document.getElementById('quickViewDescription');
+    var btn = document.getElementById('quickViewShowMoreBtn');
+    var charLimit = 180;
+    function setCollapsed() {
+      desc.classList.remove('expanded');
+      var full = desc.dataset.full || desc.textContent.trim();
+      desc.textContent = full.slice(0, charLimit) + '...';
+      btn.textContent = 'See more';
+    }
+    function setExpanded() {
+      desc.classList.add('expanded');
+      desc.textContent = desc.dataset.full;
+      btn.textContent = 'See less';
+    }
+    function updateShowMore() {
+      var full = desc.textContent.trim();
+      if (full.length > charLimit) {
+        desc.dataset.full = full;
+        setCollapsed();
+        btn.style.display = 'block';
+        btn.onclick = function() {
+          if (desc.classList.contains('expanded')) {
+            setCollapsed();
+          } else {
+            setExpanded();
+          }
+        };
+      } else {
+        btn.style.display = 'none';
+      }
+    }
+    updateShowMore();
+    window.initQuickViewShowMore = updateShowMore;
+  });
+</script>
+</div>
         <a id="quickViewDetailsLink" href="#" class="quick-view-modal__details-link button button--secondary">
-          {{ 'products.product.view_full_details' | t: default: 'View full details' }}
+          Go to product
         </a>
       </div>
     </div>
@@ -143,12 +186,36 @@
     font-weight: bold;
   }
 
-  .quick-view-modal__description {
+  .quick-view-modal__description-wrapper {
+    position: relative;
     margin-bottom: 20px;
+  }
+  .quick-view-modal__description {
     font-size: 14px;
     line-height: 1.6;
-    max-height: 150px; /* Limit description height */
-    overflow-y: auto;
+    max-height: 150px;
+    overflow: hidden;
+    transition: max-height 0.3s cubic-bezier(0.4,0,0.2,1);
+  }
+  .quick-view-modal__description.expanded {
+    max-height: 2000px;
+    overflow: visible;
+  }
+  .quick-view-modal__show-more {
+    display: block;
+    margin: 0 auto 0.5em auto;
+    background: none;
+    border: none;
+    color: #525c30;
+    font-weight: 500;
+    font-size: 13px;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 0.3em 0.8em;
+    transition: color 0.2s;
+  }
+  .quick-view-modal__show-more:hover {
+    color: #222;
   }
 
   .quick-view-modal__details-link {

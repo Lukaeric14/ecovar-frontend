@@ -1,0 +1,12 @@
+{%- comment -%}
+  Calculates points earned for the current cart.
+  Logic: 1 point per 1 AED spent (cart.total_price is in cents, so divide by 100).
+  Outputs: points_earned (number)
+{%- endcomment -%}
+
+{%- assign points_earned = cart.total_price | divided_by: 100 | floor -%}
+{%- assign points_earned = points_earned | default: 0 -%}
+
+{%- comment -%}
+  This snippet only sets the points_earned variable for use after including it.
+{%- endcomment -%}

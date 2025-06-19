@@ -287,6 +287,63 @@
   .categories-list .sub-categories-list li a.active {
     font-weight: 600;
   }
+
+  /* Adjust page width padding for slightly wider layout */
+  .section-{{ section.id }}-padding .page-width {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+  
+  /* Loading indicator styles */
+  .loading-indicator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 0;
+    width: 100%;
+    display: none; /* Hidden by default */
+  }
+  
+  .loading-indicator.visible {
+    display: flex;
+  }
+  
+  .loading-spinner {
+    width: 24px;
+    height: 24px;
+    border: 2px solid #8F9A5B;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 0.8s linear infinite;
+    margin-right: 10px;
+  }
+  
+  .loading-text {
+    color: #666;
+    font-size: 14px;
+    position: relative;
+    display: inline-block;
+  }
+  
+  .loading-text:after {
+    content: '';
+    position: absolute;
+    left: 0;
+    width: 3em;
+    overflow: hidden;
+    animation: dots 2s steps(3, end) infinite;
+  }
+  
+  @keyframes dots {
+    0% { width: 0; content: ''; }
+    33% { width: 0.5em; content: '.'; }
+    66% { width: 1em; content: '..'; }
+    100% { width: 1.5em; content: '...'; }
+  }
+  
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
 {%- endstyle -%}
 
 <div class="section-{{ section.id }}-padding gradient color-{{ section.settings.color_scheme }}">
@@ -299,51 +356,68 @@
       </button>
       <!-- Categories Sidebar as Drawer -->
       <div class="categories-sidebar categories-drawer">
-        <div class="categories-drawer-header">
-          <span>CATEGORIES</span>
-          <button class="categories-drawer-close" aria-label="Close categories" type="button" onclick="document.body.classList.remove('show-categories-drawer')">&times;</button>
-        </div>
         <ul class="categories-list">
             <li>
-              <a href="/collections/all" {% if collection.handle == 'all' %}class="active"{% endif %}>All Products</a>
+              <a href="/collections/products" {% if collection.handle == 'products' %}class="active"{% endif %}>All Products</a>
             </li>
             <li>
-              <span class="category-heading">Insecticides</span>
+              <a href="/collections/ec-1" {% if collection.handle == 'ec-1' %}class="active"{% endif %}>EC</a>
+            </li>
+            <li>
+              <a href="/collections/mc-1" {% if collection.handle == 'mc-1' %}class="active"{% endif %}>MC</a>
+            </li>
+            <li>
+              <a href="/collections/sc-1" {% if collection.handle == 'sc-1' %}class="active"{% endif %}>SC</a>
+            </li>
+            <li>
+              <a href="/collections/ew-1" {% if collection.handle == 'ew-1' %}class="active"{% endif %}>EW</a>
+            </li>
+            <li>
+              <a href="/collections/green-products-1" {% if collection.handle == 'green-products-1' %}class="active"{% endif %}>Green Products</a>
+            </li>
+            <li>
+              <a href="/collections/gels-baits" {% if collection.handle == 'gels-baits' %}class="active"{% endif %}>Gels & Baits</a>
+            </li>
+            <li>
+              <a href="/collections/glues-traps" {% if collection.handle == 'glues-traps' %}class="active"{% endif %}>Glues & Traps</a>
+            </li>
+            <li>
+              <a href="/collections/equipments-1" {% if collection.handle == 'equipments-1' %}class="active"{% endif %}>Equipments</a>
+            </li>
+            <li>
+              <a href="/collections/bait-stations-1" {% if collection.handle == 'bait-stations-1' %}class="active"{% endif %}>Bait Stations</a>
+            </li>
+            <li>
+              <a href="/collections/ilt-units-consumables-1" {% if collection.handle == 'ilt-units-consumables-1' %}class="active"{% endif %}>ILT Units & Consumables</a>
+            </li>
+            <li>
+              <a href="/collections/spare-parts-1" {% if collection.handle == 'spare-parts-1' %}class="active"{% endif %}>Spare Parts</a>
+            </li>
+            <li>
+              <a href="/collections/stray-animals-1" {% if collection.handle == 'stray-animals-1' %}class="active"{% endif %}>Stray Animals</a>
+            </li>
+            <li>
+              <span class="category-heading">Target Pest</span>
               <ul class="sub-categories-list">
-                <li><a href="/collections/ec" {% if collection.handle == 'ec' %}class="active"{% endif %}>EC</a></li>
-                <li><a href="/collections/mc" {% if collection.handle == 'mc' %}class="active"{% endif %}>MC</a></li>
-                <li><a href="/collections/sc" {% if collection.handle == 'sc' %}class="active"{% endif %}>SC</a></li>
-                <li><a href="/collections/ew" {% if collection.handle == 'ew' %}class="active"{% endif %}>EW</a></li>
-                <li><a href="/collections/green-products" {% if collection.handle == 'green-products' %}class="active"{% endif %}>Green Products</a></li>
-                <li><a href="/collections/gel-baits" {% if collection.handle == 'gel-baits' %}class="active"{% endif %}>Gel & Baits</a></li>
-                <li><a href="/collections/cockroaches" {% if collection.handle == 'cockroaches' %}class="active"{% endif %}>Cockroaches</a></li>
-                <li><a href="/collections/rodents" {% if collection.handle == 'rodents' %}class="active"{% endif %}>Rodents</a></li>
-                <li><a href="/collections/bedbugs" {% if collection.handle == 'bedbugs' %}class="active"{% endif %}>Bedbugs</a></li>
-                <li><a href="/collections/ants" {% if collection.handle == 'ants' %}class="active"{% endif %}>Ants</a></li>
-                <li><a href="/collections/flies" {% if collection.handle == 'flies' %}class="active"{% endif %}>Flies</a></li>
-                <li><a href="/collections/mosquitoes" {% if collection.handle == 'mosquitoes' %}class="active"{% endif %}>Mosquitoes</a></li>
-                <li><a href="/collections/termite" {% if collection.handle == 'termite' %}class="active"{% endif %}>Termite</a></li>
-                <li><a href="/collections/snakes" {% if collection.handle == 'snakes' %}class="active"{% endif %}>Snakes</a></li>
-                <li><a href="/collections/birds" {% if collection.handle == 'birds' %}class="active"{% endif %}>Birds</a></li>
-                <li><a href="/collections/stored-product-pest" {% if collection.handle == 'stored-product-pest' %}class="active"{% endif %}>Stored Product Pest</a></li>
-                <li><a href="/collections/slugs-snails" {% if collection.handle == 'slugs-snails' %}class="active"{% endif %}>Slugs & Snails</a></li>
-                <li><a href="/collections/wasp-hornets" {% if collection.handle == 'wasp-hornets' %}class="active"{% endif %}>Wasp & Hornets</a></li>
+                <li><a href="/collections/cockroaches-1" {% if collection.handle == 'cockroaches-1' %}class="active"{% endif %}>Cockroaches</a></li>
+                <li><a href="/collections/rodents-1" {% if collection.handle == 'rodents-1' %}class="active"{% endif %}>Rodents</a></li>
+                <li><a href="/collections/bed-bugs" {% if collection.handle == 'bed-bugs' %}class="active"{% endif %}>Bed Bugs</a></li>
+                <li><a href="/collections/ants-1" {% if collection.handle == 'ants-1' %}class="active"{% endif %}>Ants</a></li>
+                <li><a href="/collections/flies-1" {% if collection.handle == 'flies-1' %}class="active"{% endif %}>Flies</a></li>
+                <li><a href="/collections/mosquitoes-1" {% if collection.handle == 'mosquitoes-1' %}class="active"{% endif %}>Mosquitoes</a></li>
+                <li><a href="/collections/termites" {% if collection.handle == 'termites' %}class="active"{% endif %}>Termites</a></li>
+                <li><a href="/collections/snakes-lizzards" {% if collection.handle == 'snakes-lizzards' %}class="active"{% endif %}>Snakes/Lizzards</a></li>
+                <li><a href="/collections/bird-control" {% if collection.handle == 'bird-control' %}class="active"{% endif %}>Bird Control</a></li>
+                <li><a href="/collections/stored-product-pest-1" {% if collection.handle == 'stored-product-pest-1' %}class="active"{% endif %}>Stored Product Pest</a></li>
+                <li><a href="/collections/slugs-snails-1" {% if collection.handle == 'slugs-snails-1' %}class="active"{% endif %}>Slugs & Snails</a></li>
+                <li><a href="/collections/wasps" {% if collection.handle == 'wasps' %}class="active"{% endif %}>Wasps & Hornets</a></li>
+                <li><a href="/collections/scorpions-spiders" {% if collection.handle == 'scorpions-spiders' %}class="active"{% endif %}>Scorpions & Spiders</a></li>
+                <li><a href="/collections/ticks-fleas-1" {% if collection.handle == 'ticks-fleas-1' %}class="active"{% endif %}>Ticks & Fleas</a></li>
+                <li><a href="/collections/silverfish-1" {% if collection.handle == 'silverfish-1' %}class="active"{% endif %}>Silverfish</a></li>
               </ul>
             </li>
             <li>
-              <a href="/collections/glue-traps" {% if collection.handle == 'glue-traps' %}class="active"{% endif %}>Glue & Traps</a>
-            </li>
-            <li>
-              <a href="/collections/equipments" {% if collection.handle == 'equipments' %}class="active"{% endif %}>Equipments</a>
-            </li>
-            <li>
-              <a href="/collections/spare-parts" {% if collection.handle == 'spare-parts' %}class="active"{% endif %}>Spare Parts</a>
-            </li>
-            <li>
-              <a href="/collections/ilt-units-consumables" {% if collection.handle == 'ilt-units-consumables' %}class="active"{% endif %}>ILT Units & Consumables</a>
-            </li>
-            <li>
-              <a href="/collections/stray-animals" {% if collection.handle == 'stray-animals' %}class="active"{% endif %}>Stray Animals</a>
+              <a href="/collections/disinfectants-1" {% if collection.handle == 'disinfectants-1' %}class="active"{% endif %}>Disinfectants</a>
             </li>
           </ul>
       </div>
@@ -353,7 +427,10 @@
       
       <!-- Collection Products Container -->
       <div class="collection-container">
-        {% if section.settings.show_collection_banner %}
+        {% if section.settings.show_collection_banner and customer %}
+          {% if section.settings.banner_link != blank %}
+            <a href="{{ section.settings.banner_link }}" class="collection-banner-link" style="display: block; text-decoration: none;">
+          {% endif %}
           <div class="collection-banner" 
                style="min-height: {{ section.settings.banner_height }}px; 
                       {% if section.settings.banner_image != blank %}
@@ -363,7 +440,8 @@
                       {% else %}
                         background-color: {{ section.settings.banner_background_color }};
                       {% endif %}
-                      color: {{ section.settings.banner_text_color }};">
+                      color: {{ section.settings.banner_text_color }};
+                      cursor: {% if section.settings.banner_link != blank %}pointer{% else %}default{% endif %};">
             <div class="collection-banner__content">
               {% if section.settings.banner_heading != blank %}
                 <h2 class="collection-banner__heading" style="color: {{ section.settings.banner_text_color }};">{{ section.settings.banner_heading }}</h2>
@@ -373,64 +451,14 @@
               {% endif %}
             </div>
           </div>
+          {% if section.settings.banner_link != blank %}
+            </a>
+          {% endif %}
         {% endif %}
         {% comment %} Sort is the first tabbable element when filter type is vertical {% endcomment %}
-    {%- if section.settings.enable_sorting and section.settings.filter_type == 'vertical' -%}
-      <facet-filters-form class="facets facets-vertical-sort page-width small-hide">
-        <form class="facets-vertical-form" id="FacetSortForm">
-          <div class="facet-filters sorting caption">
-            <div class="facet-filters__field">
-              <h2 class="facet-filters__label caption-large text-body">
-                <label for="SortBy">{{ 'products.facets.sort_by_label' | t }}</label>
-              </h2>
-              <div class="select">
-                {%- assign sort_by = collection.sort_by | default: collection.default_sort_by -%}
-                <select
-                  name="sort_by"
-                  class="facet-filters__sort select__select caption-large"
-                  id="SortBy"
-                  aria-describedby="a11y-refresh-page-message"
-                >
-                  {%- for option in collection.sort_options -%}
-                    <option
-                      value="{{ option.value | escape }}"
-                      {% if option.value == sort_by %}
-                        selected="selected"
-                      {% endif %}
-                    >
-                      {{ option.name | escape }}
-                    </option>
-                  {%- endfor -%}
-                </select>
-                {% render 'icon-caret' %}
-              </div>
-            </div>
-          </div>
 
 
-        </form>
-      </facet-filters-form>
-    {%- endif -%}
-
-    <div class="{% if section.settings.filter_type == 'vertical' %} facets-vertical page-width{% endif %}">
-      {{ 'component-facets.css' | asset_url | stylesheet_tag }}
-      <script src="{{ 'facets.js' | asset_url }}" defer="defer"></script>
-      {%- if section.settings.enable_filtering or section.settings.enable_sorting -%}
-        <aside
-          aria-labelledby="verticalTitle"
-          class="facets-wrapper{% unless section.settings.enable_filtering %} facets-wrapper--no-filters{% endunless %}{% if section.settings.filter_type != 'vertical' %} page-width{% endif %}"
-          id="main-collection-filters"
-          data-id="{{ section.id }}"
-        >
-          {% render 'facets',
-            results: collection,
-            enable_filtering: section.settings.enable_filtering,
-            enable_sorting: section.settings.enable_sorting,
-            filter_type: section.settings.filter_type,
-            paginate: paginate
-          %}
-        </aside>
-      {%- endif -%}
+    <div>
       
       <!-- Collection Title -->
       <div class="collection-title-wrapper" style="margin: 20px 0;">
@@ -501,6 +529,12 @@
                 </li>
               {%- endfor -%}
             </ul>
+            
+            <!-- Loading Indicator -->
+            <div id="loading-indicator" class="loading-indicator">
+              <div class="loading-spinner"></div>
+              <div class="loading-text">Loading more products...</div>
+            </div>
 
             
           </div>
@@ -534,8 +568,10 @@ document.addEventListener('DOMContentLoaded', () => {
   function loadMoreProducts() {
     if (isLoading || !nextUrl) return;
     isLoading = true;
-
-    // Loading indicator removed as per user request
+    
+    // Show loading indicator
+    const loadingIndicator = document.getElementById('loading-indicator');
+    if (loadingIndicator) loadingIndicator.classList.add('visible');
 
     fetch(nextUrl)
       .then(response => response.text())
@@ -566,8 +602,9 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('Infinite scroll error:', error);
       })
       .finally(() => {
-        // Loading indicator removal logic removed as indicator is no longer added
         isLoading = false;
+        // Hide loading indicator
+        if (loadingIndicator) loadingIndicator.classList.remove('visible');
       });
   }
 
@@ -738,11 +775,42 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (quickViewDescription) {
-          let descriptionText = product.description;
-          const tempDiv = document.createElement('div');
-          tempDiv.innerHTML = descriptionText;
-          descriptionText = tempDiv.textContent || tempDiv.innerText || ""; // Strip HTML
-          quickViewDescription.textContent = descriptionText.substring(0, 250) + (descriptionText.length > 250 ? '...' : ''); // Truncate
+          let descriptionHtml = product.description || '';
+          let documentsContainer = document.getElementById('quickViewDocuments');
+          if (documentsContainer) {
+            documentsContainer.style.display = 'none';
+            documentsContainer.innerHTML = '';
+          }
+
+          let isCustomerLoggedIn = typeof window.isCustomerLoggedIn !== 'undefined' ? window.isCustomerLoggedIn : {% if customer %}true{% else %}false{% endif %};
+
+          if (descriptionHtml.includes('Documents:')) {
+            const parts = descriptionHtml.split('Documents:');
+            // Main description (before Documents:)
+            const mainDescHtml = parts[0];
+            // Documents section (after Documents:)
+            const docsHtml = parts[1] ? 'Documents:' + parts[1] : '';
+
+            // Set main description as plain text (strip HTML)
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = mainDescHtml;
+            const mainDescText = tempDiv.textContent || tempDiv.innerText || "";
+            quickViewDescription.textContent = mainDescText;
+
+            // Show documents only if logged in and they exist
+            if (isCustomerLoggedIn && docsHtml.trim().length > 10 && documentsContainer) {
+              documentsContainer.innerHTML = docsHtml;
+              documentsContainer.style.display = 'block';
+            }
+          } else {
+            // No documents section, fallback: show full description as plain text
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = descriptionHtml;
+            const mainDescText = tempDiv.textContent || tempDiv.innerText || "";
+            quickViewDescription.textContent = mainDescText;
+          }
+
+          if (window.initQuickViewShowMore) window.initQuickViewShowMore();
         }
         
         if (quickViewDetailsLink) {
@@ -872,6 +940,12 @@ document.addEventListener('DOMContentLoaded', () => {
       "unit": "px",
       "label": "Banner height",
       "default": 180
+    },
+    {
+      "type": "url",
+      "id": "banner_link",
+      "label": "Banner link URL",
+      "info": "The URL the banner will link to"
     },
     {
       "type": "range",
@@ -1088,3 +1162,4 @@ document.addEventListener('DOMContentLoaded', () => {
   ]
 }
 {% endschema %}
+{% render 'added-to-cart-modal' %}

@@ -18,19 +18,54 @@
   
   /* Loyalty Points & Two-Column Layout */
   .cart-footer__layout-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 30px; /* Adjust gap as needed */
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap;
+    gap: 60px;
+    width: 100%;
+    align-items: flex-start;
+    justify-content: space-between;
+    box-sizing: border-box;
+    background: none;
+    border: none;
+    padding: 0;
   }
 
-  .cart-footer__loyalty-column {
-    flex: 1 1 35%; /* Adjust basis/grow/shrink as needed */
-    min-width: 280px;
+  .cart-footer__loyalty-column,
+  .cart-footer__main-column {
+    background: none;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
+    min-height: unset;
+    box-sizing: border-box;
+    max-width: 400px;
   }
 
   .cart-footer__main-column {
-    flex: 1 1 60%;
-    min-width: 300px;
+    max-width: 600px;
+    margin-top: 0 !important;
+  }
+
+  .cart-footer__loyalty-column {
+    margin-right: 0;
+  }
+
+  .lpo-upload-section {
+    border: none;
+    background: none;
+    border-radius: 0;
+    padding: 0;
+    margin-top: 0 !important;
+  }
+
+  /* Tax note alignment */
+  .tax-note.caption-large.rte {
+    text-align: left !important;
+    display: block;
+    width: 100%;
+    margin-left: 0;
   }
 
   .loyalty-points-component {
@@ -67,13 +102,20 @@
     font-size: 1.1em;
   }
 
+  /*
+    Responsive override: Stack loyalty and main columns vertically on mobile.
+    This ensures .cart-footer__layout-container switches from row to column layout.
+  */
   @media (max-width: 749px) {
     .cart-footer__layout-container {
-      flex-direction: column;
+      flex-direction: column !important;
+      width: 100% !important;
+      gap: 24px !important;
     }
     .cart-footer__loyalty-column,
     .cart-footer__main-column {
-      flex-basis: 100%;
+      flex-basis: 100% !important;
+      max-width: 100% !important;
     }
   }
 
@@ -135,7 +177,7 @@
 
             {% if loyalty_max_redeemable > 0 %}
               <label for="loyalty-points-to-redeem">Points to redeem:</label>
-              <input type="number" name="loyalty_points_to_redeem" id="loyalty-points-to-redeem" class="field__input" step="100" min="0" data-customer-max-points="{{ loyalty_max_redeemable }}">
+              <input type="number" name="loyalty_points_to_redeem" id="loyalty-points-to-redeem" class="field__input" step="100" min="0" value="0" data-customer-max-points="{{ loyalty_max_redeemable }}">
               <small id="loyalty-points-error" style="color: red; display: none;">Invalid points amount.</small>
 
               <div class="loyalty-savings-display">
@@ -147,6 +189,10 @@
               <p>You need at least 100 points to redeem.</p>
             {% endif %}
           </div>
+          {%- assign points_earned = cart.total_price | divided_by: 100 | floor -%}
+          <p id="points-earned-message" class="points-earned-message" style="margin-top:12px; color:#5a705a; font-size:1em;">
+            You will earn <strong>{{ points_earned }}</strong> points with this order!
+          </p>
         </div>
         {% endif %}
 
@@ -180,8 +226,8 @@
                 {% if customer %}
                 <div id="loyalty-checkout-success-message" class="cart-checkout-success-message" style="color: green; text-align: center; margin-bottom: 10px; font-weight: bold; display: none;"></div>
                   <div class="totals">
-                  <h2 style="display: none;" class="totals__total">{{ 'sections.cart.estimated_total' | t }}</h2>
-                  <p style="display: none;" class="totals__total-value">{{ cart.total_price | money_with_currency }}</p>
+                  <h2 class="totals__total">{{ 'sections.cart.estimated_total' | t }}</h2>
+                  <p class="totals__total-value">{{ cart.total_price | money_with_currency }}</p>
                 </div>
                 {% endif %}
 
@@ -287,14 +333,29 @@
         // Get loyalty points data if available
         const appliedPoints = parseInt(sessionStorage.getItem('appliedLoyaltyPoints') || '0', 10);
         
-        // Create line items with relevant IDs for backend processing
+        // Get LPO file data if available
+        const lpoFileData = sessionStorage.getItem('uploadedLpoFile');
+        let lpoFile = null;
+        if (lpoFileData) {
+          try {
+            lpoFile = JSON.parse(lpoFileData);
+          } catch (e) {
+            console.error('Error parsing LPO file data:', e);
+          }
+        }
+        
+        // Create line items with CURRENT quantities from DOM (not static Liquid data)
         const lineItems = [];
         {% for item in cart.items %}
+          // Get current quantity from DOM instead of static Liquid data
+          const quantityInput{{ forloop.index }} = document.querySelector('input[data-quantity-variant-id="{{ item.variant_id }}"]');
+          const currentQuantity{{ forloop.index }} = quantityInput{{ forloop.index }} ? parseInt(quantityInput{{ forloop.index }}.value, 10) : {{ item.quantity }};
+          
           lineItems.push({
             variantId: "gid://shopify/ProductVariant/{{ item.variant_id }}",
             productId: "gid://shopify/Product/{{ item.product_id }}",
             nsId: "{{ item.product.metafields.netsuite.ns_id }}",
-            quantity: {{ item.quantity }},
+            quantity: currentQuantity{{ forloop.index }},
             // Add cart price as fallback
             cartPrice: {{ item.final_price | divided_by: 100.0 }}
           });
@@ -318,6 +379,34 @@
           };
         }
         
+        // Calculate points that will be earned with this order
+        const customCartTotal = window.CURRENT_CUSTOM_CART_TOTAL || calculateCustomCartTotal();
+        let pointsToEarn = 0;
+        
+        {% if customer and customer.metafields.loyalty.current_tier %}
+          // Use the same calculation logic as the loyalty points display
+          const loyaltyTierData = "{{ customer.metafields.loyalty.current_tier }}";
+          
+          // Simple calculation (fallback if API logic isn't available)
+          // This should match your loyalty tier rates
+          if (loyaltyTierData.includes('Bronze')) {
+            pointsToEarn = Math.floor(customCartTotal * 0.05);
+          } else if (loyaltyTierData.includes('Silver')) {
+            pointsToEarn = Math.floor(customCartTotal * 0.1);
+          } else if (loyaltyTierData.includes('Gold')) {
+            pointsToEarn = Math.floor(customCartTotal * 0.15);
+          } else if (loyaltyTierData.includes('Platinum')) {
+            pointsToEarn = Math.floor(customCartTotal * 0.2);
+          } else {
+            pointsToEarn = Math.floor(customCartTotal * 0.05); // Default to Bronze
+          }
+        {% else %}
+          // Default rate for customers without tier data
+          pointsToEarn = Math.floor(customCartTotal * 0.05);
+        {% endif %}
+        
+        console.log('Points to earn with this order:', pointsToEarn);
+        
         // Format the data according to ShopifyDraftOrderInput
         const cartData = {
           customerId: "gid://shopify/Customer/{{ customer.id }}",
@@ -326,11 +415,12 @@
           email: "{{ customer.email }}",
           note:  appliedPoints,
           appliedDiscount: appliedDiscount,
+          pointsToEarn: pointsToEarn, // Points customer will earn from this order
+          lpoFile: lpoFile, // Include LPO file if uploaded
           // Store currency code separately for our backend but don't send to Shopify
           currencyCode: "{{ cart.currency.iso_code }}"
         };
-      
-        console.log('Sending draft order to:https://ecovar-middleware-production.up.railway.app/api/orders/draft');
+    
         
         fetch('https://ecovar-middleware-production.up.railway.app/api/orders/draft', {
           method: 'POST',
@@ -355,9 +445,10 @@
           // Check both invoice_url and invoiceUrl since the naming could vary
           if (data.invoice_url || data.invoiceUrl || (data.draftOrder && data.draftOrder.invoiceUrl)) {
             const url = data.invoice_url || data.invoiceUrl || (data.draftOrder && data.draftOrder.invoiceUrl);
-            // Clear applied loyalty points from session after successful checkout
+            // Clear session data after successful checkout
             sessionStorage.removeItem('appliedLoyaltyPoints');
             sessionStorage.removeItem('appliedLoyaltyDiscount');
+            sessionStorage.removeItem('uploadedLpoFile');
             
             // Redirect to the Shopify invoice URL
             window.location.href = url;
@@ -403,10 +494,8 @@
     let effectiveMaxRedeemableInputPoints = 0; // Max points for input field (considering cart total)
 
     function initializeValues() {
-      if (cartTotalValueEl) {
-        const totalText = cartTotalValueEl.textContent.replace(/[^0-9.-]+/g, "");
-        originalCartTotal = parseFloat(totalText) || 0;
-      }
+      // Use custom cart total instead of DOM-scraped total
+      originalCartTotal = window.CURRENT_CUSTOM_CART_TOTAL || calculateCustomCartTotal();
 
       customerMaxPointsBalance = parseInt(pointsInput.dataset.customerMaxPoints, 10) || 0;
       
@@ -418,7 +507,7 @@
       effectiveMaxRedeemableInputPoints = Math.min(customerMaxPointsBalance, maxPointsBasedOnCartRounded);
       
       pointsInput.max = effectiveMaxRedeemableInputPoints;
-      pointsInput.value = effectiveMaxRedeemableInputPoints; // Pre-fill with the max possible
+      pointsInput.value = 0; // Always default to 0 on load
     }
 
     function validateAndDisplaySavings() {
@@ -454,9 +543,13 @@
 
       // If points are no longer valid or zero, and a discount was previously applied, clear it.
       if ((!isValid || pointsToRedeem === 0) && currentAppliedDiscount > 0) {
-        if (successMessageEl) successMessageEl.style.display = 'none';
-        if (cartTotalValueEl && originalCartTotal > 0) {
-           cartTotalValueEl.textContent = originalCartTotal.toFixed(2) + ' AED';
+        // Re-find elements fresh each time
+        const currentSuccessMessageEl = document.getElementById('loyalty-checkout-success-message');
+        const currentCartTotalValueEl = document.querySelector('.totals__total-value');
+        
+        if (currentSuccessMessageEl) currentSuccessMessageEl.style.display = 'none';
+        if (currentCartTotalValueEl && originalCartTotal > 0) {
+           currentCartTotalValueEl.textContent = originalCartTotal.toFixed(2) + ' AED';
         }
         sessionStorage.removeItem('appliedLoyaltyPoints');
         sessionStorage.removeItem('appliedLoyaltyDiscount');
@@ -478,19 +571,31 @@
       sessionStorage.setItem('appliedLoyaltyPoints', pointsToRedeem.toString()); // Store points attempted
       sessionStorage.setItem('appliedLoyaltyDiscount', finalDiscountAmount.toString());
 
-      if (successMessageEl) {
-        successMessageEl.textContent = `You are saving ${finalDiscountAmount.toFixed(2)} AED on this order with points!`;
-        successMessageEl.style.display = 'block';
+      // Re-find elements fresh each time (in case DOM was replaced)
+      const currentSuccessMessageEl = document.getElementById('loyalty-checkout-success-message');
+      const currentCartTotalValueEl = document.querySelector('.totals__total-value');
+
+      if (currentSuccessMessageEl) {
+        currentSuccessMessageEl.textContent = `You are saving ${finalDiscountAmount.toFixed(2)} AED on this order with points!`;
+        currentSuccessMessageEl.style.display = 'block';
+        console.log('Loyalty confirmation message displayed after applying points');
+      } else {
+        console.error('Could not find loyalty success message element');
       }
       
-      if (cartTotalValueEl) {
+      if (currentCartTotalValueEl) {
         const newTotal = originalCartTotal - finalDiscountAmount;
-        cartTotalValueEl.textContent = newTotal.toFixed(2) + ' AED';
+        currentCartTotalValueEl.textContent = newTotal.toFixed(2) + ' AED';
       }
     });
 
     function reapplyLoyaltyDiscount() {
+      // First update the custom cart total display
+      updateCustomCartTotalDisplay();
+      
       initializeValues(); // Recalculate original total, max points for input, and prefill
+      
+      console.log('Reapplying loyalty discount with custom total:', window.CURRENT_CUSTOM_CART_TOTAL);
 
       const savedPointsStr = sessionStorage.getItem('appliedLoyaltyPoints');
       const savedDiscountStr = sessionStorage.getItem('appliedLoyaltyDiscount');
@@ -504,18 +609,24 @@
 
         pointsInput.value = savedPointsAttempted; // Set input to what was last attempted
         
-        // Validate the saved points against current rules (max could have changed if cart changed)
-        if (validateAndDisplaySavings() && parseInt(pointsInput.value, 10) > 0) { 
-            currentAppliedDiscount = actualSavedDiscount;
-            if (successMessageEl) {
-                successMessageEl.textContent = `You are saving ${actualSavedDiscount.toFixed(2)} AED on this order with points!`;
-                successMessageEl.style.display = 'block';
-            }
-            if (cartTotalValueEl) {
-                const newTotal = originalCartTotal - actualSavedDiscount;
-                cartTotalValueEl.textContent = newTotal.toFixed(2) + ' AED';
-            }
-        } else {
+                  // Validate the saved points against current rules (max could have changed if cart changed)
+          if (validateAndDisplaySavings() && parseInt(pointsInput.value, 10) > 0) { 
+              currentAppliedDiscount = actualSavedDiscount;
+              
+              // Re-find elements in case DOM was replaced
+              const currentSuccessMessageEl = document.getElementById('loyalty-checkout-success-message');
+              const currentCartTotalValueEl = document.querySelector('.totals__total-value');
+              
+              if (currentSuccessMessageEl) {
+                  currentSuccessMessageEl.textContent = `You are saving ${actualSavedDiscount.toFixed(2)} AED on this order with points!`;
+                  currentSuccessMessageEl.style.display = 'block';
+                  console.log('Loyalty discount confirmation message restored');
+              }
+              if (currentCartTotalValueEl) {
+                  const newTotal = originalCartTotal - actualSavedDiscount;
+                  currentCartTotalValueEl.textContent = newTotal.toFixed(2) + ' AED';
+              }
+          } else {
             // If saved points are no longer valid, clear session and UI for discount
             sessionStorage.removeItem('appliedLoyaltyPoints');
             sessionStorage.removeItem('appliedLoyaltyDiscount');
@@ -546,9 +657,178 @@
       pointsInput.addEventListener('input', validateAndDisplaySavings);
     }
 
-    // Initial setup and on cart updates
-    reapplyLoyaltyDiscount();
-    document.addEventListener('shopify:cart:updated', reapplyLoyaltyDiscount);
+    // Calculate custom cart total using custom prices
+    function calculateCustomCartTotal() {
+      console.log('Calculating custom cart total...');
+      
+      // Start with Shopify's default total
+      let customTotal = {{ cart.total_price | divided_by: 100.0 }};
+      
+      // Get cart items data and custom prices
+      const cartItems = window.CART_ITEM_DATA || [];
+      const customPrices = window.CUSTOMER_CUSTOM_PRICES || [];
+      
+      if (cartItems.length > 0 && customPrices.length > 0) {
+        customTotal = 0; // Reset to calculate from scratch
+        
+        cartItems.forEach(item => {
+          if (!item.ns_id) {
+            // No NS ID, use original price
+            customTotal += item.original_price * (getItemQuantity(item.variant_id) || 1);
+            return;
+          }
+          
+          // Look for custom price
+          const customPriceData = customPrices.find(p => p.item === item.ns_id);
+          const quantity = getItemQuantity(item.variant_id) || 1;
+          
+          if (customPriceData && customPriceData.price) {
+            customTotal += parseFloat(customPriceData.price) * quantity;
+            console.log(`Custom price for ${item.ns_id}: ${customPriceData.price} x ${quantity}`);
+          } else {
+            customTotal += item.original_price * quantity;
+            console.log(`Original price for ${item.ns_id}: ${item.original_price} x ${quantity}`);
+          }
+        });
+      }
+      
+      console.log('Calculated custom total:', customTotal);
+      return customTotal;
+    }
+    
+    // Helper function to get current quantity for a variant
+    function getItemQuantity(variantId) {
+      const quantityInput = document.querySelector(`input[data-quantity-variant-id="${variantId}"]`);
+      return quantityInput ? parseInt(quantityInput.value, 10) : 1;
+    }
+    
+    // Update the displayed cart total with custom pricing
+    function updateCustomCartTotalDisplay() {
+      const totalValueEl = document.querySelector('.totals__total-value');
+      if (!totalValueEl) return;
+      
+      const customTotal = calculateCustomCartTotal();
+      window.CURRENT_CUSTOM_CART_TOTAL = customTotal; // Store globally for loyalty calculations
+      
+      // Update the display (keeping currency formatting consistent)
+      totalValueEl.textContent = `${customTotal.toFixed(2)} AED`;
+      
+      console.log('Updated cart total display to:', customTotal.toFixed(2), 'AED');
+    }
+
+    // Function to update points-earned message with API calcu lation
+    function updatePointsEarnedMessage() {
+      const pointsMessageEl = document.getElementById('points-earned-message');
+      if (!pointsMessageEl) return;
+      
+      // Use custom cart total for points calculation
+      let cartTotalForPoints = window.CURRENT_CUSTOM_CART_TOTAL || calculateCustomCartTotal();
+      
+      console.log('Updating loyalty points calculation for cart total:', cartTotalForPoints);
+      
+      if (cartTotalForPoints <= 0) {
+        pointsMessageEl.innerHTML = `You will earn <strong>0</strong> points with this order!`;
+        return;
+      }
+      
+      {% if customer and customer.metafields.loyalty.current_tier %}
+        // Get loyalty tier data from customer metafield
+        const loyaltyTierData = "{{ customer.metafields.loyalty.current_tier }}";
+        
+        // Make API call to calculate actual points using the simplified endpoint
+        const requestData = {
+          orderAmount: cartTotalForPoints,
+          tierData: loyaltyTierData
+        };
+        
+        console.log('Calculating loyalty points for cart total:', cartTotalForPoints, 'with tier:', loyaltyTierData);
+        
+        // Cancel any previous API request if still pending
+        if (window.loyaltyPointsController) {
+          window.loyaltyPointsController.abort();
+        }
+        window.loyaltyPointsController = new AbortController();
+        
+        fetch('https://ecovar-middleware-production.up.railway.app/api/loyalty/calculate-points-metafield', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(requestData),
+          signal: window.loyaltyPointsController.signal
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`API error: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('Loyalty points calculation result:', data);
+          const pointsEarned = data.totalPointsEarned || 0;
+          const pointsRate = data.pointsPerAED || 0;
+          pointsMessageEl.innerHTML = `You will earn <strong>${pointsEarned}</strong> points with this order!`;
+        })
+        .catch(error => {
+          if (error.name === 'AbortError') {
+            console.log('Loyalty points request was cancelled');
+            return;
+          }
+          console.error('Error calculating loyalty points:', error);
+          // Fallback to simple calculation
+          const pointsEarned = Math.floor(cartTotalForPoints * 0.05); // Default to Bronze rate
+          pointsMessageEl.innerHTML = `You will earn approximately <strong>${pointsEarned}</strong> points with this order!`;
+        });
+      {% else %}
+        // Fallback for customers without loyalty tier data
+        const pointsEarned = Math.floor(cartTotalForPoints * 0.05); // Default to Bronze rate
+        pointsMessageEl.innerHTML = `You will earn approximately <strong>${pointsEarned}</strong> points with this order!`;
+      {% endif %}
+    }
+
+    // Smart loyalty points update - only when cart total actually changes
+    let lastKnownCartTotal = 0;
+    let loyaltyUpdateTimeout = null;
+    
+    function updateLoyaltyPointsDisplay() {
+      console.log('Updating loyalty points display...');
+      
+      // Always update the discount logic (client-side, no API)
+      reapplyLoyaltyDiscount();
+      
+      // Only call API if cart total actually changed
+      const currentTotal = window.CURRENT_CUSTOM_CART_TOTAL || calculateCustomCartTotal();
+      if (Math.abs(currentTotal - lastKnownCartTotal) > 0.01) { // Allow for small rounding differences
+        console.log('Cart total changed from', lastKnownCartTotal, 'to', currentTotal, '- updating loyalty points');
+        lastKnownCartTotal = currentTotal;
+        
+        // Debounce API calls - cancel previous call if still pending
+        if (loyaltyUpdateTimeout) {
+          clearTimeout(loyaltyUpdateTimeout);
+        }
+        
+        loyaltyUpdateTimeout = setTimeout(() => {
+          updatePointsEarnedMessage();
+        }, 500); // Wait 500ms for more changes before making API call
+      } else {
+        console.log('Cart total unchanged, skipping loyalty API call');
+      }
+    }
+
+    // Initial setup - run immediately when page loads
+    updateLoyaltyPointsDisplay();
+    
+    // Only listen to meaningful cart events, not every user interaction
+    document.addEventListener('shopify:cart:updated', function() {
+      console.log('Shopify cart updated');
+      updateLoyaltyPointsDisplay();
+    });
+    
+    document.addEventListener('custom-prices-updated', function() {
+      console.log('Custom prices updated event received');
+      updateLoyaltyPointsDisplay();
+    });
 
   });
 </script>

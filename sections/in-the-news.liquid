@@ -1,0 +1,158 @@
+{% comment %}
+  Section: In the News
+  Displays three A4-sized images in a grid layout
+{% endcomment %}
+
+<style>
+  .in-the-news {
+    padding: 40px 0;
+    background-color: {{ section.settings.background_color }};
+  }
+
+  .in-the-news__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+  }
+
+  .in-the-news__header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .in-the-news__title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: {{ section.settings.title_color }};
+    margin: 0;
+  }
+
+  .in-the-news__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    margin-top: 30px;
+  }
+
+  .in-the-news__image-wrapper {
+    position: relative;
+    padding-top: 141.42%; /* 1:1.4142 ratio for A4 (297mm/210mm) */
+  }
+
+  .in-the-news__image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+  }
+
+  .in-the-news__image:hover {
+    transform: scale(1.02);
+  }
+
+  @media (max-width: 991px) {
+    .in-the-news__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 767px) {
+    .in-the-news__grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .in-the-news__title {
+      font-size: 2rem;
+    }
+  }
+</style>
+
+<div class="in-the-news">
+  <div class="in-the-news__container">
+    <div class="in-the-news__header">
+      <h2 class="in-the-news__title">{{ section.settings.title }}</h2>
+    </div>
+    
+    <div class="in-the-news__grid">
+      {% for block in section.blocks %}
+        <div class="in-the-news__image-wrapper">
+          <img 
+            src="{{ block.settings.image | image_url: width: 800 }}" 
+            alt="{{ block.settings.image.alt | escape }}"
+            class="in-the-news__image"
+            loading="lazy"
+          >
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "In the News",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Section Title",
+      "default": "In the News"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title Color",
+      "default": "#000000"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "image",
+      "name": "Image",
+      "limit": 3,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "In the News",
+      "blocks": [
+        {
+          "type": "image",
+          "settings": {
+            "image": ""
+          }
+        },
+        {
+          "type": "image",
+          "settings": {
+            "image": ""
+          }
+        },
+        {
+          "type": "image",
+          "settings": {
+            "image": ""
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

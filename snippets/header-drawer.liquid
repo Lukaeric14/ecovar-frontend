@@ -23,7 +23,14 @@
             <ul class="menu-drawer__menu has-submenu list-menu" role="list">
               {%- for link in section.settings.menu.links -%}
                 <li>
-                  {%- if link.links != blank -%}
+                  {%- if forloop.first -%}
+                    <a
+                      href="/collections/products"
+                      class="menu-drawer__menu-item list-menu__item link link--text focus-inset"
+                    >
+                      Explore products
+                    </a>
+                  {%- elsif link.links != blank -%}
                     <details id="Details-menu-drawer-menu-item-{{ forloop.index }}">
                       <summary
                         id="HeaderDrawer-{{ link.handle }}"

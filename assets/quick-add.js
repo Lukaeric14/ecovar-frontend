@@ -33,6 +33,9 @@ if (!customElements.get('quick-add-modal')) {
             this.preventDuplicatedIDs();
             this.removeDOMElements();
             this.setInnerHTML(this.modalContent, this.productElement.innerHTML);
+            if (typeof window.initQuickViewShowMore === 'function') {
+              window.initQuickViewShowMore();
+            }
 
             if (window.Shopify && Shopify.PaymentButton) {
               Shopify.PaymentButton.init();

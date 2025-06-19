@@ -107,7 +107,7 @@
     border-radius: 50%;
     display: inline-block;
     transition: background-color 0.3s ease;
-    cursor: default; /* Not clickable for now */
+    cursor: pointer; /* Make dots clickable */
   }
   .dot.active {
     background-color: #525c30; /* Active dot color */
@@ -151,9 +151,18 @@
         }
       }
 
+      // Add click event listeners to dots
+      dots.forEach(function(dot, i) {
+        dot.addEventListener('click', function() {
+          idx = i; // Update the global index
+          showTestimonial(idx);
+        });
+      });
+      
       // Initial display
       showTestimonial(idx);
 
+      // Auto-rotate testimonials every 5 seconds
       setInterval(function(){
         idx = (idx + 1) % items.length;
         showTestimonial(idx);

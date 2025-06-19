@@ -54,14 +54,14 @@
           Your Quote
         {% endif %}
       </h1>
-      <a href="{{ routes.all_products_collection_url }}" class="underlined-link">
+      <a href="/collections/products" class="underlined-link">
         {{- 'general.continue_shopping' | t -}}
       </a>
     </div>
 
     <div class="cart__warnings">
       <h1 class="cart__empty-text">{{ 'sections.cart.empty' | t }}</h1>
-      <a href="{{ routes.all_products_collection_url }}" class="button">
+      <a href="/collections/products" class="button">
         {{ 'general.continue_shopping' | t }}
       </a>
 
@@ -492,7 +492,8 @@
         ns_id: '{{ item.product.metafields.netsuite.ns_id }}',
         product_handle: '{{ item.product.handle }}',
         original_price: {{ item.price | divided_by: 100.0 }},
-        key: '{{ item.key }}'
+        key: '{{ item.key }}',
+        loyalty_eligible: {{ item.product.metafields.custom.loyalty_eligibility | default: false }}
       });
     {% endfor %}
     
@@ -598,16 +599,25 @@
     
     // Update cart totals after price changes
     function updateCartTotals() {
-      // This will be handled by the code in main-cart-footer.liquid
-      // We'll dispatch a custom event to notify the footer that quantities have changed
-      document.dispatchEvent(new CustomEvent('custom-prices-updated'));
+      // Dispatch event to notify footer that custom prices have changed
+      console.log('Dispatching custom-prices-updated event');
+      document.dispatchEvent(new CustomEvent('custom-prices-updated', {
+        detail: { 
+          timestamp: Date.now(),
+          reason: 'cart-totals-update'
+        }
+      }));
     }
     
     // Main function to apply custom prices to all cart items
     function applyCustomPrices() {
       console.log('Applying custom prices to cart items');
       
-      // Find all price elements and hide them while loading
+      // Don't show loading state during re-application (only on initial load)
+      const isReapplication = document.querySelectorAll('[data-is-custom-priced="true"]').length > 0;
+      
+      if (!isReapplication) {
+        // Find all price elements and hide them while loading (only on initial load)
       const priceElements = document.querySelectorAll(
         '.cart-item__price-wrapper .price, .cart-item__price .price, .price, .product-option, [data-price]'
       );
@@ -617,6 +627,7 @@
           el.classList.add('price-loading');
         }
       });
+      }
       
       // Wait for custom prices to be available
       (function waitForCustomPrices(retries = 500) {
@@ -642,47 +653,10 @@
           const quantity = quantityInput ? parseInt(quantityInput.value, 10) : 1;
           updateItemPrice(row, itemData.ns_id, quantity);
           
-          // Setup quantity change listeners
-          if (quantityInput) {
-            // Store the NS ID directly on the quantity input for easy access
-            quantityInput.dataset.nsId = itemData.ns_id;
-            
-            // Listen for input event (when user types a number)
-            quantityInput.addEventListener('input', function() {
-              const newQuantity = parseInt(this.value, 10) || 1;
-              updateItemPrice(row, this.dataset.nsId, newQuantity);
-              updateCartTotals();
-            });
-            
-            // Also listen for the plus/minus buttons
-            const plusButton = row.querySelector('button[name="plus"]');
-            const minusButton = row.querySelector('button[name="minus"]');
-            
-            if (plusButton) {
-              plusButton.addEventListener('click', function() {
-                // Allow a small delay for the quantity to update
-                setTimeout(() => {
-                  const newQuantity = parseInt(quantityInput.value, 10) || 1;
-                  updateItemPrice(row, quantityInput.dataset.nsId, newQuantity);
-                  updateCartTotals();
-                }, 50);
-              });
-            }
-            
-            if (minusButton) {
-              minusButton.addEventListener('click', function() {
-                // Allow a small delay for the quantity to update
-                setTimeout(() => {
-                  const newQuantity = parseInt(quantityInput.value, 10) || 1;
-                  updateItemPrice(row, quantityInput.dataset.nsId, newQuantity);
-                  updateCartTotals();
-                }, 50);
-              });
-            }
-          }
+
         });
-        
-        // Update cart totals
+            
+        // Update cart totals and notify footer
         updateCartTotals();
         
         // Ensure all prices are visible after processing
@@ -695,26 +669,47 @@
       })();
     }
     
-    // Listen for cart:item:quantity:updated events (Shopify's native event)
-    document.addEventListener('cart:item:quantity:updated', function(event) {
-      // Find the cart item row that was updated
-      const lineItem = event.detail.lineItem;
-      if (!lineItem) return;
-      
-      // Find the cart item in our data
-      const itemData = window.CART_ITEM_DATA.find(item => 
-        item.variant_id === lineItem.variant_id.toString() ||
-        item.key === lineItem.key
-      );
-      
-      if (itemData && itemData.ns_id) {
-        const { row } = findCartItemRow(itemData);
-        if (row) {
-          updateItemPrice(row, itemData.ns_id, lineItem.quantity);
+    // Smart MutationObserver - watch for when Shopify replaces cart elements
+    if (window.MutationObserver) {
+      const cartObserver = new MutationObserver(function(mutations) {
+        let shouldReapply = false;
+        
+        mutations.forEach(function(mutation) {
+          // Look for when cart item rows are added/replaced
+          if (mutation.type === 'childList') {
+            mutation.addedNodes.forEach(function(node) {
+              // Check if a cart item row was added/replaced
+              if (node.nodeType === Node.ELEMENT_NODE && 
+                  (node.classList && node.classList.contains('cart-item') ||
+                   node.querySelector && node.querySelector('.cart-item'))) {
+                console.log('Cart item DOM element replaced by Shopify');
+                shouldReapply = true;
+              }
+            });
+          }
+        });
+        
+                 if (shouldReapply) {
+           // Immediate reapplication when DOM is replaced
+           applyCustomPrices();
+           
+           // Also trigger cart total and loyalty updates
+           setTimeout(() => {
           updateCartTotals();
-        }
+           }, 100);
       }
     });
+      
+      // Observe the cart items container
+      const cartItemsContainer = document.getElementById('main-cart-items');
+      if (cartItemsContainer) {
+        cartObserver.observe(cartItemsContainer, {
+          childList: true,
+          subtree: true
+        });
+        console.log('Smart cart observer set up to detect DOM replacements');
+      }
+    }
     
     // Run once DOM is ready
     if (document.readyState === 'loading') {

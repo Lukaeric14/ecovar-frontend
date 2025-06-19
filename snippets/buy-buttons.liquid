@@ -81,6 +81,7 @@
             type="submit"
             name="add"
             class="product-form__submit button button--full-width {% if show_dynamic_checkout %}button--secondary{% else %}button--primary{% endif %}"
+            style="font-size: 10px; letter-spacing: 0.05em;"
             {% if product.selected_or_first_available_variant.available == false or quantity_rule_soldout %}
               disabled
             {% endif %}
@@ -95,6 +96,93 @@
             {%- render 'loading-spinner' -%}
           </button>
         </div>
+        {% else %}
+        <div class="product-form__buttons">
+          <button
+             id="AddToQuoteButton-{{ section.id }}"
+             type="button"
+             class="product-form__submit button button--full-width {% if show_dynamic_checkout %}button--secondary{% else %}button--primary{% endif %}"
+             style="font-size: 10px; letter-spacing: 0.05em;"
+             data-action="add-to-quote"
+             data-product-id="{{ product.selected_or_first_available_variant.id }}"
+             data-product-url="{{ product.url }}"
+           >
+             <span>Add to Quote</span>
+             {%- render 'loading-spinner' -%}
+           </button>
+           <!-- Existing card-quantity.js will handle click -->
+<input type="hidden" id="quantity-{{ product.selected_or_first_available_variant.id }}" value="1">
+<script>
+  (function(){
+    var qtyInput=document.getElementById('Quantity-{{ section.id }}');
+    var hidden=document.getElementById('quantity-{{ product.selected_or_first_available_variant.id }}');
+    if(!(qtyInput&&hidden)) return;
+    function sync(){ hidden.value=qtyInput.value; }
+    sync();
+    qtyInput.addEventListener('change',sync);
+    qtyInput.addEventListener('input',sync);
+  })();
+
+  // Add to Quote button functionality
+  (function(){
+    var btn = document.getElementById('AddToQuoteButton-{{ section.id }}');
+    if(!btn){console.warn('[AddToQuote] button not found');return;}
+    
+    btn.addEventListener('click', function(){
+      console.log('[AddToQuote] click');
+      console.log('[AddToQuote] handler start');
+      console.log('[AddToQuote] Clicked');
+      if(btn.disabled||btn.classList.contains('processing')){console.warn('[AddToQuote] button disabled/processing');return;}
+      
+      var qtyInput=document.getElementById('Quantity-{{ section.id }}');
+      console.log('[AddToQuote] qtyInput', qtyInput);
+      var quantity=parseInt(qtyInput?qtyInput.value:'1',10)||1;
+      console.log('[AddToQuote] quantity', quantity);
+      var variantId='{{ product.selected_or_first_available_variant.id }}';
+      console.log('[AddToQuote] variantId', variantId);
+      
+      function resetButton(originalText){
+        btn.querySelector('span').textContent = originalText;
+        btn.disabled = false;
+        btn.classList.remove('processing');
+      }
+      
+      if(typeof addToCartWithQuantity==='function'){
+        console.log('[AddToQuote] using addToCartWithQuantity');
+        addToCartWithQuantity(variantId,'{{ product.url }}',btn);
+        return;
+      }
+      
+      console.log('[AddToQuote] fallback AJAX');
+      var originalText = btn.textContent.trim();
+      btn.querySelector('span').textContent = 'Adding…';
+      btn.disabled = true;
+      btn.classList.add('processing');
+      console.log('[AddToQuote] Fetching /cart/add.js');
+      
+      fetch('/cart/add.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ id: variantId, quantity: quantity })
+      })
+      .then(function(res) {
+        if(!res.ok){console.error('[AddToQuote] bad response',res);throw res;}
+        return res.json();
+      })
+      .then(function(){
+        if (typeof updateCartCounter === 'function') updateCartCounter();
+        if (typeof showToast === 'function') showToast('Product was successfully added', 'success');
+        resetButton(originalText);
+      })
+      .catch(function(err){
+        console.error('[AddToQuote] error',err);
+        resetButton(originalText);
+      });
+    });
+  })();
+</script>
+  
+        </div>
         {% endif %}
       {%- endform -%}
     </product-form>
@@ -105,6 +193,7 @@
           type="submit"
           name="add"
           class="product-form__submit button button--full-width button--primary"
+          style="font-size: 10px; letter-spacing: 0.05em;"
           disabled
         >
           {{ 'products.product.sold_out' | t }}

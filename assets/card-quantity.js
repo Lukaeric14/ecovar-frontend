@@ -111,10 +111,26 @@ function addToCartWithQuantity(variantId, productUrl, buttonElement) {
   })
   .then(addedItemData => {
     updateCartCounter(); // Update cart count display elsewhere on the page
+// Show added-to-cart modal if present
+const atcModal = document.getElementById('added-to-cart-modal');
+if (atcModal && typeof atcModal.show === 'function') {
+  atcModal.show();
+} else if (atcModal) {
+  atcModal.classList.add('active'); // fallback if modal uses class
+}
 
     // Fetch full product details for the modal
     // Ensure productUrl is the product page URL, e.g., /products/product-handle
-    const productJsonUrl = productUrl.includes('.js') ? productUrl : productUrl.split('?')[0] + '.js';
+    if (!productUrl) {
+  console.error('No product URL found for variant:', variantId);
+  showToast('Could not add to cart: product info missing', 'error');
+  // Reset button UI here as needed
+  addButton.textContent = originalText;
+  addButton.disabled = false;
+  addButton.classList.remove('processing');
+  return;
+}
+const productJsonUrl = productUrl.includes('.js') ? productUrl : productUrl.split('?')[0] + '.js';
 
     fetch(productJsonUrl)
       .then(response => response.json())
@@ -251,7 +267,7 @@ function showToast(message, type = 'success') {
         }
         
         .toast.success {
-          background-color: #8F9A5B;
+          background-color: #8F9A5A;
           color: white;
         }
         

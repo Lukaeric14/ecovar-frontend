@@ -76,7 +76,8 @@
               card_collection: block.settings.collection,
               media_aspect_ratio: section.settings.image_ratio,
               columns: columns,
-              placeholder_image: placeholder_image
+              placeholder_image: placeholder_image,
+              custom_label: block.settings.custom_label
             %}
           </li>
         {%- endfor -%}
@@ -268,6 +269,12 @@
           "type": "collection",
           "id": "collection",
           "label": "t:sections.collection-list.blocks.featured_collection.settings.collection.label"
+        },
+        {
+          "type": "text",
+          "id": "custom_label",
+          "label": "Custom Label",
+          "info": "Enter a custom label for this collection (optional)"
         }
       ]
     }

@@ -20,9 +20,13 @@
 
       <div class="cascade-atc-modal__right">
         <p id="cascade-atc-modal-cart-info" class="cascade-atc-modal__cart-info">There are X items in your cart.</p>
-        <a href="{{ routes.cart_url }}" id="cascade-atc-modal-continue-shopping" class="cascade-atc-modal__button cascade-atc-modal__button--secondary" data-cascade-modal-close>Continue Shopping</a>
+        <button id="cascade-atc-modal-continue-shopping" class="cascade-atc-modal__button cascade-atc-modal__button--secondary" data-cascade-modal-close>Continue Shopping</button>
         <a href="{{ routes.cart_url }}" id="cascade-atc-modal-go-to-cart" class="cascade-atc-modal__button cascade-atc-modal__button--primary">Go To Cart</a>
-        <a href="{{ routes.checkout_url }}" id="cascade-atc-modal-proceed-to-checkout" class="cascade-atc-modal__button cascade-atc-modal__button--primary">Proceed To Checkout</a>
+        {%- if customer -%}
+          <a href="{{ routes.cart_url }}" id="cascade-atc-modal-proceed-to-checkout" class="cascade-atc-modal__button cascade-atc-modal__button--primary">Proceed To Checkout</a>
+        {%- else -%}
+          <a href="{{ routes.cart_url }}" id="cascade-atc-modal-proceed-to-checkout" class="cascade-atc-modal__button cascade-atc-modal__button--primary">Request Quote</a>
+        {%- endif -%}
       </div>
     </div>
     <div id="cascade-atc-modal-related-products-container" class="cascade-atc-modal__related-products-container" style="display: none; margin-top: 30px;">
@@ -58,7 +62,7 @@
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     z-index: 1;
     width: 90%;
-    max-width: 900px; /* Increased max-width for related products */
+    max-width: 1000px; /* Increased max-width for related products */
     min-height: 650px; /* Further increased min-height for taller modal */
     display: flex;
     flex-direction: column;
@@ -143,6 +147,8 @@
     font-weight: bold;
     transition: background-color 0.2s ease, color 0.2s ease;
     border: 1px solid transparent;
+    cursor: pointer;
+    font-family: inherit;
   }
   .cascade-atc-modal__button--primary {
     background-color: #8F9A5B; /* Muted green from memory */
@@ -189,6 +195,13 @@
     .cascade-atc-modal__content {
       padding: 20px;
     }
+  }
+  /* Make 'You may also like' heading smaller in modal */
+  .cascade-atc-modal__related-products .related-products__heading {
+    font-size: 1.05rem !important;
+    margin-bottom: 1.1rem !important;
+    font-weight: 600 !important;
+    line-height: 1.2 !important;
   }
 </style>
 
@@ -252,8 +265,10 @@
         if (this.cartInfoElement) this.cartInfoElement.style.display = 'block';
         if (this.goToCartButton) this.goToCartButton.style.display = 'block';
         if (this.proceedToCheckoutButton) {
-          this.proceedToCheckoutButton.textContent = 'Proceed To Checkout';
-          this.proceedToCheckoutButton.href = details.checkoutUrl || '{{ routes.checkout_url }}';
+          // Button text and href are already set by Liquid template based on customer status
+          this.proceedToCheckoutButton.style.display = 'block';
+          // Route both logged in and logged out users to cart as requested
+          this.proceedToCheckoutButton.href = details.cartUrl || '{{ routes.cart_url }}';
         }
         if (this.goToCartButton) {
           this.goToCartButton.href = details.cartUrl || '{{ routes.cart_url }}';

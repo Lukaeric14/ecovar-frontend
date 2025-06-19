@@ -21,15 +21,15 @@
 <style>
   /* Updated product card styling */
   .product-card-wrapper {
-    height: 100%;
+    height: 310px !important;
   }
   
   .product-card {
     height: 100%;
     display: flex;
-    flex-direction: column;
+    flex-direction: row; /* Changed from column to row for side-by-side layout */
     border: 1px solid #e0e0e0;
-    border-radius: 4px;
+    border-radius: 10px;
     background: white;
     overflow: hidden;
     text-decoration: none;
@@ -37,8 +37,9 @@
   
   /* Image container */
   .product-card__media {
-    position: relative; /* Added for positioning context */
-    height: 220px;
+    position: relative;
+    width: 40%; /* Set width for left column */
+    min-width: 120px;
     padding: 10px;
     display: flex;
     align-items: center;
@@ -49,7 +50,7 @@
   /* Image styling */
   .product-card__image {
     max-height: 180px;
-    max-width: 85%;
+    max-width: 90%;
     width: auto;
     height: auto;
     object-fit: contain;
@@ -57,12 +58,13 @@
   
   /* Content area */
   .product-card__content {
-    padding: 15px;
+    margin: 15px;
     flex-grow: 1;
+    width: 60%; /* Set width for right column */
     display: flex;
     flex-direction: column;
-    align-items: center; /* Center content horizontally */
-    text-align: center;
+    align-items: flex-start; /* Left-align content */
+    text-align: left;
   }
   
   /* Product title */
@@ -70,55 +72,108 @@
     font-size: 16px; /* Larger font size */
     font-weight: 600; /* Increased weight */
     line-height: 1.3;
-    height: 3em;
+    height: max-content !important; /* Increased height to fit 3 lines */
     overflow: hidden;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 3; /* Changed from 2 to 3 lines */
     -webkit-box-orient: vertical;
-    margin-bottom: 2px; /* Minimal spacing to price */
+    margin-bottom: 2px;
     width: 100%;
-    text-align: center;
+    text-align: left;
+    color: #BBC29A; /* New title color */
+  }
+  
+  .product-card__title a {
+    color: #BBC29A;
+    transition: color 0.2s ease;
+  }
+  
+  .product-card__title a:hover {
+    color: #8F9A5B; /* Change color on hover */
   }
   
   /* Price area */
   .product-card__price {
-    margin-top: auto;
-    margin-bottom: 12px;
+    margin-bottom: 0px; /* Reduced bottom margin */
     width: 100%;
-    text-align: center;
+    text-align: left;
+    color: #BBC29A; /* New price color */
+    font-size: 20px; /* Bigger size */
+    font-weight: 700; /* Bolder */
+  }
+  
+  .price-item.price-item--regular {
+    padding-bottom: 5px; /* Added bottom padding */
+    display: inline-block;
+  }
+  
+  /* Price label */
+  .product-card__price-label {
+    font-size: 14px;
+    margin-bottom: 2px;
+    margin-top: auto;
+    font-weight: 500;
+  }
+  
+  /* Short description */
+  .product-card__short-desc {
+    height: 10rem;
+    overflow-y: auto;
+    margin: 0 0 10px 0; /* Removed top margin */
+    padding-top: 0; /* No top padding */
+    font-size: 14px;
+    line-height: 1.4;
+    color: #666;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Force top alignment */
+    white-space: pre-line; /* Preserve line breaks from metafield */
   }
   
   /* Quantity selector styling */
   .product-card__quantity {
-    width: 100%;
     display: flex;
+    flex-wrap: wrap; /* Enable wrapping when space is limited */
+    align-items: center;
     justify-content: center;
+    gap: 8px;
     margin-bottom: 15px;
+    width: 100%;
+    flex-wrap: nowrap;
+    box-sizing: border-box;
+    padding: 0;
   }
   
   /* Inline quantity and button row */
   .product-card__qty-row {
     display: flex;
-    align-items: stretch;
-    justify-content: center;
+    align-items: center;
+    justify-content: center; /* Center items rather than space-between */
     gap: 10px;
-    margin-bottom: 15px;
     width: 100%;
-    flex-wrap: wrap;
+    flex-wrap: wrap; /* Enable wrapping */
+    box-sizing: border-box;
+    padding: 0;
+    margin-bottom:10px
+    max-width: 100%;
+        margin-top: auto;
   }
   .native-qty-input {
-    flex: 0 0 60px;
-    min-width: 52px;
-    max-width: 70px;
-    height: 48px;
-    border: 1.5px solid #222;
-    border-radius: 6px;
-    font-size: 18px;
+    flex: 0 0 45px; /* Smaller width */
+    min-width: 45px;
+    max-width: 50px;
+    height: 48px; /* Match button height */
+    box-sizing: border-box; /* Ensure padding and border are included in height */
+    padding: 0 4px;
+    border: 1.5px solid #777; /* Lighter border color */
+    border-radius: 5px;
+    font-size: 14px; /* Smaller font size */
     font-weight: 500;
-    color: #222;
+    color: #444; /* Lighter text color */
     background: #fff;
     outline: none;
     text-align: center;
+    line-height: 28px; /* Adjust line height to vertically center text */
     box-sizing: border-box;
     appearance: number-input;
     transition: border 0.2s;
@@ -139,39 +194,50 @@
   .native-qty-input[type=number]:-ms-input-placeholder { color: #222; }
   .native-qty-input[type=number]::placeholder { color: #222; }
 
+  /* Override only sizing/layout properties while keeping theme colors */
+  .product-card__button.simple-quote-btn,
   .simple-quote-btn {
-    flex: 1 1 0;
-    min-width: 120px;
+    flex-grow: 1 !important; /* Take available space */
+    flex-shrink: 1 !important; /* Allow shrinking */
+    flex-basis: 0 !important; /* Start from zero width */
+    min-width: 85px !important; /* Allow shrinking below content size */
+    width: auto !important; /* Use natural width */
+    max-width: 100% !important; /* Don't exceed container */
     height: 48px;
-    border: 1.5px solid #222 !important;
-    border-radius: 6px;
-    background: #fff !important;
-    color: #222 !important;
-    font-size: 18px;
+    /* Removed color-related styling to keep theme colors */
+    font-size: 11px; /* Smaller font to fit better */
     font-weight: bold;
     text-transform: uppercase;
-    letter-spacing: 0.03em;
+    letter-spacing: 0;
     cursor: pointer;
-    transition: background 0.2s, color 0.2s;
     display: flex;
     align-items: center;
     justify-content: center;
     box-sizing: border-box;
     margin: 0;
+    padding: 0 5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
-  .simple-quote-btn:hover {
-    background: #222 !important;
-    color: #fff !important;
-  }
+  /* Removed hover override to keep theme colors */
   @media (max-width: 600px) {
     .product-card__qty-row {
-      flex-direction: column;
+      flex-direction: row;
       gap: 8px;
     }
-    .native-qty-input, .simple-quote-btn {
-      width: 100%;
-      min-width: 0;
-      max-width: 100%;
+    .native-qty-input {
+      flex: 0 0 50px;
+      min-width: 50px;
+      max-width: 50px;
+    }
+    .product-card__button.simple-quote-btn,
+    .simple-quote-btn {
+      flex: 1 !important;
+      min-width: 0 !important;
+      width: auto !important;
+      font-size: 11px;
+      padding: 0 5px;
     }
   }
 
@@ -244,8 +310,12 @@
     color: #8F9A5B !important; /* Ecovar green */
     border: 1px solid #8F9A5B !important;
     border-radius: 4px;
-    padding: 8px 15px;
-    font-size: 14px;
+    padding: 0 10px;
+    height: 32px; /* Fixed height to match quantity input */
+    line-height: 30px; /* Center text vertically */
+    box-sizing: border-box; /* Ensure padding and border are included in height */
+    font-size: 10px; /* Smaller text size */
+    font-weight: 400; /* Less bold */
     text-align: center;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -284,7 +354,7 @@
     position: absolute;
     top: 10px;
     right: 10px;
-    z-index: 3; /* Ensure it's above the image */
+    z-index: 5; /* Ensure it's above everything */
     background: rgba(255, 255, 255, 0.9);
     border-radius: 50%;
     width: 32px;
@@ -312,17 +382,21 @@
 {%- if card_product and card_product != empty -%}
   <div class="product-card-wrapper">
     <div class="product-card">
+      <!-- Quick view button positioned at the top right of entire card -->
+      <button type="button" class="quick-view-btn" data-product-handle="{{ card_product.handle }}" aria-label="{{ 'products.product.quick_view' | t: product_title: card_product.title }}" >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20px" height="20px" aria-hidden="true">
+          <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+        </svg>
+      </button>
       <!-- Product Media (Link to product page) -->
         <div class="product-card__media">
-          <button type="button" class="quick-view-btn" data-product-handle="{{ card_product.handle }}" aria-label="{{ 'products.product.quick_view' | t: product_title: card_product.title }}" >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20px" height="20px" aria-hidden="true">
-              <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5A6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
-            </svg>
-          </button>
-          <a href="{{ card_product.url }}" class="product-card__image-link">
+          <a href="{{ card_product.url }}" class="card__media-link">
             {%- if card_product.featured_media -%}
               <img
-                src="{{ card_product.featured_media | image_url: width: 300 }}"
+                srcset="{{ card_product.featured_media | image_url: width: 360 }} 360w,
+                  {{ card_product.featured_media | image_url: width: 533 }} 533w,
+                  {{ card_product.featured_media | image_url: width: 720 }} 720w"
+                src="{{ card_product.featured_media | image_url: width: 533 }}"
                 alt="{{ card_product.featured_media.alt | escape }}"
                 class="product-card__image"
                 {% unless lazy_load == false %}loading="lazy"{% endunless %}
@@ -351,10 +425,20 @@
           </div>
         {%- endif -%}
         
-        <!-- Product Price -->
-        <div class="product-card__price">
-          {% render 'price', product: card_product %}
+        <!-- Short Description from metafield (always present for consistent height) -->
+        <div class="product-card__short-desc">
+          {% if card_product.metafields.custom.shortdescription %}
+            {{ card_product.metafields.custom.shortdescription }}
+          {% endif %}
         </div>
+        
+        <!-- Product Price (only for logged in users) -->
+        {% if customer and customer.metafields.approval.status == 'approved' %}
+          <div class="product-card__price-label">Price</div>
+          <div class="product-card__price">
+            {% render 'price', product: card_product %}
+          </div>
+        {% endif %}
         
         <!-- Native Quantity Selector and Add to Quote/Cart Button -->
         <div class="product-card__qty-row">
@@ -365,6 +449,7 @@
               type="button"
               class="product-card__button simple-quote-btn"
               data-product-id="{{ variant_id }}"
+              data-product-url="{{ card_product.url }}"
               data-action="add-to-cart"
             >
               {{ 'products.product.add_to_cart' | t: default: 'Add To Cart' | upcase }}

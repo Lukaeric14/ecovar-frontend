@@ -19,6 +19,57 @@
   {%- endif -%}
 
   {%- style -%}
+    /* Product image width settings and grid layout adjustments */
+    .product__media-wrapper {
+      width: 350px !important;
+      flex: 0 0 350px !important;
+      max-width: 350px !important;
+    }
+    
+    .product__media-wrapper .product__media-item {
+      max-width: 350px !important;
+      width: 100% !important;
+    }
+    
+    .product__media-wrapper .media {
+      width: 100% !important;
+    }
+    
+    /* Fix grid layout to reduce empty space */
+    .product.grid--2-col-tablet {
+      display: flex !important;
+      gap: 40px !important;
+      align-items: flex-start !important;
+    }
+    
+    /* Make info container take up remaining space */
+    .product__info-wrapper {
+      flex: 1 !important;
+      width: auto !important;
+      min-width: 0 !important;
+    }
+    
+    /* Ensure product title is consistent at 35px */
+    .product__title h1,
+    .product__title h2.h1 {
+      font-size: 35px !important;
+    }
+    
+    /* Ensure price is 20px */
+    #price-{{ section.id }} .price,
+    #price-{{ section.id }} .price-item,
+    .price-per-item--current,
+    .price-per-item span {
+      font-size: 20px !important;
+    }
+    
+    /* Ensure product description is 14px */
+    .product__description, 
+    .product__description p,
+    .product__description li {
+      font-size: 14px !important;
+      line-height: 1.5 !important;
+    }
     .section-{{ section.id }}-padding {
       padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
       padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
@@ -31,9 +82,30 @@
       }
     }
 
-    /* Hide standard Add to Cart / Buy Now buttons for logged-out users */
-    .product--logged-out .product-form__buttons {
+    /* Remove all borders and box-shadows from product-form containers and children */
+    .product-form,
+    .product-form__buttons,
+    .product-form__input,
+    .product-form * {
+      border: none !important;
+      border-radius: 0 !important;
+      background: none !important;
+      box-shadow: none !important;
+      outline: none !important;
+      margin: 0;
+      padding: 0;
+      --gradient-base-background-1: initial !important;
+      --gradient-base-background-2: initial !important;
+      --color-foreground: initial !important;
+      --color-background: initial !important;
+    }
+    /* Remove all ::before and ::after pseudo-elements from product form buttons */
+    .product-form__submit.button::before,
+    .product-form__submit.button::after,
+    .product-form__buttons button::before,
+    .product-form__buttons button::after {
       display: none !important;
+      content: none !important;
     }
 
     .breadcrumbs {
@@ -78,6 +150,193 @@
       color: #777; /* Current page color */
       font-weight: normal;
     }
+    /* Custom Add to Cart & Add to Quote buttons for Ecovar */
+    .product-form__submit.button,
+    .product-form__submit.button--full-width,
+    .product-form__submit.button--primary,
+    .product-form__submit.button--secondary,
+    .product-popup-modal__button,
+    #submit-quote-btn,
+    .add-to-quote-btn {
+      background: #fff !important;
+      color: #8F9A5A !important;
+      border: 2px solid #8F9A5A !important;
+      border-radius: 8px !important;
+      box-shadow: none;
+      transition: background 0.2s, color 0.2s, border 0.2s;
+      min-height: 48px;
+      padding: 0 24px;
+      font-size: 1.1em !important;
+      font-weight: 500 !important;
+      letter-spacing: 0.04em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Restore quantity selector to classic Shopify look */
+    .product-form__quantity,
+    .product-form__input.product-form__quantity {
+      border: none !important;
+      border-radius: 0 !important;
+      background: transparent;
+      padding: 0;
+      min-height: unset;
+      display: inline-flex;
+      align-items: center;
+      width: auto;
+      gap: 0;
+      box-sizing: border-box;
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+    /* Make the main quantity container a flex row, no border */
+    [id^="Quantity-Form-template--"] {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      justify-content: flex-start;
+      border: none !important;
+      background: none !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+      margin: 18px 0 16px 0 !important;
+      width: auto !important;
+      gap: 0 !important;
+    }
+    [id^="Quantity-Form-template--"] > label,
+    [id^="Quantity-Form-template--"] > .quantity__label.form__label,
+    [id^="Quantity-Form-template--"] > .product-form__quantity-label {
+      margin-bottom: 6px !important;
+      margin-right: 0 !important;
+      width: auto !important;
+      display: block !important;
+      align-self: flex-start !important;
+      min-width: 0 !important;
+    }
+    [id^="Quantity-Form-template--"] > .price-per-item__container {
+      margin-left: 0 !important;
+    }
+    /* Add border and rounded corners to the price-per-item__container */
+    .price-per-item__container {
+      border: 1px solid #222 !important;
+      border-radius: 8px !important;
+      background: #fff;
+      padding: 0 8px;
+      display: inline-flex;
+      align-items: center;
+      min-height: 48px;
+      width: auto;
+      box-sizing: border-box;
+    }
+
+    /* Ensure the label and cart info are always outside the box */
+    .product-form__quantity-label,
+    .quantity__label.form__label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 1em;
+      color: #666;
+      font-weight: 400;
+    }
+    .quantity__rules-cart {
+      display: inline;
+      margin-left: 4px;
+      font-size: 0.95em;
+      color: #888;
+      font-weight: 400;
+      position: static;
+    }
+    /* Center all controls vertically in the selector */
+    quantity-input.quantity,
+    .product-form__quantity,
+    .product-form__input.product-form__quantity {
+      display: inline-flex !important;
+      align-items: center !important;
+      vertical-align: middle;
+      height: 48px;
+      min-height: 48px;
+      box-sizing: border-box;
+    }
+    .product-form__quantity button,
+    .product-form__quantity .quantity__button,
+    .product-form__quantity input[type="number"] {
+      height: 40px;
+      min-height: 40px;
+      line-height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+      vertical-align: middle;
+    }
+    /* Prevent label from being inside the box (for theme maintainers) */
+    .product-form__input.product-form__quantity label,
+    .product-form__input.product-form__quantity .quantity__label.form__label {
+      position: static !important;
+      margin-bottom: 6px !important;
+      padding-left: 4px !important;
+      display: block !important;
+      width: auto !important;
+    }
+
+    /* Remove any full width or block display from the selector */
+    .product-form__input.product-form__quantity {
+      width: auto !important;
+      display: inline-flex !important;
+    }
+    .product-form__quantity input[type="number"] {
+      border: none;
+      background: transparent;
+      text-align: center;
+      width: 40px;
+      font-size: 1.1em;
+      color: #222;
+      outline: none;
+      margin: 0 8px;
+      padding: 8px 0;
+      height: 40px;
+      line-height: 40px;
+      appearance: textfield;
+    }
+    .product-form__quantity button,
+    .product-form__quantity .quantity__button {
+      background: none;
+      border: none;
+      color: #666;
+      font-size: 1.3em;
+      cursor: pointer;
+      padding: 0 12px;
+      height: 40px;
+      line-height: 40px;
+      transition: color 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .product-form__quantity button:hover,
+    .product-form__quantity .quantity__button:hover {
+      color: #8F9A5A;
+    }
+    /* Ensure label or info is outside the box */
+    .product-form__quantity-label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 1em;
+      color: #666;
+      font-weight: 400;
+    }
+    .product-form__submit.button:hover,
+    .product-form__submit.button--full-width:hover,
+    .product-form__submit.button--primary:hover,
+    .product-form__submit.button--secondary:hover,
+    .product-popup-modal__button:hover,
+    #submit-quote-btn:hover,
+    .add-to-quote-btn:hover {
+      background: #8F9A5A !important;
+      color: #fff !important;
+      border-color: #8F9A5A !important;
+    }
   {%- endstyle -%}
 
   <script src="{{ 'product-info.js' | asset_url }}" defer="defer"></script>
@@ -115,35 +374,8 @@
 
   {% assign variant_images = product.images | where: 'attached_to_variant?', true | map: 'src' %}
   <div class="page-width">
-    <nav class="breadcrumbs" aria-label="Breadcrumb" style="display: flex; align-items: center;">
-      <a href="#" onclick="history.back(); return false;" title="{{ 'general.breadcrumbs.back_link_title' | t | default: 'Back' }}" class="breadcrumbs__back" style="margin-right: 10px; font-size: 1.2em; color: #333; display: flex; align-items: center; text-decoration: none;">
-        <span style="font-size: 1.2em; display: inline-block;">&#8592;</span>
-      </a>
-      <ol class="breadcrumbs__list">
-
-        <li class="breadcrumbs__item">
-          <a class="breadcrumbs__link" href="{{ routes.root_url }}">Home</a>
-        </li>
-        {%- if collection -%}
-          <li class="breadcrumbs__item">
-            <a class="breadcrumbs__link" href="{{ collection.url }}">{{ collection.title }}</a>
-          </li>
-          <li class="breadcrumbs__item breadcrumbs__item--current" aria-current="page">
-            <span class="breadcrumbs__link">{{ product.title }}</span>
-          </li>
-        {%- else -%}
-          {%- assign current_collection = product.collections.first -%}
-          {%- if current_collection -%}
-            <li class="breadcrumbs__item">
-              <a class="breadcrumbs__link" href="{{ current_collection.url }}">{{ current_collection.title }}</a>
-            </li>
-          {%- endif -%}
-          <li class="breadcrumbs__item breadcrumbs__item--current" aria-current="page">
-            <span class="breadcrumbs__link">{{ product.title }}</span>
-          </li>
-        {%- endif -%}
-      </ol>
-    </nav>
+    {% render 'breadcrumb' %}
+    <!-- All old breadcrumb <ol>/<li> markup and Liquid logic removed. -->
     <div class="product product--{{ section.settings.media_size }} product--{{ section.settings.media_position }} product--{{ section.settings.gallery_layout }} product--mobile-{{ section.settings.mobile_thumbnails }} grid grid--1-col {% if product.media.size > 0 %}grid--2-col-tablet{% else %}product--no-media{% endif %}">
       <div class="grid__item product__media-wrapper">
         {% render 'product-media-gallery', variant_images: variant_images %}
@@ -169,45 +401,71 @@
                   {{- block.settings.text -}}
                 </p>
               {%- when 'title' -%}
-                <div class="product__title" {{ block.shopify_attributes }}>
-                  <h1>{{ product.title | escape }}</h1>
+                <div class="product__title" style="font-size: 40px; color: #96A379;" {{ block.shopify_attributes }}>
+                  <h1 style="color: #96A379;">{{ product.title | escape }}</h1>
                   <a href="{{ product.url }}" class="product__title">
-                    <h2 class="h1">
+                    <h2 class="h1" style="color: #BBC29A;">
                       {{ product.title | escape }}
                     </h2>
                   </a>
                 </div>
-              {%- when 'price' -%}
-                <div id="price-{{ section.id }}" role="status" {{ block.shopify_attributes }}>
-                  {%- render 'price',
-                    product: product,
-                    use_variant: true,
-                    show_badges: true,
-                    price_class: 'price--large'
-                  -%}
-                </div>
-                {%- if product.quantity_price_breaks_configured? -%}
-                  <div class="volume-pricing-note" id="Volume-Note-{{ section.id }}">
-                    <span>{{ 'products.product.volume_pricing.note' | t }}</span>
+              {%- when 'short_description' -%}
+                {%- if product.metafields.custom.shortdescription != blank -%}
+                  <div class="product__short-description" {{ block.shopify_attributes }}>
+                    {{ product.metafields.custom.shortdescription }}
+                    <style>
+                      .product__short-description {
+                        margin-top: 10px;
+                        margin-bottom: 15px;
+                        line-height: 1.5;
+                        font-size: 14px;
+                      }
+                    </style>
                   </div>
                 {%- endif -%}
+              {%- when 'price' -%}
                 {% if customer %}
-                <div class="product__tax caption rte">
-                  {%- if cart.taxes_included -%}
-                    {% comment %} {{ 'products.product.include_taxes' | t }} {% endcomment %}
+                  <div id="price-{{ section.id }}" role="status" {{ block.shopify_attributes }}>
+                    <div style="font-size: 14px; color: #888; font-weight: 500; margin-bottom: 2px;">Price</div>
+                    <div class="product-price-wrapper" style="font-size: 1.7em; line-height: 1.1; font-weight: 700; color: #96A379;">
+                      {%- render 'price',
+                        product: product,
+                        use_variant: true,
+                        show_badges: true,
+                        price_class: 'price--large'
+                      -%}
+                    </div>
+                    <style>
+                      #price-{{ section.id }} .price,
+                      #price-{{ section.id }} .price__regular,
+                      #price-{{ section.id }} .price__sale {
+                        font-size: 1.2em !important;
+                        font-weight: 700 !important;
+                        color: #96A379 !important;
+                      }
+                    </style>
+                  </div>
+                  {%- if product.quantity_price_breaks_configured? -%}
+                    <div class="volume-pricing-note" id="Volume-Note-{{ section.id }}">
+                      <span>{{ 'products.product.volume_pricing.note' | t }}</span>
+                    </div>
                   {%- endif -%}
-                  {%- if shop.shipping_policy.body != blank -%}
-                    {{ 'products.product.shipping_policy_html' | t: link: shop.shipping_policy.url }}
-                  {%- endif -%}
-                </div>
+                  <div class="product__tax caption rte">
+                    {%- if cart.taxes_included -%}
+                      {% comment %} {{ 'products.product.include_taxes' | t }} {% endcomment %}
+                    {%- endif -%}
+                    {%- if shop.shipping_policy.body != blank -%}
+                      {{ 'products.product.shipping_policy_html' | t: link: shop.shipping_policy.url }}
+                    {%- endif -%}
+                  </div>
+                  <div {{ block.shopify_attributes }}>
+                    {%- assign product_form_installment_id = 'product-form-installment-' | append: section.id -%}
+                    {%- form 'product', product, id: product_form_installment_id, class: 'installment caption-large' -%}
+                      <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+                      {{ form | payment_terms }}
+                    {%- endform -%}
+                  </div>
                 {% endif %}
-                <div {{ block.shopify_attributes }}>
-                  {%- assign product_form_installment_id = 'product-form-installment-' | append: section.id -%}
-                  {%- form 'product', product, id: product_form_installment_id, class: 'installment caption-large' -%}
-                    <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
-                    {{ form | payment_terms }}
-                  {%- endform -%}
-                </div>
               {%- when 'inventory' -%}
                 <p
                   class="product__inventory{% if block.settings.text_style == 'uppercase' %} caption-with-letter-spacing{% elsif block.settings.text_style == 'subtitle' %} subtitle{% endif %}{% if product.selected_or_first_available_variant.inventory_management != 'shopify' %} visibility-hidden{% endif %}"
@@ -265,7 +523,7 @@
                 </p>
               {%- when 'description' -%}
                 {%- if product.description != blank -%}
-                  <div class="product__description rte quick-add-hidden" {{ block.shopify_attributes }}>
+                  <div class="product__description rte quick-add-hidden" style="font-size: 14px;" {{ block.shopify_attributes }}>
                     {% if customer %}
                       {{ product.description }}
                     {% else %}
@@ -313,15 +571,15 @@
                   class="product-form__input product-form__quantity{% if settings.inputs_shadow_vertical_offset != 0 and settings.inputs_shadow_vertical_offset < 0 %} product-form__quantity-top{% endif %}"
                   {{ block.shopify_attributes }}
                 >
-                  {% if customer %}
                   {% comment %} TODO: enable theme-check once `item_count_for_variant` is accepted as valid filter {% endcomment %}
                   {% # theme-check-disable %}
                   {%- assign cart_qty = cart
                     | item_count_for_variant: product.selected_or_first_available_variant.id
                   -%}
                   {% # theme-check-enable %}
-                  <label class="quantity__label form__label" for="Quantity-{{ section.id }}">
+                  <label class="quantity__label form__label" for="Quantity-{{ section.id }}" style="font-size: 14px; color: #888; font-weight: 500;">
                     {{ 'products.product.quantity.label' | t }}
+                    {% if customer %}
                     <span class="quantity__rules-cart{% if cart_qty == 0 %} hidden{% endif %}">
                       {%- render 'loading-spinner' -%}
                       <span
@@ -330,10 +588,11 @@
                         )</span
                       >
                     </span>
+                    {% endif %}
                   </label>
                   <div class="price-per-item__container">
                     <quantity-input class="quantity" data-url="{{ product.url }}" data-section="{{ section.id }}">
-                      <button class="quantity__button" name="minus" type="button">
+                      <button class="quantity__button" name="minus" type="button" style="font-size: 1em; width: 36px; height: 32px;">
                         <span class="visually-hidden">
                           {{- 'products.product.quantity.decrease' | t: product: product.title | escape -}}
                         </span>
@@ -342,6 +601,7 @@
                       <input
                         class="quantity__input"
                         type="number"
+                        style="font-size: 1em; height: 32px; width: 36px; padding: 2px 4px;"
                         name="quantity"
                         id="Quantity-{{ section.id }}"
                         data-cart-quantity="{{ cart_qty }}"
@@ -355,7 +615,7 @@
                         value="{{ product.selected_or_first_available_variant.quantity_rule.min }}"
                         form="{{ product_form_id }}"
                       >
-                      <button class="quantity__button" name="plus" type="button">
+                      <button class="quantity__button" name="plus" type="button" style="font-size: 1em; width: 36px; height: 32px;">
                         <span class="visually-hidden">
                           {{- 'products.product.quantity.increase' | t: product: product.title | escape -}}
                         </span>
@@ -516,7 +776,6 @@
                       {%- endif -%}
                     </volume-pricing>
                   {%- endif -%}
-                  {% endif %}
                 </div>
               {%- when 'popup' -%}
                 <modal-opener
@@ -834,6 +1093,9 @@
   </div>
 </section>
 
+<!-- Add to Quote functionality script -->
+<script src="{{ 'card-quantity.js' | asset_url }}" defer="defer"></script>
+
 {% schema %}
 {
   "name": "t:sections.main-product.name",
@@ -842,6 +1104,11 @@
   "blocks": [
     {
       "type": "@app"
+    },
+    {
+      "type": "short_description",
+      "name": "Short Description",
+      "limit": 1
     },
     {
       "type": "text",

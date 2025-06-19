@@ -47,6 +47,7 @@
     {%- if product.price_varies == false and product.compare_at_price_varies %} price--no-compare{% endif -%}
     {%- if show_badges %} price--show-badge{% endif -%}
   "
+  style="color: #BBC29A;"
 >
   {% if customer and customer.metafields.approval.status == 'approved' %}
   <div class="price__container">
@@ -169,7 +170,23 @@
     <div class="price__regular">
       <div class="quote-form-container">
         <input type="hidden" name="id" class="variant-id" value="{% if product.selected_or_first_available_variant %}{{ product.selected_or_first_available_variant.id }}{% elsif target %}{{ target.id }}{% else %}{{ product.variants.first.id }}{% endif %}">
-        <input type="hidden" name="quantity" class="quantity" value="1">
+        <div class="quote-quantity-selector" style="margin-bottom: 12px;">
+  <label for="Quote-Quantity-{{ product.id }}" class="quantity__label form__label" style="display:block;margin-bottom:6px;font-size:1em;color:#666;font-weight:400;">Quantity</label>
+  <div class="price-per-item__container">
+    <button type="button" class="quantity__button" onclick="var i=this.parentNode.querySelector('input');if(i.value>1)i.stepDown();">-</button>
+    <input
+      class="quantity__input"
+      type="number"
+      name="quantity"
+      id="Quote-Quantity-{{ product.id }}"
+      min="1"
+      value="1"
+      style="width:40px;text-align:center;border:none;background:transparent;font-size:1.1em;color:#222;outline:none;margin:0 8px;padding:8px 0;height:40px;line-height:40px;appearance:textfield;"
+      aria-label="Quantity"
+    >
+    <button type="button" class="quantity__button" onclick="var i=this.parentNode.querySelector('input');i.stepUp();">+</button>
+  </div>
+</div>
         <button 
           type="button"
           class="button button--primary add-to-quote-button"
@@ -194,7 +211,9 @@
       // Get container and elements
       const container = button.closest('.quote-form-container');
       const variantId = container.querySelector('.variant-id').value;
-      const quantity = container.querySelector('.quantity').value;
+      // Always get the current value from the visible quantity input
+      const qtyInput = container.querySelector('input[name="quantity"]');
+      const quantity = qtyInput ? qtyInput.value : 1;
       
       // Add loading state
       button.classList.add('loading');
@@ -264,7 +283,7 @@
       position: fixed;
       bottom: 20px;
       right: 20px;
-      background-color: #4CAF50;
+      background-color: #8F9A5A;
       color: white;
       padding: 12px 16px;
       border-radius: 4px;
@@ -283,6 +302,7 @@
     .quote-toast.show {
       opacity: 1;
       transform: translateY(0);
+      background-color: #8F9A5A;
     }
     
     .quote-toast.error {
@@ -290,17 +310,52 @@
     }
     
     .add-to-quote-button {
-      font-size: 1.1rem;
-      padding: 0.5rem 1rem;
-      min-width: 120px;
-      position: relative;
-      width: 100%;
-    }
-    
+  background: #fff !important;
+  color: #8F9A5A !important;
+  border: 2px solid #8F9A5A !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  transition: background 0.2s, color 0.2s, border 0.2s;
+  min-height: 48px !important;
+  padding: 0 24px !important;
+  font-size: 1.1em !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.04em !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  outline: none !important;
+  box-shadow: none !important;
+  --color-button: initial !important;
+  --color-button-text: initial !important;
+  --color-secondary-button: initial !important;
+  --color-secondary-button-text: initial !important;
+  --buttons-border-width: 0 !important;
+  --buttons-radius-outset: 0 !important;
+  --buttons-border-offset: 0 !important;
+  --alpha-button-border: 0 !important;
+  --border-radius: 8px !important;
+  --border-width: 2px !important;
+  --border-opacity: 1 !important;
+  --color-foreground: initial !important;
+  --color-background: initial !important;
+}
+.add-to-quote-button::before,
+.add-to-quote-button::after {
+  display: none !important;
+  content: none !important;
+}
+
+.add-to-quote-button:hover {
+  background: #8F9A5A !important;
+  color: #fff !important;
+  border-color: #8F9A5A !important;
+}
+
     .add-to-quote-button.loading {
       color: transparent;
     }
-    
     .add-to-quote-button.loading::after {
       content: '';
       position: absolute;

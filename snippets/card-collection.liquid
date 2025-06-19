@@ -8,6 +8,7 @@
   - extend_height: {Boolean} Card height extends to available container space. Default: false (optional)
   - wrapper_class: {String} Wrapper class for card (optional)
   - placeholder_image: {String} Placeholder image when collection is empty (optional)
+  - custom_label: {String} Custom label to display instead of collection title (optional)
 
   Usage:
   {% render 'card-collection' %}
@@ -92,7 +93,9 @@
                 {% endif %}
                 class="full-unstyled-link"
               >
-                {%- if card_collection.title != blank -%}
+                {%- if custom_label != blank -%}
+                  {{- custom_label | escape -}}
+                {%- elsif card_collection.title != blank -%}
                   {{- card_collection.title | escape -}}
                 {%- else -%}
                   {{ 'onboarding.collection_title' | t }}
@@ -124,7 +127,9 @@
               {% endif %}
               class="full-unstyled-link"
             >
-              {%- if card_collection.title != blank -%}
+              {%- if custom_label != blank -%}
+                {{- custom_label | escape -}}
+              {%- elsif card_collection.title != blank -%}
                 {{- card_collection.title | escape -}}
               {%- else -%}
                 {{ 'onboarding.collection_title' | t }}

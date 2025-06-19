@@ -232,6 +232,37 @@
     text-align: center;
     color: #333;
   }
+
+  .about-us-in-the-news__images-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 1.5rem;
+    margin-top: 2rem;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+  }
+
+  .about-us-in-the-news__image {
+    flex: 1;
+    width: 30%;
+    max-height: 250px;
+    object-fit: contain;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border-radius: 4px;
+  }
+  
+  @media screen and (max-width: 749px) {
+    .about-us-in-the-news__images-container {
+      flex-direction: column;
+    }
+    
+    .about-us-in-the-news__image {
+      width: 100%;
+      margin-bottom: 1rem;
+    }
+  }
 {%- endstyle -%}
 
 <div class="page-width section-{{ section.id }}-padding">
@@ -311,14 +342,63 @@
         </a>
       </div>
     </div>
+
+    <!-- In the News Section -->
+    <div class="about-us-section">
+      <div class="about-us-content">
+        <div class="about-us-text">
+          <h2>{{ section.settings.news_section_title }}</h2>
+          <p>{{ section.settings.news_section_description }}</p>
+        </div>
+        <div class="about-us-image">
+          <div class="about-us-in-the-news__images-container">
+            {% for block in section.blocks %}
+                <img
+                  src="{{ block.settings.image | image_url: width: 400 }}" 
+                  alt="{{ block.settings.image.alt | escape }}"
+                  class="about-us-in-the-news__image"
+                  loading="lazy"
+                >
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
 </div>
 
 {% schema %}
 {
   "name": "About Us Page",
   "tag": "section",
-  "class": "section",
+  "blocks": [
+    {
+      "type": "news_image",
+      "name": "News Image",
+      "limit": 3,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        }
+      ]
+    }
+  ],
   "settings": [
+    {
+      "type": "text",
+      "id": "news_section_title",
+      "label": "News Section Title",
+      "default": "In the News"
+    },
+    {
+      "type": "text",
+      "id": "news_section_description",
+      "label": "News Section Description",
+      "default": "Our latest features in the media"
+    },
     {
       "type": "text",
       "id": "title",

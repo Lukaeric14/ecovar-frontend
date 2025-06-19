@@ -12,6 +12,13 @@
     outline: none !important;
     box-shadow: none !important;
   }
+  /* Set only banner body text color to #525c30 */
+  #Banner-{{ section.id }} .banner__text,
+  #Banner-{{ section.id }} .banner__text p,
+  #Banner-{{ section.id }} .banner__text span,
+  #Banner-{{ section.id }} .banner__text a {
+    color: #525c30 !important;
+  }
 {%- endstyle -%}
 
 {%- if section.settings.image_height == 'adapt' and section.settings.image != blank -%}

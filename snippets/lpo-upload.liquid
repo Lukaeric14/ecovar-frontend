@@ -7,7 +7,7 @@
       <div class="lpo-file-input-wrapper">
         <label for="lpo-file-input" class="lpo-file-label">
           <span class="lpo-file-button">Choose File</span>
-          <span class="lpo-file-name" id="lpo-selected-file">No file selected</span>
+          <a href="#" class="lpo-file-name" id="lpo-selected-file" style="pointer-events: none; color: #666; text-decoration: underline;">No file selected</a> <!-- clickable link, disabled until file selected -->
         </label>
         <input type="file" id="lpo-file-input" name="lpo-file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" class="lpo-file-input">
       </div>
@@ -132,9 +132,17 @@
     if (lpoFileInput) {
       lpoFileInput.addEventListener('change', function() {
         if (this.files && this.files[0]) {
-          lpoSelectedFile.textContent = this.files[0].name;
+          const file = this.files[0];
+          lpoSelectedFile.textContent = file.name;
+          lpoSelectedFile.href = URL.createObjectURL(file);
+          lpoSelectedFile.target = '_blank';
+          lpoSelectedFile.style.pointerEvents = 'auto';
+          lpoSelectedFile.style.color = '#007bff';
         } else {
           lpoSelectedFile.textContent = 'No file selected';
+          lpoSelectedFile.removeAttribute('href');
+          lpoSelectedFile.style.pointerEvents = 'none';
+          lpoSelectedFile.style.color = '#666';
         }
       });
     }

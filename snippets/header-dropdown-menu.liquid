@@ -9,32 +9,26 @@
   <ul class="list-menu list-menu--inline" role="list">
     {%- for link in section.settings.menu.links -%}
       <li>
-        {%- if link.links != blank -%}
+        {%- if forloop.first -%}
+          <a href="/collections/products" class="header__menu-item list-menu__item link focus-inset">
+            <span {%- if link.active %} class="header__active-menu-item"{% endif %}>
+              Explore products
+            </span>
+          </a>
+        {%- elsif link.links != blank -%}
           <header-menu>
             <details id="Details-HeaderMenu-{{ forloop.index }}">
               <summary
                 id="HeaderMenu-{{ link.handle }}"
                 class="header__menu-item list-menu__item link focus-inset"
               >
-                {%- if forloop.first -%}
-                  <a href="/collections/products" style="text-decoration: none; color: inherit; display: inline-block;" class="header-products-link">
-                    <span
-                      {%- if link.child_active %}
-                        class="header__active-menu-item"
-                      {% endif %}
-                    >
-                      {{- link.title | escape -}}
-                    </span>
-                  </a>
-                {%- else -%}
-                  <span
-                    {%- if link.child_active %}
-                      class="header__active-menu-item"
-                    {% endif %}
-                  >
-                    {{- link.title | escape -}}
-                  </span>
-                {%- endif -%}
+                <span
+                  {%- if link.child_active %}
+                    class="header__active-menu-item"
+                  {% endif %}
+                >
+                  {{- link.title | escape -}}
+                </span>
                 {% render 'icon-caret' %}
               </summary>
               <ul

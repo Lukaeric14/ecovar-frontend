@@ -1,5 +1,48 @@
 <style>
 /* Direct inline styles for loyalty section */
+
+/* Responsive Points Table - horizontal scroll, keep table layout */
+@media (max-width: 900px) {
+  #loyalty .points-history {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+  #loyalty .points-table {
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
+    padding-left: 0;
+    padding-right: 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    position: relative;
+    box-shadow: none;
+    background: transparent;
+  }
+  #loyalty .points-table table {
+    min-width: 600px;
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+  #loyalty .points-table::-webkit-scrollbar {
+    height: 8px;
+  }
+  #loyalty .points-table::-webkit-scrollbar-thumb {
+    background: #e0e0e0;
+    border-radius: 4px;
+  }
+  /* Optional: fade effect as scroll cue */
+  #loyalty .points-table:after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0; bottom: 0;
+    width: 32px;
+    pointer-events: none;
+    background: linear-gradient(to left, #fff 70%, rgba(255,255,255,0));
+    display: block;
+  }
+}
+
 #loyalty .loyalty-program {
   padding-top: 0 !important;
   margin-top: 0 !important;
@@ -264,34 +307,34 @@
         </thead>
         <tbody>
           <tr>
-            <td>May 24, 2025</td>
-            <td>Purchase #1001</td>
-            <td class="points-earned">+250</td>
-            <td><span class="status-badge">Completed</span></td>
+            <td data-label="Date">May 24, 2025</td>
+            <td data-label="Description">Purchase #1001</td>
+            <td data-label="Points" class="points-earned">+250</td>
+            <td data-label="Status"><span class="status-badge">Completed</span></td>
           </tr>
           <tr>
-            <td>May 20, 2025</td>
-            <td>Birthday Bonus</td>
-            <td class="points-earned">+500</td>
-            <td><span class="status-badge">Completed</span></td>
+            <td data-label="Date">May 20, 2025</td>
+            <td data-label="Description">Birthday Bonus</td>
+            <td data-label="Points" class="points-earned">+500</td>
+            <td data-label="Status"><span class="status-badge">Completed</span></td>
           </tr>
           <tr>
-            <td>May 15, 2025</td>
-            <td>Purchase #987</td>
-            <td class="points-pending">+250</td>
-            <td><span class="status-badge pending">Pending</span></td>
+            <td data-label="Date">May 15, 2025</td>
+            <td data-label="Description">Purchase #987</td>
+            <td data-label="Points" class="points-pending">+250</td>
+            <td data-label="Status"><span class="status-badge pending">Pending</span></td>
           </tr>
           <tr>
-            <td>May 10, 2025</td>
-            <td>Product Review</td>
-            <td class="points-earned">+50</td>
-            <td><span class="status-badge">Completed</span></td>
+            <td data-label="Date">May 10, 2025</td>
+            <td data-label="Description">Product Review</td>
+            <td data-label="Points" class="points-earned">+50</td>
+            <td data-label="Status"><span class="status-badge">Completed</span></td>
           </tr>
           <tr>
-            <td>May 5, 2025</td>
-            <td>Purchase #965</td>
-            <td class="points-earned">+250</td>
-            <td><span class="status-badge">Completed</span></td>
+            <td data-label="Date">May 5, 2025</td>
+            <td data-label="Description">Purchase #965</td>
+            <td data-label="Points" class="points-earned">+250</td>
+            <td data-label="Status"><span class="status-badge">Completed</span></td>
           </tr>
         </tbody>
       </table>

@@ -1,0 +1,251 @@
+<div class="who-we-serve">
+  <div class="page-width">
+    <div class="who-we-serve__content">
+      {% if section.settings.heading != blank %}
+        <h2 class="who-we-serve__heading">{{ section.settings.heading }}</h2>
+      {% endif %}
+      
+      {% if section.settings.subheading != blank %}
+        <p class="who-we-serve__subheading">{{ section.settings.subheading }}</p>
+      {% endif %}
+      
+      <div class="who-we-serve__grid">
+        {% for block in section.blocks %}
+          <div class="who-we-serve__item" {{ block.shopify_attributes }}>
+            {% if block.settings.icon != blank %}
+              <div class="who-we-serve__icon">
+                {{ block.settings.icon | image_url: width: 100 | image_tag: alt: block.settings.title }}
+              </div>
+            {% endif %}
+            
+            {% if block.settings.title != blank %}
+              <h2 class="who-we-serve__item-title">{{ block.settings.title }}</h2>
+            {% endif %}
+            
+            {% if block.settings.description != blank %}
+              <p class="who-we-serve__item-description">{{ block.settings.description }}</p>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .who-we-serve {
+    padding: 5rem 0;
+    margin-top: 150px;
+  }
+  
+  .who-we-serve__content {
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  
+  .who-we-serve__heading {
+    font-size: 4rem !important;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+  }
+  
+  .who-we-serve__subheading {
+    font-size: 2rem;
+    color: #6c757d;
+    margin-bottom: 3rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+  }
+  
+  .who-we-serve__grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+  
+  .who-we-serve__item {
+    flex: 0 0 calc(33.333% - 2rem);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 1.5rem 1rem;
+  }
+  
+  .who-we-serve__icon {
+    width: 140px;
+    height: 140px;
+    margin: 0 auto 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .who-we-serve__icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  
+  .who-we-serve__item-title {
+    font-size: 2.75rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+  }
+  
+  .who-we-serve__item-description {
+    font-size: 2rem;
+    color: #6c757d;
+    line-height: 1.6;
+    margin: 0;
+  }
+  
+  /* Tablet styles */
+  @media screen and (max-width: 991px) {
+    .who-we-serve__item {
+      flex: 0 0 calc(50% - 1.5rem);
+    }
+    
+    .who-we-serve__heading {
+      font-size: 3rem !important;
+    }
+    
+    .who-we-serve__subheading {
+      font-size: 1.5rem;
+    }
+  }
+  
+  /* Mobile styles */
+  @media screen and (max-width: 767px) {
+    .who-we-serve {
+      padding: 3rem 1rem;
+    }
+    
+    .who-we-serve__heading {
+      font-size: 2.5rem !important;
+    }
+    
+    .who-we-serve__subheading {
+      font-size: 1rem;
+      margin-bottom: 2rem;
+      max-width: 80%;
+    }
+    
+    .who-we-serve__grid {
+      gap: 1.5rem;
+      max-width: 90%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .who-we-serve__item {
+      flex: 0 0 calc(50% - 1rem);
+      padding: 0.5rem;
+    }
+    
+    .who-we-serve__item:last-child {
+      flex: 0 0 50%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .who-we-serve__icon {
+      width: 70px;
+      height: 70px;
+      margin-bottom: 0.8rem;
+    }
+    
+    .who-we-serve__item-title {
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
+      font-weight: bold;
+    }
+    
+    .who-we-serve__item-description {
+      font-size: 1rem;
+      line-height: 1.4;
+      min-width: 50%;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Who We Serve",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "default": "Who We Serve",
+      "label": "Heading"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "default": "Empowering pest control professionals with reliable tools, expert support, and innovative products—since 2008.",
+      "label": "Subheading"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "service_item",
+      "name": "Service Item",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "icon",
+          "label": "Icon"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Description"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Who We Serve",
+      "category": "Custom",
+      "blocks": [
+        {
+          "type": "service_item",
+          "settings": {
+            "title": "Pest Control Companies",
+            "description": "Access to trusted chemicals, equipment, and expert technical support for every job."
+          }
+        },
+        {
+          "type": "service_item",
+          "settings": {
+            "title": "Public Health & Government",
+            "description": "Solutions for municipality pest programs, hygiene standards, and public health safety."
+          }
+        },
+        {
+          "type": "service_item",
+          "settings": {
+            "title": "Facility & Property Managers",
+            "description": "Professional-grade tools to protect commercial properties, hotels, and communities."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
